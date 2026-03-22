@@ -13,3 +13,9 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: TWILIO_SID
+        sync: false
+      - key: TWILIO_AUTH
+        sync: false
+      - key: TWILIO_PHONE
+        sync: false

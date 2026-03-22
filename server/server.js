@@ -7,6 +7,10 @@ dotenv.config();
 
 import db from './db.js';
 import { runIngestion } from './ingestion.js';
+import { scoreAllSources, assignTier } from './scoring.js';
+import { scanGame } from './anomaly.js';
+import { generateConsensus, generateAllConsensus } from './consensus.js';
+import { initTwilio, getTwilioStatus, sendConsensusAlert, sendAnomalyAlert, sendDailySummary } from './notifications.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -158,6 +162,141 @@ app.post('/api/ingest', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════
+//  ML PIPELINE (Score → Detect → Consensus)
+// ═══════════════════════════════════════════
+app.post('/api/pipeline', async (req, res) => {
+  try {
+    console.log('🧠 Running full ML pipeline...');
+    const startTime = Date.now();
+
+    // 1. Get all data
+    const games = await db.getActiveGames();
+    const sources = await db.getSources();
+    const allAnomalies = [];
+    const consensusList = [];
+
+    // 2. For each game: detect anomalies → calculate integrity → generate consensus
+    for (const game of games) {
+      const snapshots = await db.getSnapshotsForGame(game.id);
+      const scan = scanGame(game.id, snapshots, sources);
+
+      // Store anomalies
+      for (const anomaly of scan.anomalies) {
+        try {
+          await db.insertAnomaly(anomaly);
+        } catch (e) { /* dupe ok */ }
+      }
+      allAnomalies.push(...scan.anomalies);
+
+      // Generate consensus
+      const gameWithIntegrity = { ...game, integrity_score: scan.integrity };
+      const consensus = generateConsensus(gameWithIntegrity, snapshots, sources, scan.anomalies);
+      try {
+        await db.insertConsensus(consensus);
+      } catch (e) { /* ok */ }
+      consensusList.push(consensus);
+    }
+
+    const duration = Date.now() - startTime;
+    console.log(`✅ Pipeline complete: ${games.length} games, ${allAnomalies.length} anomalies, ${consensusList.length} consensus in ${duration}ms`);
+
+    res.json({
+      status: 'complete',
+      games: games.length,
+      anomalies: allAnomalies.length,
+      consensus: consensusList.length,
+      duration_ms: duration
+    });
+  } catch (err) {
+    console.error('POST /api/pipeline error:', err);
+    res.status(500).json({ error: 'Pipeline failed', message: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════
+//  ANOMALIES
+// ═══════════════════════════════════════════
+app.get('/api/anomalies', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM anomalies WHERE NOT resolved ORDER BY detected_at DESC LIMIT 50');
+    res.json({ anomalies: rows, count: rows.length });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch anomalies' });
+  }
+});
+
+// ═══════════════════════════════════════════
+//  CONSENSUS
+// ═══════════════════════════════════════════
+app.get('/api/consensus', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM consensus ORDER BY generated_at DESC LIMIT 50');
+    res.json({ predictions: rows, count: rows.length });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch consensus' });
+  }
+});
+
+// ═══════════════════════════════════════════
+//  TWILIO NOTIFICATIONS
+// ═══════════════════════════════════════════
+app.get('/api/notifications/status', (req, res) => {
+  res.json(getTwilioStatus());
+});
+
+app.post('/api/notifications/consensus', async (req, res) => {
+  try {
+    const { phone, game_id } = req.body;
+    if (!phone || !game_id) return res.status(400).json({ error: 'phone and game_id required' });
+
+    const { rows } = await db.query('SELECT * FROM games WHERE id = $1', [game_id]);
+    if (!rows.length) return res.status(404).json({ error: 'Game not found' });
+
+    const games = await db.getActiveGames();
+    const game = games.find(g => g.id === game_id) || rows[0];
+
+    const consensus = game.confidence != null ? game : {
+      home_likelihood: game.home_likelihood || 50,
+      away_likelihood: game.away_likelihood || 50,
+      confidence: game.confidence || 0,
+      integrity: game.integrity || 100,
+      house_lean: game.house_lean || false,
+      reasoning: game.reasoning || 'No analysis available'
+    };
+
+    const result = await sendConsensusAlert(phone, game, consensus);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to send alert', message: err.message });
+  }
+});
+
+app.post('/api/notifications/daily', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ error: 'phone required' });
+
+    const games = await db.getActiveGames();
+    const sources = await db.getSources();
+    const { rows: anomalies } = await db.query('SELECT COUNT(*) FROM anomalies WHERE NOT resolved');
+
+    const topSource = sources[0] || { name: 'N/A', accuracy_30d: 0 };
+    const highConf = games.filter(g => g.confidence >= 70);
+
+    const result = await sendDailySummary(phone, {
+      gameCount: games.length,
+      topSource: topSource.name,
+      topAccuracy: topSource.accuracy_30d,
+      anomalyCount: parseInt(anomalies[0]?.count || 0),
+      highConfCount: highConf.length
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to send summary', message: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════
 //  SCHEDULED INGESTION
 // ═══════════════════════════════════════════
 const INTERVAL = (parseInt(process.env.INGESTION_INTERVAL_MINUTES) || 15) * 60 * 1000;
@@ -200,4 +339,7 @@ app.listen(PORT, () => {
     console.log('⚠️  No ODDS_API_KEY set — running in demo mode');
     console.log('   Set ODDS_API_KEY in .env to enable live data');
   }
+
+  // Initialize Twilio
+  initTwilio();
 });
