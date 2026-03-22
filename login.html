@@ -1,0 +1,269 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — LumeLine</title>
+  <meta name="description" content="Sign in or create your LumeLine account. Track odds, submit picks, and join the odds intelligence community.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',system-ui,sans-serif;background:#030712;color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center}
+    .login-wrap{width:100%;max-width:420px;padding:24px}
+    .logo{font-size:28px;font-weight:900;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .logo-sub{text-align:center;font-size:11px;color:rgba(255,255,255,.2);margin-bottom:36px}
+    .glass{background:rgba(12,18,36,.6);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:32px;margin-bottom:20px}
+    .tabs{display:flex;gap:4px;margin-bottom:28px;background:rgba(255,255,255,.03);border-radius:12px;padding:3px}
+    .tab{flex:1;text-align:center;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;color:rgba(255,255,255,.3);transition:all .25s}
+    .tab.active{background:rgba(6,182,212,.1);color:#67e8f9;border:1px solid rgba(6,182,212,.2)}
+    label{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+    input{width:100%;padding:12px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-size:14px;font-family:inherit;outline:none;transition:all .25s;margin-bottom:16px}
+    input:focus{border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.03);box-shadow:0 0 16px rgba(6,182,212,.08)}
+    input::placeholder{color:rgba(255,255,255,.15)}
+    .btn{width:100%;padding:14px;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s;font-family:inherit}
+    .btn-primary{background:linear-gradient(135deg,#06b6d4,#3b82f6);color:#fff;box-shadow:0 0 24px rgba(6,182,212,.15)}
+    .btn-primary:hover{box-shadow:0 0 40px rgba(6,182,212,.25);transform:translateY(-1px)}
+    .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .btn-bio{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);color:#c4b5fd;margin-top:12px}
+    .btn-bio:hover{background:rgba(168,85,247,.15)}
+    .divider{display:flex;align-items:center;gap:12px;margin:20px 0;font-size:10px;color:rgba(255,255,255,.15);text-transform:uppercase;letter-spacing:.1em}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.05)}
+    .otp-inputs{display:flex;gap:8px;margin-bottom:20px}
+    .otp-inputs input{width:44px;height:52px;text-align:center;font-size:20px;font-weight:800;padding:0;margin:0;letter-spacing:0}
+    .msg{padding:12px 16px;border-radius:12px;font-size:12px;margin-bottom:16px;display:none}
+    .msg-ok{display:block;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);color:#6ee7b7}
+    .msg-err{display:block;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.15);color:#fca5a5}
+    .back-link{text-align:center;margin-top:16px}
+    .back-link a{color:rgba(255,255,255,.2);font-size:12px;text-decoration:none;transition:color .2s}
+    .back-link a:hover{color:#67e8f9}
+    .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    #step-verify,#step-success{display:none}
+  </style>
+</head><body>
+  <div class="login-wrap">
+    <div class="logo">LumeLine</div>
+    <div class="logo-sub">Odds Intelligence · Trust Layer</div>
+
+    <!-- Step 1: Contact Info -->
+    <div id="step-contact" class="glass">
+      <div class="tabs">
+        <div class="tab active" onclick="switchMode('signup')">Sign Up</div>
+        <div class="tab" onclick="switchMode('login')">Log In</div>
+      </div>
+
+      <div id="msg" class="msg"></div>
+
+      <div id="name-field">
+        <label>Your Name</label>
+        <input type="text" id="name" placeholder="e.g. Mathew">
+      </div>
+
+      <div class="tabs" style="margin-bottom:16px">
+        <div class="tab active" id="tab-phone" onclick="switchContact('phone')">📱 Phone</div>
+        <div class="tab" id="tab-email" onclick="switchContact('email')">📧 Email</div>
+      </div>
+
+      <div id="phone-field">
+        <label>Phone Number</label>
+        <input type="tel" id="phone" placeholder="+1 (555) 123-4567">
+      </div>
+      <div id="email-field" style="display:none">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com">
+      </div>
+
+      <button class="btn btn-primary" id="btn-send" onclick="sendOTP()">Send Verification Code</button>
+
+      <div class="divider">or</div>
+      <button class="btn btn-bio" onclick="startBiometric()">🔐 Use Biometrics</button>
+    </div>
+
+    <!-- Step 2: OTP Verification -->
+    <div id="step-verify" class="glass">
+      <label style="text-align:center;display:block;margin-bottom:16px;color:rgba(255,255,255,.4);font-size:13px;text-transform:none;letter-spacing:0">Enter the 6-digit code sent to <strong id="verify-contact" style="color:#67e8f9"></strong></label>
+      <div id="verify-msg" class="msg"></div>
+      <div class="otp-inputs" id="otp-inputs">
+        <input type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,0)">
+        <input type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,1)">
+        <input type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,2)">
+        <input type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,3)">
+        <input type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,4)">
+        <input type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,5)">
+      </div>
+      <button class="btn btn-primary" id="btn-verify" onclick="verifyOTP()">Verify & Sign In</button>
+      <div class="back-link"><a href="#" onclick="backToContact()">← Back</a></div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div id="step-success" class="glass" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:16px">✅</div>
+      <div style="font-size:18px;font-weight:800;margin-bottom:8px" id="greeting"></div>
+      <div style="font-size:13px;color:rgba(255,255,255,.3);margin-bottom:24px">Welcome to LumeLine. Redirecting to your dashboard...</div>
+    </div>
+
+    <div class="back-link"><a href="/">← Back to Dashboard</a></div>
+  </div>
+
+  <script>
+    let mode = 'signup'; // or 'login'
+    let contactType = 'phone';
+    let pendingContact = '';
+
+    function switchMode(m) {
+      mode = m;
+      document.querySelectorAll('#step-contact > .tabs:first-child .tab').forEach((t, i) => {
+        t.classList.toggle('active', (m === 'signup' && i === 0) || (m === 'login' && i === 1));
+      });
+      document.getElementById('name-field').style.display = m === 'signup' ? '' : 'none';
+      document.getElementById('btn-send').textContent = m === 'signup' ? 'Send Verification Code' : 'Send Login Code';
+      clearMsg();
+    }
+
+    function switchContact(type) {
+      contactType = type;
+      document.getElementById('tab-phone').classList.toggle('active', type === 'phone');
+      document.getElementById('tab-email').classList.toggle('active', type === 'email');
+      document.getElementById('phone-field').style.display = type === 'phone' ? '' : 'none';
+      document.getElementById('email-field').style.display = type === 'email' ? '' : 'none';
+    }
+
+    function showMsg(el, text, ok) {
+      el.textContent = text;
+      el.className = 'msg ' + (ok ? 'msg-ok' : 'msg-err');
+    }
+    function clearMsg() {
+      document.getElementById('msg').className = 'msg';
+      document.getElementById('msg').textContent = '';
+    }
+
+    async function sendOTP() {
+      const btn = document.getElementById('btn-send');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        const body = {};
+        if (contactType === 'phone') {
+          body.phone = document.getElementById('phone').value;
+          pendingContact = body.phone;
+        } else {
+          body.email = document.getElementById('email').value;
+          pendingContact = body.email;
+        }
+
+        if (mode === 'signup') {
+          body.name = document.getElementById('name').value;
+          if (!body.name) throw new Error('Name is required');
+        }
+
+        const endpoint = mode === 'signup' ? '/api/auth/signup' : '/api/auth/login';
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          // If account exists during signup, switch to login
+          if (data.existing) {
+            switchMode('login');
+            showMsg(document.getElementById('msg'), 'Account exists! Switched to login mode. Try again.', false);
+            btn.disabled = false;
+            btn.textContent = 'Send Login Code';
+            return;
+          }
+          throw new Error(data.error || 'Request failed');
+        }
+
+        // Show OTP step
+        document.getElementById('step-contact').style.display = 'none';
+        document.getElementById('step-verify').style.display = '';
+        document.getElementById('verify-contact').textContent = pendingContact;
+        document.getElementById('otp-inputs').querySelectorAll('input')[0].focus();
+
+      } catch (err) {
+        showMsg(document.getElementById('msg'), err.message, false);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = mode === 'signup' ? 'Send Verification Code' : 'Send Login Code';
+      }
+    }
+
+    function otpNext(input, idx) {
+      if (input.value && idx < 5) {
+        document.getElementById('otp-inputs').querySelectorAll('input')[idx + 1].focus();
+      }
+      // Auto-verify when all 6 filled
+      const inputs = document.getElementById('otp-inputs').querySelectorAll('input');
+      const code = Array.from(inputs).map(i => i.value).join('');
+      if (code.length === 6) verifyOTP();
+    }
+
+    async function verifyOTP() {
+      const inputs = document.getElementById('otp-inputs').querySelectorAll('input');
+      const code = Array.from(inputs).map(i => i.value).join('');
+      if (code.length !== 6) {
+        showMsg(document.getElementById('verify-msg'), 'Enter all 6 digits', false);
+        return;
+      }
+
+      const btn = document.getElementById('btn-verify');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        const res = await fetch('/api/auth/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contact: pendingContact, code })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Verification failed');
+
+        // Store token
+        localStorage.setItem('lumeline_token', data.token);
+        localStorage.setItem('lumeline_user', JSON.stringify(data.user));
+
+        // Show success
+        document.getElementById('step-verify').style.display = 'none';
+        document.getElementById('step-success').style.display = '';
+
+        // Time-based greeting
+        const hour = new Date().getHours();
+        const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        document.getElementById('greeting').textContent = `${greeting}, ${data.user.display_name}! 👋`;
+
+        // Redirect
+        setTimeout(() => { window.location.href = '/dashboard.html'; }, 2000);
+
+      } catch (err) {
+        showMsg(document.getElementById('verify-msg'), err.message, false);
+        btn.disabled = false;
+        btn.textContent = 'Verify & Sign In';
+      }
+    }
+
+    function backToContact() {
+      document.getElementById('step-contact').style.display = '';
+      document.getElementById('step-verify').style.display = 'none';
+    }
+
+    async function startBiometric() {
+      // WebAuthn biometric login — requires enrolled passkey
+      if (!window.PublicKeyCredential) {
+        showMsg(document.getElementById('msg'), 'Biometric authentication not supported by this browser', false);
+        return;
+      }
+      showMsg(document.getElementById('msg'), 'Biometric login requires an enrolled passkey. Sign in with phone/email first, then enable biometrics from your dashboard.', false);
+    }
+
+    // Check if already logged in
+    const existing = localStorage.getItem('lumeline_token');
+    if (existing) {
+      fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + existing } })
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(() => { window.location.href = '/dashboard.html'; })
+        .catch(() => { localStorage.removeItem('lumeline_token'); localStorage.removeItem('lumeline_user'); });
+    }
+  </script>
+</body></html>

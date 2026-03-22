@@ -11,6 +11,7 @@ import { scoreAllSources, assignTier } from './scoring.js';
 import { scanGame } from './anomaly.js';
 import { generateConsensus, generateAllConsensus } from './consensus.js';
 import { initTwilio, getTwilioStatus, sendConsensusAlert, sendAnomalyAlert, sendDailySummary } from './notifications.js';
+import authRouter, { requireAuth } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -19,6 +20,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..')));
+
+// Auth routes
+app.use('/api/auth', authRouter);
 
 // ═══════════════════════════════════════════
 //  HEALTH

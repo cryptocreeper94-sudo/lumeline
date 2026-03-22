@@ -187,3 +187,66 @@ INSERT INTO sources (name, slug, type, tier, accuracy_30d) VALUES
     ('Mathew', 'mathew', 'external', 'sharp', 71.0),
     ('Bet365', 'bet365', 'bookmaker', 'reliable', 59.0)
 ON CONFLICT (slug) DO NOTHING;
+
+-- ═══ USER ACCOUNTS ═══
+CREATE TABLE IF NOT EXISTS users (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    display_name    VARCHAR(128) NOT NULL,
+    email           VARCHAR(256) UNIQUE,
+    phone           VARCHAR(20) UNIQUE,
+    avatar_url      TEXT,
+    verified        BOOLEAN DEFAULT FALSE,
+    preferences     JSONB DEFAULT '{}',
+    created_at      TIMESTAMPTZ DEFAULT NOW(),
+    last_login      TIMESTAMPTZ
+);
+
+-- ═══ SESSIONS ═══
+CREATE TABLE IF NOT EXISTS sessions (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash      VARCHAR(128) NOT NULL,
+    expires_at      TIMESTAMPTZ NOT NULL,
+    created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═══ WEBAUTHN PASSKEYS ═══
+CREATE TABLE IF NOT EXISTS passkeys (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    credential_id   TEXT NOT NULL UNIQUE,
+    public_key      TEXT NOT NULL,
+    counter         BIGINT DEFAULT 0,
+    device_name     VARCHAR(128),
+    created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═══ USER PICKS ═══
+CREATE TABLE IF NOT EXISTS user_picks (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    game_id         UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    pick_side       VARCHAR(16) NOT NULL,
+    confidence      INTEGER DEFAULT 50,
+    result          VARCHAR(16),
+    submitted_at    TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, game_id)
+);
+
+-- ═══ OTP CODES ═══
+CREATE TABLE IF NOT EXISTS otp_codes (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    contact         VARCHAR(256) NOT NULL,
+    code            VARCHAR(6) NOT NULL,
+    type            VARCHAR(10) NOT NULL DEFAULT 'sms',
+    expires_at      TIMESTAMPTZ NOT NULL,
+    used            BOOLEAN DEFAULT FALSE,
+    created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_passkeys_user ON passkeys(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_picks_user ON user_picks(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_picks_game ON user_picks(game_id);
+CREATE INDEX IF NOT EXISTS idx_otp_contact ON otp_codes(contact);

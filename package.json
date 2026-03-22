@@ -16,6 +16,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "pg": "^8.13.0",
+    "resend": "^4.1.0",
     "twilio": "^5.4.0"
   },
   "keywords": ["odds", "sports", "betting", "intelligence", "transparency", "trust-layer", "lume"],

@@ -1,0 +1,220 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard — LumeLine</title>
+  <meta name="description" content="Your personal LumeLine dashboard. Track picks, view accuracy, and manage your account.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',system-ui,sans-serif;background:#030712;color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}
+    .mx{max-width:1200px;margin:0 auto;padding:0 24px}
+    .glass{background:rgba(12,18,36,.6);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:28px;margin-bottom:20px}
+    .grad-text{background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .greeting{font-size:2rem;font-weight:900;letter-spacing:-.03em;margin-bottom:4px}
+    .greeting-sub{font-size:13px;color:rgba(255,255,255,.25);margin-bottom:32px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+    .stat{text-align:center;padding:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:16px;transition:all .25s}
+    .stat:hover{border-color:rgba(6,182,212,.15);background:rgba(6,182,212,.03)}
+    .stat .val{font-size:28px;font-weight:900;display:block;margin-bottom:4px}
+    .stat .lbl{font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+    .section-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .pick{display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:14px;border-bottom:1px solid rgba(255,255,255,.03);transition:all .2s}
+    .pick:hover{background:rgba(255,255,255,.02)}
+    .pick-teams{font-size:14px;font-weight:700;flex:1}
+    .pick-side{font-size:11px;padding:4px 12px;border-radius:8px;font-weight:700}
+    .pick-win{background:rgba(16,185,129,.1);color:#6ee7b7;border:1px solid rgba(16,185,129,.15)}
+    .pick-loss{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.15)}
+    .pick-pending{background:rgba(255,255,255,.04);color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.06)}
+    .pick-conf{font-size:12px;font-weight:800;width:40px;text-align:right}
+    .pick-time{font-size:10px;color:rgba(255,255,255,.15);width:80px;text-align:right}
+    .settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+    .settings-row:last-child{border:none}
+    .settings-label{font-size:13px;font-weight:600}
+    .settings-desc{font-size:11px;color:rgba(255,255,255,.2);margin-top:2px}
+    .btn-sm{padding:8px 20px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+    .btn-cyan{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);color:#67e8f9}
+    .btn-cyan:hover{background:rgba(6,182,212,.18)}
+    .btn-red{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.15);color:#fca5a5}
+    .btn-red:hover{background:rgba(239,68,68,.15)}
+    .btn-purple{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.15);color:#c4b5fd}
+    .btn-purple:hover{background:rgba(168,85,247,.15)}
+    .empty{text-align:center;padding:40px;color:rgba(255,255,255,.15);font-size:13px}
+    #loading{display:flex;align-items:center;justify-content:center;min-height:60vh}
+    .spinner{width:32px;height:32px;border:3px solid rgba(6,182,212,.1);border-top-color:#67e8f9;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:768px){.grid{grid-template-columns:1fr 1fr}.greeting{font-size:1.5rem}.stat .val{font-size:22px}}
+    @media(max-width:480px){.grid{grid-template-columns:1fr}.pick{flex-wrap:wrap;gap:8px}.pick-time{width:auto}}
+  </style>
+</head><body>
+  <div id="loading"><div class="spinner"></div></div>
+
+  <div id="dashboard" style="display:none">
+    <div style="padding-top:20px"></div>
+    <div class="mx">
+      <!-- Greeting -->
+      <div id="greeting" class="greeting grad-text"></div>
+      <div id="greeting-sub" class="greeting-sub"></div>
+
+      <!-- Stats -->
+      <div class="grid" id="stats-grid">
+        <div class="stat"><span class="val" style="color:#6ee7b7" id="s-wins">—</span><span class="lbl">Wins</span></div>
+        <div class="stat"><span class="val" style="color:#fca5a5" id="s-losses">—</span><span class="lbl">Losses</span></div>
+        <div class="stat"><span class="val" style="color:#67e8f9" id="s-accuracy">—</span><span class="lbl">Accuracy</span></div>
+        <div class="stat"><span class="val" style="color:#a78bfa" id="s-streak">—</span><span class="lbl">Streak</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <!-- My Picks -->
+        <div class="glass">
+          <div class="section-title">🎯 My Picks</div>
+          <div id="picks-list"><div class="empty">No picks yet. Head to the <a href="/" style="color:#67e8f9;text-decoration:none">dashboard</a> to make your first pick!</div></div>
+        </div>
+
+        <!-- Settings -->
+        <div class="glass">
+          <div class="section-title">⚙️ Settings</div>
+
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Display Name</div>
+              <div class="settings-desc" id="set-name">—</div>
+            </div>
+            <button class="btn-sm btn-cyan" onclick="editName()">Edit</button>
+          </div>
+
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">🔐 Biometric Login</div>
+              <div class="settings-desc" id="set-bio">Not enrolled</div>
+            </div>
+            <button class="btn-sm btn-purple" onclick="enrollBiometric()">Enable</button>
+          </div>
+
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">📱 Contact</div>
+              <div class="settings-desc" id="set-contact">—</div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">📅 Member Since</div>
+              <div class="settings-desc" id="set-since">—</div>
+            </div>
+          </div>
+
+          <div class="settings-row" style="border:none;padding-top:20px">
+            <div></div>
+            <button class="btn-sm btn-red" onclick="logout()">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    const token = localStorage.getItem('lumeline_token');
+    if (!token) { window.location.href = '/login.html'; }
+
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (!res.ok) {
+          localStorage.removeItem('lumeline_token');
+          localStorage.removeItem('lumeline_user');
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const data = await res.json();
+        const user = data.user;
+        const stats = data.stats;
+        const picks = data.picks;
+        const passkeys = data.passkeys;
+
+        // Time-based greeting
+        const hour = new Date().getHours();
+        const emoji = hour < 12 ? '☀️' : hour < 17 ? '🌤️' : '🌙';
+        const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        document.getElementById('greeting').textContent = `${greeting}, ${user.display_name}! ${emoji}`;
+        document.getElementById('greeting-sub').textContent = `Welcome back to LumeLine · ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`;
+
+        // Stats
+        document.getElementById('s-wins').textContent = stats.wins;
+        document.getElementById('s-losses').textContent = stats.losses;
+        document.getElementById('s-accuracy').textContent = stats.accuracy + '%';
+        const streakText = stats.streak > 0 ? `🔥 ${stats.streak}W` : stats.streak < 0 ? `${Math.abs(stats.streak)}L` : '—';
+        document.getElementById('s-streak').textContent = streakText;
+
+        // Picks
+        if (picks.length) {
+          document.getElementById('picks-list').innerHTML = picks.map(p => {
+            const resultClass = p.result === 'win' ? 'pick-win' : p.result === 'loss' ? 'pick-loss' : 'pick-pending';
+            const resultText = p.result || 'pending';
+            const time = new Date(p.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const teams = p.home_team && p.away_team ? `${p.away_team} @ ${p.home_team}` : 'Game';
+            return `<div class="pick">
+              <div class="pick-teams">${teams}</div>
+              <span class="pick-side ${resultClass}">${p.pick_side} · ${resultText}</span>
+              <span class="pick-conf" style="color:${p.confidence >= 70 ? '#67e8f9' : 'rgba(255,255,255,.3)'}">${p.confidence}%</span>
+              <span class="pick-time">${time}</span>
+            </div>`;
+          }).join('');
+        }
+
+        // Settings
+        document.getElementById('set-name').textContent = user.display_name;
+        document.getElementById('set-contact').textContent = user.phone || user.email || '—';
+        document.getElementById('set-since').textContent = new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('set-bio').textContent = passkeys.length ? `${passkeys.length} passkey(s) enrolled` : 'Not enrolled';
+
+        // Show dashboard
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('dashboard').style.display = '';
+
+      } catch (err) {
+        console.error('Dashboard load error:', err);
+        window.location.href = '/login.html';
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+      } catch {}
+      localStorage.removeItem('lumeline_token');
+      localStorage.removeItem('lumeline_user');
+      window.location.href = '/login.html';
+    }
+
+    function editName() {
+      const newName = prompt('Enter new display name:');
+      if (!newName) return;
+      fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ display_name: newName })
+      }).then(r => r.json()).then(() => {
+        document.getElementById('set-name').textContent = newName;
+        document.getElementById('greeting').textContent = document.getElementById('greeting').textContent.replace(/,.*!/, `, ${newName}!`);
+      });
+    }
+
+    async function enrollBiometric() {
+      if (!window.PublicKeyCredential) {
+        alert('Biometric authentication not supported by this browser');
+        return;
+      }
+      alert('Passkey enrollment will be available in v0.2.0. Your account is secured with OTP verification.');
+    }
+
+    loadDashboard();
+  </script>
+</body></html>
