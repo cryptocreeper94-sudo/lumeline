@@ -1,0 +1,30 @@
+/// ═══════════════════════════════════════════════════════════
+///  LumeLine — App Entry Point
+///  Initializes the dashboard and connects all modules.
+///  Compile: lume build src/app.lume --target=browser
+/// ═══════════════════════════════════════════════════════════
+
+show "✦ LumeLine v0.1.0 — Odds Intelligence Platform"
+show "  Part of the Trust Layer Ecosystem"
+show "  Built with Lume · DarkWave Studios"
+show ""
+
+/// --- Load Modules ---
+// In production these would be proper imports
+// For now, the dashboard renders with demo data
+
+/// --- Render Dashboard ---
+show "  🎨 Rendering dashboard..."
+// The dashboard.lume file handles all UI rendering via dom.* APIs
+
+/// --- Start Ingestion (if API key is set) ---
+// let api_key = env.get("ODDS_API_KEY")
+// if api_key is not "":
+//     show "  📡 Starting odds ingestion..."
+//     run_ingestion(api_key)
+
+show "  ✅ LumeLine is live!"
+show ""
+show "  📊 Dashboard: http://localhost:3000"
+show "  🔌 API: http://localhost:3000/api"
+show ""

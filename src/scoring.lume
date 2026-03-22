@@ -1,0 +1,179 @@
+/// ═══════════════════════════════════════════════════════════
+///  LumeLine — Oddsmaker Scoring Engine
+///  Tracks each source's accuracy over time, calculates
+///  rolling metrics, and auto-tiers sources.
+/// ═══════════════════════════════════════════════════════════
+
+/// --- Tier Thresholds ---
+define SHARP_THRESHOLD = 65       // 65%+ hit rate = sharp
+define RELIABLE_THRESHOLD = 55    // 55%+ = reliable
+define NEUTRAL_THRESHOLD = 48     // 48%+ = neutral
+                                  // below 48% = fade material
+
+/// --- Calculate Hit Rate ---
+define calculate_hit_rate(picks, results):
+    if list.count(picks) == 0:
+        return 0
+    
+    let correct = 0
+    for each pick in picks:
+        let result = list.find(results, r -> r.game_id == pick.game_id)
+        if result is not null:
+            let won = evaluate_pick(pick, result)
+            if won:
+                set correct = correct + 1
+    
+    return math.round(correct / list.count(picks) * 100)
+
+/// --- Evaluate a Single Pick Against Result ---
+define evaluate_pick(pick, result):
+    let actual_diff = result.home_score - result.away_score
+    
+    if pick.market == "spread":
+        // Home team covered if actual_diff + line > 0
+        return (actual_diff + pick.line) > 0
+    
+    if pick.market == "moneyline":
+        if pick.odds > 0:
+            return actual_diff > 0   // picked home
+        return actual_diff < 0       // picked away
+    
+    if pick.market == "total":
+        let total = result.home_score + result.away_score
+        return total > pick.line     // over
+    
+    return false
+
+/// --- Calculate Closing Line Value ---
+define calculate_clv(source_id, snapshots):
+    // CLV = did their early line represent value vs. closing?
+    let early_snaps = list.filter(snapshots, s -> s.source_id == source_id and s.time_to_game > 120)
+    let closing_snaps = list.filter(snapshots, s -> s.source_id == source_id and s.time_to_game < 15)
+    
+    if list.count(early_snaps) == 0 or list.count(closing_snaps) == 0:
+        return 0
+    
+    let total_clv = 0
+    let count = 0
+    for each early in early_snaps:
+        let closing = list.find(closing_snaps, c -> c.game_id == early.game_id and c.market == early.market)
+        if closing is not null:
+            set total_clv = total_clv + math.abs(closing.line - early.line)
+            set count = count + 1
+    
+    if count == 0:
+        return 0
+    return math.round(total_clv / count * 100) / 100
+
+/// --- Calculate Consistency Score ---
+define calculate_consistency(source_id, snapshots):
+    // How often does this source flip positions on the same game?
+    let games = list.unique(list.map(snapshots, s -> s.game_id))
+    let flips = 0
+    let total = 0
+    
+    for each game_id in games:
+        let game_snaps = list.filter(snapshots, s -> s.source_id == source_id and s.game_id == game_id)
+        let game_snaps_sorted = list.sort(game_snaps, s -> s.timestamp)
+        
+        if list.count(game_snaps_sorted) > 1:
+            set total = total + 1
+            let prev_line = list.first(game_snaps_sorted).line
+            for each snap in game_snaps_sorted:
+                // If line sign changed, it's a flip
+                if (snap.line > 0 and prev_line < 0) or (snap.line < 0 and prev_line > 0):
+                    set flips = flips + 1
+                set prev_line = snap.line
+    
+    if total == 0:
+        return 100  // perfect consistency (no data)
+    return math.round((1 - flips / total) * 100)
+
+/// --- Calculate Timing Score ---
+define calculate_timing(source_id, snapshots, all_snapshots):
+    // How early does this source move compared to others?
+    let source_first_moves = []
+    let games = list.unique(list.map(snapshots, s -> s.game_id))
+    
+    let early_count = 0
+    for each game_id in games:
+        let source_snap = list.find(snapshots, s -> s.source_id == source_id and s.game_id == game_id)
+        let all_game_snaps = list.filter(all_snapshots, s -> s.game_id == game_id)
+        let earliest = list.first(list.sort(all_game_snaps, s -> s.timestamp))
+        
+        if source_snap is not null and earliest is not null:
+            if source_snap.timestamp == earliest.timestamp:
+                set early_count = early_count + 1
+    
+    if list.count(games) == 0:
+        return 50
+    return math.round(early_count / list.count(games) * 100)
+
+/// --- Auto-Tier a Source ---
+define assign_tier(hit_rate):
+    if hit_rate is at least SHARP_THRESHOLD:
+        return "sharp"
+    if hit_rate is at least RELIABLE_THRESHOLD:
+        return "reliable"
+    if hit_rate is at least NEUTRAL_THRESHOLD:
+        return "neutral"
+    return "fade"
+
+/// --- Build Full Source Profile ---
+define score_source(source_id, picks, results, snapshots, all_snapshots):
+    let hit_rate = calculate_hit_rate(picks, results)
+    let clv = calculate_clv(source_id, snapshots)
+    let consistency = calculate_consistency(source_id, snapshots)
+    let timing = calculate_timing(source_id, snapshots, all_snapshots)
+    let tier = assign_tier(hit_rate)
+    
+    return Source:
+        id: source_id
+        name: source_id
+        type: "bookmaker"
+        tier: tier
+        accuracy_30d: hit_rate
+        accuracy_90d: hit_rate
+        accuracy_365d: hit_rate
+        best_sport: "NFL"
+        clv_score: clv
+        consistency: consistency
+        timing_score: timing
+        total_picks: list.count(picks)
+        created: time.timestamp()
+
+/// --- Score All Sources ---
+define score_all_sources(sources, picks, results, snapshots):
+    let scored = []
+    for each source in sources:
+        let source_picks = list.filter(picks, p -> p.source_id == source.id)
+        let source_snaps = list.filter(snapshots, s -> s.source_id == source.id)
+        let profile = score_source(source.id, source_picks, results, source_snaps, snapshots)
+        set scored = scored + [profile]
+    
+    // Sort by accuracy (best first)
+    set scored = list.sort(scored, s -> 0 - s.accuracy_30d)
+    return scored
+
+/// --- Get Source Leaderboard ---
+define get_leaderboard(sources):
+    show "\n╔══════════════════════════════════════════════════╗"
+    show "║       ✦ LumeLine Source Leaderboard              ║"
+    show "╠══════════════════════════════════════════════════╣"
+    
+    let rank = 1
+    for each source in sources:
+        let tier_icon = ""
+        if source.tier == "sharp":
+            set tier_icon = "🔥"
+        if source.tier == "reliable":
+            set tier_icon = "✅"
+        if source.tier == "neutral":
+            set tier_icon = "➖"
+        if source.tier == "fade":
+            set tier_icon = "⚠️"
+        
+        show "║  {rank}. {tier_icon} {source.name} — {source.accuracy_30d}% ({source.tier})"
+        set rank = rank + 1
+    
+    show "╚══════════════════════════════════════════════════╝"

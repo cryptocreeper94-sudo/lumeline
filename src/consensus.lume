@@ -1,0 +1,195 @@
+/// ═══════════════════════════════════════════════════════════
+///  LumeLine — ML Consensus Engine
+///  Generates weighted consensus predictions using source
+///  accuracy, anomaly detection, and AI-powered analysis.
+///  Leans with the house when confidence is low.
+/// ═══════════════════════════════════════════════════════════
+
+/// --- Configuration ---
+define CONFIDENCE_THRESHOLD = 60    // below this = house lean
+define MIN_SOURCES_FOR_CONSENSUS = 3
+define SHARP_WEIGHT_MULTIPLIER = 2.5
+define RELIABLE_WEIGHT_MULTIPLIER = 1.5
+define NEUTRAL_WEIGHT_MULTIPLIER = 1.0
+define FADE_WEIGHT_MULTIPLIER = 0.3
+
+/// --- Get Weight for Source Tier ---
+define get_tier_weight(tier):
+    if tier == "sharp":
+        return SHARP_WEIGHT_MULTIPLIER
+    if tier == "reliable":
+        return RELIABLE_WEIGHT_MULTIPLIER
+    if tier == "neutral":
+        return NEUTRAL_WEIGHT_MULTIPLIER
+    return FADE_WEIGHT_MULTIPLIER
+
+/// --- Calculate Weighted Votes ---
+define calculate_weighted_votes(game_id, snapshots, sources):
+    let home_weight = 0
+    let away_weight = 0
+    let total_weight = 0
+    let voter_count = 0
+    
+    for each source in sources:
+        let source_snaps = list.filter(snapshots, s -> s.game_id == game_id and s.source_id == source.id and s.market == "spread")
+        
+        if list.count(source_snaps) > 0:
+            let latest = list.last(list.sort(source_snaps, s -> s.timestamp))
+            let tier_weight = get_tier_weight(source.tier)
+            let accuracy_weight = source.accuracy_30d / 100
+            let combined_weight = tier_weight * accuracy_weight
+            
+            if latest.line < 0:
+                // Favoring home team
+                set home_weight = home_weight + combined_weight
+            if latest.line > 0:
+                // Favoring away team
+                set away_weight = away_weight + combined_weight
+            
+            set total_weight = total_weight + combined_weight
+            set voter_count = voter_count + 1
+    
+    return {
+        home_weight: home_weight,
+        away_weight: away_weight,
+        total_weight: total_weight,
+        voter_count: voter_count
+    }
+
+/// --- Calculate Alignment Score ---
+define calculate_alignment(votes):
+    if votes.total_weight == 0:
+        return 0
+    
+    let dominant = math.max(votes.home_weight, votes.away_weight)
+    return math.round(dominant / votes.total_weight * 100)
+
+/// --- Calculate Confidence ---
+define calculate_confidence(alignment, integrity, voter_count):
+    // Base confidence from alignment
+    let base = alignment
+    
+    // Integrity penalty
+    let integrity_factor = integrity / 100
+    
+    // Voter count bonus (more voters = more confidence, diminishing returns)
+    let voter_factor = math.min(voter_count / 10, 1.0)
+    
+    let confidence = math.round(base * integrity_factor * voter_factor)
+    return math.min(confidence, 99)  // never 100% confident
+
+/// --- AI-Powered Analysis ---
+define generate_ai_reasoning(game, votes, anomalies, sources):
+    let sharp_sources = list.filter(sources, s -> s.tier == "sharp")
+    let sharp_direction = ""
+    
+    if votes.home_weight > votes.away_weight:
+        set sharp_direction = game.home_team
+    if votes.away_weight > votes.home_weight:
+        set sharp_direction = game.away_team
+    
+    let anomaly_count = list.count(anomalies)
+    let prompt = "Analyze this sports betting consensus for {game.home_team} vs {game.away_team}: "
+    set prompt = prompt + "{list.count(sharp_sources)} sharp sources favor {sharp_direction}. "
+    set prompt = prompt + "Alignment: {calculate_alignment(votes)}%. "
+    set prompt = prompt + "{anomaly_count} anomaly flags detected. "
+    set prompt = prompt + "Provide a 2-sentence assessment of the consensus strength and any concerns."
+    
+    let analysis = ask gpt4 prompt
+    return analysis
+
+/// --- Generate Consensus for a Game ---
+define generate_consensus(game, snapshots, sources, anomalies):
+    let game_anomalies = list.filter(anomalies, a -> a.game_id == game.id)
+    let votes = calculate_weighted_votes(game.id, snapshots, sources)
+    
+    // Need minimum sources
+    if votes.voter_count < MIN_SOURCES_FOR_CONSENSUS:
+        return Consensus:
+            game_id: game.id
+            home_likelihood: 50
+            away_likelihood: 50
+            confidence: 0
+            alignment: 0
+            integrity: game.integrity_score
+            house_lean: true
+            reasoning: "Insufficient data — fewer than {MIN_SOURCES_FOR_CONSENSUS} sources available"
+            sources_agree: 0
+            sources_disagree: 0
+            generated_at: time.timestamp()
+    
+    let alignment = calculate_alignment(votes)
+    let integrity = game.integrity_score
+    let confidence = calculate_confidence(alignment, integrity, votes.voter_count)
+    
+    // House lean: defer to house when confidence is low or integrity is bad
+    let house_lean = confidence < CONFIDENCE_THRESHOLD or integrity < 50
+    
+    // Calculate likelihoods
+    let home_likelihood = 50
+    let away_likelihood = 50
+    if votes.total_weight > 0:
+        set home_likelihood = math.round(votes.home_weight / votes.total_weight * 100)
+        set away_likelihood = 100 - home_likelihood
+    
+    // If house lean, pull likelihoods toward 50/50
+    if house_lean:
+        set home_likelihood = math.round((home_likelihood + 50) / 2)
+        set away_likelihood = 100 - home_likelihood
+    
+    // AI reasoning
+    let reasoning = ""
+    try:
+        set reasoning = generate_ai_reasoning(game, votes, game_anomalies, sources)
+    with error:
+        set reasoning = "AI analysis unavailable — consensus based on weighted source alignment"
+    
+    // Count agreeing vs disagreeing
+    let dominant_direction = "home"
+    if votes.away_weight > votes.home_weight:
+        set dominant_direction = "away"
+    
+    return Consensus:
+        game_id: game.id
+        home_likelihood: home_likelihood
+        away_likelihood: away_likelihood
+        confidence: confidence
+        alignment: alignment
+        integrity: integrity
+        house_lean: house_lean
+        reasoning: reasoning
+        sources_agree: math.round(votes.voter_count * alignment / 100)
+        sources_disagree: votes.voter_count - math.round(votes.voter_count * alignment / 100)
+        generated_at: time.timestamp()
+
+/// --- Generate All Consensus Predictions ---
+define generate_all_consensus(games, snapshots, sources, anomalies):
+    let predictions = []
+    
+    for each game in games:
+        let game_anomalies = list.filter(anomalies, a -> a.game_id == game.id)
+        let prediction = generate_consensus(game, snapshots, sources, game_anomalies)
+        set predictions = predictions + [prediction]
+    
+    return predictions
+
+/// --- Display Consensus Summary ---
+define show_consensus(consensus, game):
+    let conf_bar = "█".repeat(math.round(consensus.confidence / 5)) + "░".repeat(20 - math.round(consensus.confidence / 5))
+    let integrity_icon = "✅"
+    if consensus.integrity < 50:
+        set integrity_icon = "⚠️"
+    if consensus.integrity < CONFIDENCE_THRESHOLD:
+        set integrity_icon = "🚨"
+    
+    show "\n┌─────────────────────────────────────────┐"
+    show "│ {game.away_team} @ {game.home_team}"
+    show "├─────────────────────────────────────────┤"
+    show "│ Home: {consensus.home_likelihood}%  |  Away: {consensus.away_likelihood}%"
+    show "│ Confidence: [{conf_bar}] {consensus.confidence}%"
+    show "│ Integrity: {integrity_icon} {consensus.integrity}/100"
+    if consensus.house_lean:
+        show "│ 🏠 HOUSE LEAN — Low confidence, deferring to house"
+    show "│ Sources: {consensus.sources_agree} agree / {consensus.sources_disagree} disagree"
+    show "│ {consensus.reasoning}"
+    show "└─────────────────────────────────────────┘"

@@ -1,0 +1,17 @@
+{
+  "name": "lumeline",
+  "version": "0.1.0",
+  "description": "LumeLine — Odds Intelligence Platform | Trust Layer Ecosystem",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "lume watch src/app.lume",
+    "build": "lume build src/app.lume --target=browser",
+    "serve": "lume run server/index.lume",
+    "test": "lume test tests/"
+  },
+  "dependencies": {
+    "@lume/compiler": "^0.8.0"
+  },
+  "author": "DarkWave Studios",
+  "license": "MIT"
+}

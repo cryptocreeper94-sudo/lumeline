@@ -1,0 +1,552 @@
+/// ═══════════════════════════════════════════════════════════
+///  LumeLine — Dashboard UI
+///  Ultra-premium DarkWave canonical layout with glass cards,
+///  3-column bento grid, floating orbs, and reactive state.
+///  Built entirely with Lume dom.* APIs.
+/// ═══════════════════════════════════════════════════════════
+
+/// --- Inject Global Styles ---
+dom.inject_css("
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #030712;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Glass Card */
+  .glass-card {
+    background: rgba(12, 18, 36, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  .glass-card:hover {
+    transform: scale(1.02) translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  .glass-card-glow {
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.15);
+  }
+  .glass-card-glow:hover {
+    box-shadow: 0 0 60px rgba(0, 255, 255, 0.2);
+  }
+
+  /* Floating Orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    background: linear-gradient(to right, #fff, #cffafe, #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .gradient-text-cyan {
+    background: linear-gradient(135deg, #67e8f9, #fff, #67e8f9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Bento Grid */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr 300px;
+    gap: 12px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  @media (max-width: 1024px) {
+    .bento-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Section Divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    margin: 24px 0;
+  }
+
+  /* Pulse Dot */
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Badge */
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .badge-sharp { background: rgba(6, 182, 212, 0.2); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); }
+  .badge-reliable { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+  .badge-neutral { background: rgba(255, 255, 255, 0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.08); }
+  .badge-fade { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+  /* Confidence Bar */
+  .confidence-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+  .confidence-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Integrity Meter */
+  .integrity-clean { background: linear-gradient(to right, #10b981, #34d399); }
+  .integrity-warning { background: linear-gradient(to right, #f59e0b, #fbbf24); }
+  .integrity-danger { background: linear-gradient(to right, #ef4444, #f87171); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+  /* Reveal Animation */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* Shimmer */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* Sport Tabs */
+  .sport-tab {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.4);
+  }
+  .sport-tab:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
+  .sport-tab-active {
+    background: rgba(6, 182, 212, 0.15);
+    border-color: rgba(6, 182, 212, 0.3);
+    color: #67e8f9;
+  }
+", "lumeline-global-styles")
+
+
+/// --- Create Floating Orbs ---
+let orb1 = dom.create("div", {
+  className: "orb",
+  styles: { width: "800px", height: "800px", background: "#06b6d4", top: "5%", left: "50%", transform: "translateX(-50%)" }
+})
+dom.mount(orb1)
+
+let orb2 = dom.create("div", {
+  className: "orb",
+  styles: { width: "600px", height: "600px", background: "#3b82f6", bottom: "10%", right: "5%" }
+})
+dom.mount(orb2)
+
+let orb3 = dom.create("div", {
+  className: "orb",
+  styles: { width: "400px", height: "400px", background: "#a855f7", top: "40%", left: "5%" }
+})
+dom.mount(orb3)
+
+/// --- Animate Orbs ---
+dom.animate(orb1, [
+  { transform: "translateX(-50%) translate(0, 0)" },
+  { transform: "translateX(-50%) translate(20px, -15px)" },
+  { transform: "translateX(-50%) translate(-10px, 10px)" },
+  { transform: "translateX(-50%) translate(0, 0)" }
+], { duration: 12000, iterations: "Infinity", easing: "ease-in-out" })
+
+dom.animate(orb2, [
+  { transform: "translate(0, 0)" },
+  { transform: "translate(-15px, 10px)" },
+  { transform: "translate(10px, -8px)" },
+  { transform: "translate(0, 0)" }
+], { duration: 10000, iterations: "Infinity", easing: "ease-in-out" })
+
+
+/// --- Reactive State ---
+let active_sport = state.reactive("NFL")
+let selected_game = state.reactive(null)
+
+
+/// --- Header ---
+let header = dom.create("header", {
+  styles: { maxWidth: "1280px", margin: "0 auto", padding: "20px 20px 0", display: "flex", alignItems: "center", justifyContent: "space-between" },
+  children: [
+    dom.create("div", {
+      styles: { display: "flex", alignItems: "center", gap: "12px" },
+      children: [
+        dom.create("div", {
+          styles: { width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2))", border: "1px solid rgba(6,182,212,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" },
+          text: "◆"
+        }),
+        dom.create("div", { children: [
+          dom.create("h1", {
+            className: "gradient-text",
+            text: "LumeLine",
+            styles: { fontSize: "1.5rem", fontWeight: "800", letterSpacing: "-0.02em" }
+          }),
+          dom.create("p", {
+            text: "Odds Intelligence · Trust Layer",
+            styles: { fontSize: "10px", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: "500" }
+          })
+        ]})
+      ]
+    }),
+    dom.create("div", {
+      styles: { display: "flex", alignItems: "center", gap: "8px" },
+      children: [
+        dom.create("div", { className: "pulse-dot" }),
+        dom.create("span", {
+          text: "Live",
+          styles: { fontSize: "11px", color: "rgba(255,255,255,0.4)", fontWeight: "500" }
+        })
+      ]
+    })
+  ]
+})
+dom.mount(header)
+
+
+/// --- Sport Tabs ---
+let sport_tabs = dom.create("div", {
+  styles: { maxWidth: "1280px", margin: "16px auto", padding: "0 20px", display: "flex", gap: "8px" },
+  children: [
+    dom.create("button", {
+      className: "sport-tab sport-tab-active",
+      text: "🏈 NFL",
+      id: "tab-nfl",
+      onClick: () -> active_sport.set("NFL")
+    }),
+    dom.create("button", {
+      className: "sport-tab",
+      text: "🏀 NBA",
+      id: "tab-nba",
+      onClick: () -> active_sport.set("NBA")
+    })
+  ]
+})
+dom.mount(sport_tabs)
+
+
+/// --- Section Divider ---
+let divider1 = dom.create("div", { className: "section-divider", styles: { maxWidth: "1280px", margin: "16px auto" } })
+dom.mount(divider1)
+
+
+/// --- 3-Column Bento Grid ---
+let bento = dom.create("div", { className: "bento-grid" })
+
+
+/// ═══ LEFT COLUMN: Source Leaderboard ═══
+let left_column = dom.create("div", {
+  styles: { display: "flex", flexDirection: "column", gap: "12px" },
+  children: [
+    // Leaderboard Header
+    dom.create("div", {
+      styles: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" },
+      children: [
+        dom.create("span", { text: "📊", styles: { fontSize: "14px" } }),
+        dom.create("span", { text: "Source Leaderboard", styles: { fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.1em" } })
+      ]
+    }),
+    // Source Cards (demo data)
+    create_source_card("Pinnacle", "sharp", 68, 892),
+    create_source_card("Circa Sports", "sharp", 64, 756),
+    create_source_card("BetMGM", "reliable", 58, 1204),
+    create_source_card("DraftKings", "reliable", 56, 1450),
+    create_source_card("FanDuel", "neutral", 52, 1380),
+    create_source_card("Mathew", "sharp", 71, 124),
+    create_source_card("BetRivers", "neutral", 49, 980),
+    create_source_card("Caesars", "fade", 44, 1100)
+  ]
+})
+
+
+/// ═══ CENTER COLUMN: Game Cards ═══
+let center_column = dom.create("div", {
+  styles: { display: "flex", flexDirection: "column", gap: "12px" },
+  children: [
+    dom.create("div", {
+      styles: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" },
+      children: [
+        dom.create("div", {
+          styles: { display: "flex", alignItems: "center", gap: "8px" },
+          children: [
+            dom.create("span", { text: "🎯", styles: { fontSize: "14px" } }),
+            dom.create("span", { text: "Today's Games", styles: { fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.1em" } })
+          ]
+        }),
+        dom.create("span", { text: "6 games", styles: { fontSize: "11px", color: "rgba(255,255,255,0.25)" } })
+      ]
+    }),
+    // Game Cards (demo data)
+    create_game_card("Kansas City Chiefs", "Denver Broncos", 72, 28, 81, 88, false, "4 of 5 sharps favor KC. Clean lines, high alignment."),
+    create_game_card("Buffalo Bills", "Miami Dolphins", 61, 39, 67, 74, false, "Mixed signals. BUF slightly favored but lower confidence."),
+    create_game_card("Dallas Cowboys", "Philadelphia Eagles", 55, 45, 43, 42, true, "⚠️ Line manipulation detected. 3 books moved in sync. House lean active."),
+    create_game_card("Los Angeles Lakers", "Golden State Warriors", 58, 42, 72, 90, false, "Sharp consensus on LAL. Clean integrity, moderate alignment."),
+    create_game_card("Boston Celtics", "Milwaukee Bucks", 64, 36, 78, 95, false, "Strong sharp alignment on BOS. Highest integrity game today."),
+    create_game_card("Phoenix Suns", "Denver Nuggets", 48, 52, 38, 55, true, "⚠️ Reverse steam detected on DEN line. Deferring to house.")
+  ]
+})
+
+
+/// ═══ RIGHT COLUMN: Pattern Feed & Alerts ═══
+let right_column = dom.create("div", {
+  styles: { display: "flex", flexDirection: "column", gap: "12px" },
+  children: [
+    // Pattern Feed Header
+    dom.create("div", {
+      styles: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" },
+      children: [
+        dom.create("span", { text: "⚡", styles: { fontSize: "14px" } }),
+        dom.create("span", { text: "Pattern Feed", styles: { fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.1em" } })
+      ]
+    }),
+    // Pattern Cards
+    create_pattern_card("🔥 Sharp Alignment", "4 of 5 Sharp-tier sources aligned on KC -3.5 in the last hour", "high", "2 min ago"),
+    create_pattern_card("⚠️ Sync Move Detected", "3 books moved DAL +2.5 within 4 minutes — possible coordination", "warning", "18 min ago"),
+    create_pattern_card("🔄 Reverse Steam", "DEN line moved from +1.5 to -2 then snapped back to +1 — classic trap", "danger", "34 min ago"),
+    create_pattern_card("📊 Mathew's Streak", "External source 'Mathew' is 8-2 in last 10 picks. Tier: Sharp", "info", "1 hr ago"),
+    create_pattern_card("✅ Clean Line Confirmed", "BOS vs MIL — all sources consistent, integrity 95/100", "clean", "1 hr ago"),
+    create_pattern_card("🏠 House Lean Active", "PHX vs DEN confidence below threshold — deferring to house line", "warning", "2 hr ago"),
+    // Stats Summary
+    dom.create("div", {
+      className: "glass-card",
+      styles: { padding: "16px" },
+      children: [
+        dom.create("div", { styles: { fontSize: "10px", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "12px" }, text: "Today's Stats" }),
+        create_stat_row("Games Tracked", "6"),
+        create_stat_row("Sources Active", "47"),
+        create_stat_row("Anomalies", "3"),
+        create_stat_row("Avg Integrity", "74/100"),
+        create_stat_row("House Leans", "2")
+      ]
+    })
+  ]
+})
+
+
+/// --- Mount Bento Grid ---
+dom.append(bento, left_column)
+dom.append(bento, center_column)
+dom.append(bento, right_column)
+dom.mount(bento)
+
+
+/// --- Footer ---
+let footer = dom.create("footer", {
+  styles: { maxWidth: "1280px", margin: "32px auto 48px", padding: "0 20px", textAlign: "center" },
+  children: [
+    dom.create("div", { className: "section-divider" }),
+    dom.create("p", {
+      text: "LumeLine · Trust Layer Ecosystem · Built with Lume",
+      styles: { fontSize: "11px", color: "rgba(255,255,255,0.15)", marginTop: "16px", letterSpacing: "0.05em" }
+    }),
+    dom.create("p", {
+      text: "DarkWave Studios · " + convert.to_text(time.year()),
+      styles: { fontSize: "10px", color: "rgba(255,255,255,0.1)", marginTop: "4px" }
+    })
+  ]
+})
+dom.mount(footer)
+
+
+/// --- Reveal on Scroll ---
+dom.reveal_on_scroll(".reveal", { stagger: 100, duration: 600 })
+
+show "✦ LumeLine dashboard rendered!"
+
+
+/// ═══════════════════════════════════════════════════════════
+///  Component Builders
+/// ═══════════════════════════════════════════════════════════
+
+/// --- Source Card ---
+define create_source_card(name, tier, accuracy, total_picks):
+    let badge_class = "badge badge-" + tier
+    let accent = "rgba(255,255,255,0.3)"
+    if tier == "sharp":
+        set accent = "#67e8f9"
+    if tier == "reliable":
+        set accent = "#6ee7b7"
+    if tier == "fade":
+        set accent = "#fca5a5"
+    
+    return dom.create("div", {
+        className: "glass-card",
+        styles: { padding: "14px", cursor: "pointer" },
+        children: [
+            dom.create("div", {
+                styles: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" },
+                children: [
+                    dom.create("span", { text: name, styles: { fontSize: "13px", fontWeight: "600", color: "#fff" } }),
+                    dom.create("span", { className: badge_class, text: tier })
+                ]
+            }),
+            dom.create("div", {
+                styles: { display: "flex", alignItems: "center", justifyContent: "space-between" },
+                children: [
+                    dom.create("span", { text: accuracy + "%", styles: { fontSize: "18px", fontWeight: "700", color: accent } }),
+                    dom.create("span", { text: total_picks + " picks", styles: { fontSize: "10px", color: "rgba(255,255,255,0.25)" } })
+                ]
+            }),
+            // Accuracy bar
+            dom.create("div", {
+                className: "confidence-bar",
+                styles: { marginTop: "8px" },
+                children: [
+                    dom.create("div", {
+                        className: "confidence-fill",
+                        styles: { width: accuracy + "%", background: accent }
+                    })
+                ]
+            })
+        ]
+    })
+
+/// --- Game Card ---
+define create_game_card(home, away, home_pct, away_pct, confidence, integrity, house_lean, reasoning):
+    let integrity_class = "integrity-clean"
+    if integrity < 70:
+        set integrity_class = "integrity-warning"
+    if integrity < 50:
+        set integrity_class = "integrity-danger"
+    
+    let card_class = "glass-card"
+    if house_lean:
+        set card_class = "glass-card"
+    if confidence is at least 70:
+        set card_class = "glass-card glass-card-glow"
+    
+    return dom.create("div", {
+        className: card_class,
+        styles: { padding: "20px", cursor: "pointer" },
+        children: [
+            // Teams
+            dom.create("div", {
+                styles: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" },
+                children: [
+                    dom.create("div", { children: [
+                        dom.create("span", { text: away, styles: { fontSize: "14px", fontWeight: "600", color: "rgba(255,255,255,0.9)", display: "block" } }),
+                        dom.create("span", { text: "@ " + home, styles: { fontSize: "14px", fontWeight: "600", color: "#fff", display: "block", marginTop: "2px" } })
+                    ]}),
+                    dom.create("div", {
+                        styles: { textAlign: "right" },
+                        children: [
+                            dom.create("div", { text: home_pct + "% / " + away_pct + "%", styles: { fontSize: "18px", fontWeight: "700", color: "#67e8f9" } }),
+                            dom.create("div", { text: "likelihood", styles: { fontSize: "10px", color: "rgba(255,255,255,0.25)", textTransform: "uppercase", letterSpacing: "0.1em" } })
+                        ]
+                    })
+                ]
+            }),
+            // Confidence bar
+            dom.create("div", {
+                styles: { marginBottom: "8px" },
+                children: [
+                    dom.create("div", {
+                        styles: { display: "flex", justifyContent: "space-between", marginBottom: "4px" },
+                        children: [
+                            dom.create("span", { text: "Confidence", styles: { fontSize: "10px", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.05em" } }),
+                            dom.create("span", { text: confidence + "%", styles: { fontSize: "10px", color: "rgba(255,255,255,0.5)", fontWeight: "600" } })
+                        ]
+                    }),
+                    dom.create("div", {
+                        className: "confidence-bar",
+                        children: [ dom.create("div", { className: "confidence-fill " + integrity_class, styles: { width: confidence + "%" } }) ]
+                    })
+                ]
+            }),
+            // Integrity + House Lean
+            dom.create("div", {
+                styles: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" },
+                children: [
+                    dom.create("div", {
+                        styles: { display: "flex", alignItems: "center", gap: "6px" },
+                        children: [
+                            dom.create("span", { text: "Integrity: " + integrity + "/100", styles: { fontSize: "10px", color: "rgba(255,255,255,0.35)" } })
+                        ]
+                    }),
+                    house_lean ? dom.create("span", {
+                        className: "badge",
+                        text: "🏠 House Lean",
+                        styles: { background: "rgba(245,158,11,0.2)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.3)" }
+                    }) : dom.create("span", { text: "" })
+                ]
+            }),
+            // AI Reasoning
+            dom.create("p", { text: reasoning, styles: { fontSize: "11px", color: "rgba(255,255,255,0.35)", lineHeight: "1.6" } })
+        ]
+    })
+
+/// --- Pattern Card ---
+define create_pattern_card(title, description, type, time_ago):
+    let border_color = "rgba(255,255,255,0.08)"
+    if type == "high":
+        set border_color = "rgba(6, 182, 212, 0.3)"
+    if type == "warning":
+        set border_color = "rgba(245, 158, 11, 0.3)"
+    if type == "danger":
+        set border_color = "rgba(239, 68, 68, 0.3)"
+    if type == "clean":
+        set border_color = "rgba(16, 185, 129, 0.3)"
+    
+    return dom.create("div", {
+        className: "glass-card",
+        styles: { padding: "14px", borderLeft: "2px solid " + border_color },
+        children: [
+            dom.create("div", {
+                styles: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" },
+                children: [
+                    dom.create("span", { text: title, styles: { fontSize: "11px", fontWeight: "600", color: "rgba(255,255,255,0.7)" } }),
+                    dom.create("span", { text: time_ago, styles: { fontSize: "9px", color: "rgba(255,255,255,0.2)" } })
+                ]
+            }),
+            dom.create("p", { text: description, styles: { fontSize: "11px", color: "rgba(255,255,255,0.35)", lineHeight: "1.5" } })
+        ]
+    })
+
+/// --- Stat Row ---
+define create_stat_row(label, value):
+    return dom.create("div", {
+        styles: { display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" },
+        children: [
+            dom.create("span", { text: label, styles: { fontSize: "11px", color: "rgba(255,255,255,0.35)" } }),
+            dom.create("span", { text: value, styles: { fontSize: "11px", color: "rgba(255,255,255,0.6)", fontWeight: "600" } })
+        ]
+    })

@@ -1,0 +1,103 @@
+/// ═══════════════════════════════════════════════════════════
+///  LumeLine — Core Type Definitions
+///  Shared types used across the entire platform.
+///  Part of the Trust Layer Ecosystem.
+/// ═══════════════════════════════════════════════════════════
+
+/// --- Source (Oddsmaker / Bookmaker) ---
+type Source:
+    id: text
+    name: text
+    type: text              // "bookmaker" | "sharp" | "external" | "buddy"
+    tier: text              // "sharp" | "reliable" | "neutral" | "fade"
+    accuracy_30d: number    // rolling 30-day hit rate (0-100)
+    accuracy_90d: number    // rolling 90-day hit rate
+    accuracy_365d: number   // rolling 365-day hit rate
+    best_sport: text        // sport they're most accurate on
+    clv_score: number       // closing line value average
+    consistency: number     // flip rate (lower = more consistent)
+    timing_score: number    // how early they move vs. others (higher = sharper)
+    total_picks: number
+    created: text
+
+/// --- Game ---
+type Game:
+    id: text
+    sport: text             // "NFL" | "NBA"
+    league: text
+    home_team: text
+    away_team: text
+    start_time: text
+    status: text            // "upcoming" | "live" | "final"
+    home_score: number
+    away_score: number
+    integrity_score: number // 0-100, lower = more suspicious
+    facility_id: text
+
+/// --- Odds Snapshot (time-series) ---
+type OddsSnapshot:
+    id: text
+    game_id: text
+    source_id: text
+    market: text            // "spread" | "moneyline" | "total"
+    line: number            // e.g., -3.5
+    odds: number            // e.g., -110
+    timestamp: text
+    is_opening: boolean
+    time_to_game: number    // minutes until game starts
+
+/// --- Consensus Prediction ---
+type Consensus:
+    game_id: text
+    home_likelihood: number     // 0-100
+    away_likelihood: number     // 0-100
+    confidence: number          // 0-100
+    alignment: number           // how many top sources agree (0-100)
+    integrity: number           // game integrity score
+    house_lean: boolean         // true if confidence < threshold
+    reasoning: text             // AI-generated explanation
+    sources_agree: number       // count of agreeing sources
+    sources_disagree: number    // count of disagreeing sources
+    generated_at: text
+
+/// --- Anomaly Flag ---
+type Anomaly:
+    id: text
+    game_id: text
+    signal_type: text       // "sync_move" | "reverse_steam" | "outlier_consensus" | "late_flip" | "house_divergence"
+    severity: text          // "low" | "medium" | "high" | "critical"
+    description: text
+    sources_involved: list of text
+    detected_at: text
+
+/// --- External Pick (buddy integration) ---
+type Pick:
+    id: text
+    source_id: text
+    game_id: text
+    sport: text
+    market: text
+    pick_value: text        // e.g., "KC -3.5"
+    confidence: number      // 0-100
+    submitted_at: text
+
+/// --- Source Accuracy Record ---
+type AccuracyRecord:
+    source_id: text
+    sport: text
+    market: text
+    window: text            // "30d" | "90d" | "365d"
+    total_picks: number
+    correct_picks: number
+    hit_rate: number
+    clv_average: number
+    updated_at: text
+
+/// --- Dashboard State ---
+type DashboardState:
+    games: list of Game
+    sources: list of Source
+    consensus: list of Consensus
+    anomalies: list of Anomaly
+    last_poll: text
+    active_sport: text

@@ -1,0 +1,109 @@
+/// ═══════════════════════════════════════════════════════════
+///  LumeLine — Server Entry Point
+///  Express-like API server for LumeLine data endpoints.
+///  Serves the dashboard and provides REST API.
+/// ═══════════════════════════════════════════════════════════
+
+/// --- Configuration ---
+define PORT = 3000
+define API_PREFIX = "/api"
+
+/// --- Route Definitions ---
+
+// GET /api/games — List upcoming games with consensus
+define handle_get_games(request):
+    log_request("GET", "/api/games")
+    // In production: query database
+    return {
+        status: 200,
+        body: {
+            games: [],
+            message: "LumeLine API — Games endpoint"
+        }
+    }
+
+// GET /api/games/:id — Full game breakdown
+define handle_get_game(request):
+    let game_id = request.params.id
+    log_request("GET", "/api/games/" + game_id)
+    return {
+        status: 200,
+        body: {
+            game_id: game_id,
+            message: "Game detail endpoint"
+        }
+    }
+
+// GET /api/sources — Source leaderboard
+define handle_get_sources(request):
+    log_request("GET", "/api/sources")
+    return {
+        status: 200,
+        body: {
+            sources: [],
+            message: "LumeLine API — Sources endpoint"
+        }
+    }
+
+// GET /api/consensus/:game_id — Consensus prediction
+define handle_get_consensus(request):
+    let game_id = request.params.game_id
+    log_request("GET", "/api/consensus/" + game_id)
+    return {
+        status: 200,
+        body: {
+            game_id: game_id,
+            message: "Consensus endpoint"
+        }
+    }
+
+// POST /api/picks — Submit external pick
+define handle_submit_pick(request):
+    log_request("POST", "/api/picks")
+    let result = submit_pick(
+        request.body.source_name,
+        request.body.sport,
+        request.body.game_id,
+        request.body.market,
+        request.body.pick_value,
+        request.body.confidence
+    )
+    return result
+
+// GET /api/widget — Widget data for embedding
+define handle_widget(request):
+    log_request("GET", "/api/widget")
+    return {
+        status: 200,
+        body: {
+            message: "Widget data endpoint — for embedding in partner sites",
+            branding: "LumeLine · Trust Layer"
+        }
+    }
+
+// GET /api/health — Health check
+define handle_health(request):
+    return {
+        status: 200,
+        body: {
+            status: "healthy",
+            version: "0.1.0",
+            name: "LumeLine",
+            ecosystem: "Trust Layer",
+            uptime: time.timestamp()
+        }
+    }
+
+/// --- Request Logger ---
+define log_request(method, path):
+    log "[{time.timestamp()}] {method} {path}"
+
+/// --- Server Start ---
+show "✦ LumeLine Server v0.1.0"
+show "  🌐 Dashboard: http://localhost:{PORT}"
+show "  🔌 API: http://localhost:{PORT}/api"
+show "  📡 Widget: http://localhost:{PORT}/api/widget"
+show "  ❤️ Health: http://localhost:{PORT}/api/health"
+show ""
+show "  Part of the Trust Layer Ecosystem"
+show "  Built with Lume · DarkWave Studios"

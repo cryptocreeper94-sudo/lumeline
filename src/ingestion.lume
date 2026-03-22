@@ -1,0 +1,135 @@
+/// ═══════════════════════════════════════════════════════════
+///  LumeLine — Data Ingestion Pipeline
+///  Polls The Odds API for live lines, fetches results,
+///  and stores snapshots for historical tracking.
+/// ═══════════════════════════════════════════════════════════
+
+/// --- Configuration ---
+define ODDS_API_BASE = "https://api.the-odds-api.com/v4/sports"
+define RESULTS_API_BASE = "https://site.api.espn.com/apis/site/v2/sports"
+define POLL_INTERVAL = 900000  // 15 minutes
+define SUPPORTED_SPORTS = ["americanfootball_nfl", "basketball_nba"]
+
+/// --- API Headers ---
+define odds_headers = {
+    "Accept": "application/json",
+    "User-Agent": "LumeLine/0.1.0"
+}
+
+/// --- Fetch Odds from All Bookmakers ---
+@healable
+define fetch_odds(sport, api_key):
+    let url = ODDS_API_BASE + "/" + sport + "/odds"
+    let params = "?apiKey=" + api_key + "&regions=us&markets=spreads,h2h,totals&oddsFormat=american"
+    let response = fetch (url + params) with odds_headers
+    
+    if response.status is not 200:
+        log "❌ Odds API error: {response.status} for {sport}"
+        fail "Odds API returned {response.status}"
+    
+    log "✅ Fetched {list.count(response.json)} games for {sport}"
+    return response.json
+
+/// --- Parse and Store Snapshots ---
+define process_odds_response(games_data, sport):
+    let snapshots = []
+    let game_records = []
+    
+    for each game in games_data:
+        // Build game record
+        let game_record = Game:
+            id: game.id
+            sport: sport
+            league: sport
+            home_team: game.home_team
+            away_team: game.away_team
+            start_time: game.commence_time
+            status: "upcoming"
+            home_score: 0
+            away_score: 0
+            integrity_score: 100
+            facility_id: "default"
+        set game_records = game_records + [game_record]
+        
+        // Extract odds from each bookmaker
+        for each bookmaker in game.bookmakers:
+            for each market in bookmaker.markets:
+                for each outcome in market.outcomes:
+                    let snapshot = OddsSnapshot:
+                        id: game.id + "_" + bookmaker.key + "_" + market.key + "_" + time.timestamp()
+                        game_id: game.id
+                        source_id: bookmaker.key
+                        market: market.key
+                        line: outcome.point or 0
+                        odds: outcome.price
+                        timestamp: time.timestamp()
+                        is_opening: false
+                        time_to_game: 0
+                    set snapshots = snapshots + [snapshot]
+    
+    return { games: game_records, snapshots: snapshots }
+
+/// --- Fetch Game Results ---
+@healable
+define fetch_results(sport):
+    let sport_path = ""
+    if sport == "americanfootball_nfl":
+        set sport_path = "football/nfl"
+    if sport == "basketball_nba":
+        set sport_path = "basketball/nba"
+    
+    let url = RESULTS_API_BASE + "/" + sport_path + "/scoreboard"
+    let response = fetch url with odds_headers
+    
+    if response.status is not 200:
+        log "❌ Results API error: {response.status}"
+        return []
+    
+    let results = []
+    for each event in response.json.events:
+        let home = event.competitions[0].competitors[0]
+        let away = event.competitions[0].competitors[1]
+        let result = {
+            game_id: event.id,
+            home_team: home.team.displayName,
+            away_team: away.team.displayName,
+            home_score: home.score,
+            away_score: away.score,
+            status: event.status.type.name
+        }
+        set results = results + [result]
+    
+    return results
+
+/// --- Main Ingestion Cycle ---
+define run_ingestion(api_key):
+    show "✦ LumeLine Ingestion — Polling odds..."
+    
+    for each sport in SUPPORTED_SPORTS:
+        show "  📡 Fetching {sport}..."
+        
+        try:
+            let raw_data = fetch_odds(sport, api_key)
+            let processed = process_odds_response(raw_data, sport)
+            show "    → {list.count(processed.games)} games, {list.count(processed.snapshots)} snapshots"
+            
+            // Store to database
+            // db.save_games(processed.games)
+            // db.save_snapshots(processed.snapshots)
+            
+        with error:
+            show "    ❌ Error: {error}"
+    
+    show "✅ Ingestion cycle complete"
+
+/// --- Poll Results for Completed Games ---
+define check_results():
+    show "  📊 Checking results..."
+    
+    for each sport in SUPPORTED_SPORTS:
+        try:
+            let results = fetch_results(sport)
+            let completed = list.filter(results, r -> r.status == "STATUS_FINAL")
+            show "    → {list.count(completed)} completed games in {sport}"
+        with error:
+            show "    ❌ Results error: {error}"

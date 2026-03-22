@@ -1,0 +1,99 @@
+/// ═══════════════════════════════════════════════════════════
+///  LumeLine — Integration API
+///  External picks submission (for Mathew and other sources).
+///  Simple REST-style handlers.
+/// ═══════════════════════════════════════════════════════════
+
+/// --- Submit a Pick ---
+define submit_pick(source_name, sport, game_id, market, pick_value, confidence):
+    // Validate input
+    if source_name is "":
+        return { status: 400, body: { error: "source_name is required" } }
+    if game_id is "":
+        return { status: 400, body: { error: "game_id is required" } }
+    if confidence < 0 or confidence > 100:
+        return { status: 400, body: { error: "confidence must be 0-100" } }
+    
+    let pick = Pick:
+        id: "pick_" + source_name + "_" + game_id + "_" + time.timestamp()
+        source_id: source_name
+        game_id: game_id
+        sport: sport
+        market: market
+        pick_value: pick_value
+        confidence: confidence
+        submitted_at: time.timestamp()
+    
+    // Save to database
+    // db.save_pick(pick)
+    
+    log "📥 Pick received from {source_name}: {pick_value} on game {game_id}"
+    
+    return { status: 201, body: pick }
+
+/// --- Get All Picks for a Game ---
+define get_picks_for_game(game_id, picks):
+    let game_picks = list.filter(picks, p -> p.game_id == game_id)
+    return {
+        status: 200,
+        body: {
+            game_id: game_id,
+            picks: game_picks,
+            count: list.count(game_picks)
+        }
+    }
+
+/// --- Get Source Profile ---
+define get_source_profile(source_id, sources):
+    let source = list.find(sources, s -> s.id == source_id)
+    if source is null:
+        return { status: 404, body: { error: "Source not found" } }
+    return { status: 200, body: source }
+
+/// --- Get Consensus for a Game ---
+define get_game_consensus(game_id, consensus_list):
+    let consensus = list.find(consensus_list, c -> c.game_id == game_id)
+    if consensus is null:
+        return { status: 404, body: { error: "No consensus available for this game" } }
+    return { status: 200, body: consensus }
+
+/// --- Get Source Leaderboard ---
+define get_source_leaderboard(sources):
+    let sorted = list.sort(sources, s -> 0 - s.accuracy_30d)
+    return {
+        status: 200,
+        body: {
+            sources: sorted,
+            count: list.count(sorted)
+        }
+    }
+
+/// --- Widget Data (for embedding in Mathew's site) ---
+define get_widget_data(games, consensus_list, sources):
+    let widget_games = []
+    
+    for each game in games:
+        let consensus = list.find(consensus_list, c -> c.game_id == game.id)
+        if consensus is not null:
+            let widget_entry = {
+                game_id: game.id,
+                home_team: game.home_team,
+                away_team: game.away_team,
+                start_time: game.start_time,
+                home_likelihood: consensus.home_likelihood,
+                away_likelihood: consensus.away_likelihood,
+                confidence: consensus.confidence,
+                integrity: consensus.integrity,
+                house_lean: consensus.house_lean,
+                top_source: list.first(list.sort(sources, s -> 0 - s.accuracy_30d)).name
+            }
+            set widget_games = widget_games + [widget_entry]
+    
+    return {
+        status: 200,
+        body: {
+            games: widget_games,
+            updated_at: time.timestamp(),
+            branding: "LumeLine · Trust Layer"
+        }
+    }

@@ -1,0 +1,209 @@
+/// ═══════════════════════════════════════════════════════════
+///  LumeLine — Anomaly & Collusion Detection
+///  Detects suspicious line manipulation patterns:
+///  synchronized moves, reverse steam, outlier consensus,
+///  late flips, and house divergence.
+/// ═══════════════════════════════════════════════════════════
+
+/// --- Detection Thresholds ---
+define SYNC_WINDOW_MINUTES = 5       // moves within 5 min = synchronized
+define SYNC_MIN_SOURCES = 3          // minimum sources moving together
+define REVERSE_STEAM_WINDOW = 30     // minutes before game for snap-back
+define DIVERGENCE_THRESHOLD = 3.5    // points of divergence = suspicious
+define INTEGRITY_CRITICAL = 40       // below 40 = do not trust
+
+/// --- Detect Synchronized Moves ---
+define detect_sync_moves(snapshots, game_id):
+    let game_snaps = list.filter(snapshots, s -> s.game_id == game_id)
+    let anomalies = []
+    
+    // Group snapshots by 5-minute windows
+    let windows = group_by_time_window(game_snaps, SYNC_WINDOW_MINUTES)
+    
+    for each window in windows:
+        // Check if 3+ sources moved same direction in this window
+        let up_moves = list.filter(window.snaps, s -> s.line > 0)
+        let down_moves = list.filter(window.snaps, s -> s.line < 0)
+        let unique_up = list.unique(list.map(up_moves, s -> s.source_id))
+        let unique_down = list.unique(list.map(down_moves, s -> s.source_id))
+        
+        if list.count(unique_up) is at least SYNC_MIN_SOURCES:
+            let anomaly = Anomaly:
+                id: "sync_" + game_id + "_" + window.start
+                game_id: game_id
+                signal_type: "sync_move"
+                severity: classify_sync_severity(list.count(unique_up))
+                description: "{list.count(unique_up)} sources moved up within {SYNC_WINDOW_MINUTES} minutes"
+                sources_involved: unique_up
+                detected_at: time.timestamp()
+            set anomalies = anomalies + [anomaly]
+        
+        if list.count(unique_down) is at least SYNC_MIN_SOURCES:
+            let anomaly = Anomaly:
+                id: "sync_" + game_id + "_" + window.start + "_down"
+                game_id: game_id
+                signal_type: "sync_move"
+                severity: classify_sync_severity(list.count(unique_down))
+                description: "{list.count(unique_down)} sources moved down within {SYNC_WINDOW_MINUTES} minutes"
+                sources_involved: unique_down
+                detected_at: time.timestamp()
+            set anomalies = anomalies + [anomaly]
+    
+    return anomalies
+
+/// --- Detect Reverse Steam (Trap Lines) ---
+define detect_reverse_steam(snapshots, game_id):
+    let game_snaps = list.filter(snapshots, s -> s.game_id == game_id)
+    let sorted = list.sort(game_snaps, s -> s.timestamp)
+    let anomalies = []
+    
+    // Look for sharp moves that snap back near game time
+    let sources = list.unique(list.map(sorted, s -> s.source_id))
+    
+    for each source_id in sources:
+        let source_snaps = list.filter(sorted, s -> s.source_id == source_id)
+        if list.count(source_snaps) is at least 3:
+            let mid = source_snaps[math.floor(list.count(source_snaps) / 2)]
+            let last = list.last(source_snaps)
+            let first = list.first(source_snaps)
+            
+            // Did it move significantly then come back?
+            let moved_out = math.abs(mid.line - first.line)
+            let came_back = math.abs(last.line - first.line)
+            
+            if moved_out > 2 and came_back < 0.5:
+                let anomaly = Anomaly:
+                    id: "reverse_steam_" + game_id + "_" + source_id
+                    game_id: game_id
+                    signal_type: "reverse_steam"
+                    severity: "high"
+                    description: "{source_id} moved {moved_out} points then snapped back — possible trap"
+                    sources_involved: [source_id]
+                    detected_at: time.timestamp()
+                set anomalies = anomalies + [anomaly]
+    
+    return anomalies
+
+/// --- Detect House Divergence ---
+define detect_house_divergence(snapshots, game_id, sources):
+    let sharps = list.filter(sources, s -> s.tier == "sharp")
+    let public_sources = list.filter(sources, s -> s.tier == "neutral" or s.tier == "reliable")
+    let anomalies = []
+    
+    let sharp_ids = list.map(sharps, s -> s.id)
+    let public_ids = list.map(public_sources, s -> s.id)
+    
+    let sharp_snaps = list.filter(snapshots, s -> s.game_id == game_id and list.contains(sharp_ids, s.source_id))
+    let public_snaps = list.filter(snapshots, s -> s.game_id == game_id and list.contains(public_ids, s.source_id))
+    
+    if list.count(sharp_snaps) > 0 and list.count(public_snaps) > 0:
+        let sharp_avg = math.average(list.map(sharp_snaps, s -> s.line))
+        let public_avg = math.average(list.map(public_snaps, s -> s.line))
+        let divergence = math.abs(sharp_avg - public_avg)
+        
+        if divergence is at least DIVERGENCE_THRESHOLD:
+            let anomaly = Anomaly:
+                id: "divergence_" + game_id
+                game_id: game_id
+                signal_type: "house_divergence"
+                severity: "medium"
+                description: "Sharp vs. public divergence of {math.round(divergence * 10) / 10} points"
+                sources_involved: sharp_ids + public_ids
+                detected_at: time.timestamp()
+            set anomalies = anomalies + [anomaly]
+    
+    return anomalies
+
+/// --- Detect Late Flips ---
+define detect_late_flips(snapshots, game_id, sources):
+    let anomalies = []
+    let reliable_sources = list.filter(sources, s -> s.tier == "sharp" or s.tier == "reliable")
+    
+    for each source in reliable_sources:
+        let source_snaps = list.filter(snapshots, s -> s.game_id == game_id and s.source_id == source.id)
+        let sorted = list.sort(source_snaps, s -> s.timestamp)
+        
+        if list.count(sorted) is at least 2:
+            let second_last = sorted[list.count(sorted) - 2]
+            let last = list.last(sorted)
+            
+            // If a reliable source flips direction late (close to game time)
+            let direction_changed = (last.line > 0 and second_last.line < 0) or (last.line < 0 and second_last.line > 0)
+            
+            if direction_changed and last.time_to_game < 60:
+                let anomaly = Anomaly:
+                    id: "late_flip_" + game_id + "_" + source.id
+                    game_id: game_id
+                    signal_type: "late_flip"
+                    severity: "high"
+                    description: "{source.name} ({source.tier}) flipped direction within {last.time_to_game}min of game time"
+                    sources_involved: [source.id]
+                    detected_at: time.timestamp()
+                set anomalies = anomalies + [anomaly]
+    
+    return anomalies
+
+/// --- Classify Sync Severity ---
+define classify_sync_severity(count):
+    if count is at least 6:
+        return "critical"
+    if count is at least 4:
+        return "high"
+    return "medium"
+
+/// --- Calculate Game Integrity Score ---
+define calculate_integrity(game_id, anomalies):
+    let game_anomalies = list.filter(anomalies, a -> a.game_id == game_id)
+    let score = 100
+    
+    for each anomaly in game_anomalies:
+        if anomaly.severity == "critical":
+            set score = score - 30
+        if anomaly.severity == "high":
+            set score = score - 20
+        if anomaly.severity == "medium":
+            set score = score - 10
+        if anomaly.severity == "low":
+            set score = score - 5
+    
+    return math.max(0, score)
+
+/// --- Helper: Group by Time Window ---
+define group_by_time_window(snapshots, window_minutes):
+    // Simplified grouping — returns list of { start, snaps }
+    let groups = []
+    let sorted = list.sort(snapshots, s -> s.timestamp)
+    let current_group = { start: "", snaps: [] }
+    
+    for each snap in sorted:
+        // Simple grouping by window
+        set current_group.snaps = current_group.snaps + [snap]
+    
+    if list.count(current_group.snaps) > 0:
+        set groups = groups + [current_group]
+    
+    return groups
+
+/// --- Run Full Anomaly Scan ---
+define scan_game(game_id, snapshots, sources):
+    let all_anomalies = []
+    
+    let sync = detect_sync_moves(snapshots, game_id)
+    set all_anomalies = all_anomalies + sync
+    
+    let steam = detect_reverse_steam(snapshots, game_id)
+    set all_anomalies = all_anomalies + steam
+    
+    let divergence = detect_house_divergence(snapshots, game_id, sources)
+    set all_anomalies = all_anomalies + divergence
+    
+    let flips = detect_late_flips(snapshots, game_id, sources)
+    set all_anomalies = all_anomalies + flips
+    
+    let integrity = calculate_integrity(game_id, all_anomalies)
+    
+    return {
+        anomalies: all_anomalies,
+        integrity: integrity,
+        clean: integrity is at least 70
+    }

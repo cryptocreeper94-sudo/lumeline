@@ -1,0 +1,12 @@
+{
+  "name": "lumeline",
+  "version": "0.1.0",
+  "description": "Odds Intelligence Platform — Trust Layer Ecosystem",
+  "compiler": "@lume/compiler",
+  "entry": "src/app.lume",
+  "server": "server/index.lume",
+  "build": {
+    "target": "browser",
+    "outDir": "dist"
+  }
+}
