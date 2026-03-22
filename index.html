@@ -40,15 +40,28 @@
     /* ═══ CONTAINER ═══ */
     .mx { max-width: 1360px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
 
-    /* ═══ HERO ═══ */
-    .hero { position: relative; height: 520px; overflow: hidden; margin-bottom: -60px; }
-    .hero-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.45); }
-    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(3,7,18,0.3) 0%, rgba(3,7,18,0.6) 50%, #030712 100%); }
-    .hero-content { position: absolute; bottom: 90px; left: 0; right: 0; z-index: 2; }
+    /* ═══ HERO SLIDESHOW ═══ */
+    .hero { position: relative; height: 600px; overflow: hidden; margin-bottom: -60px; }
+    .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s cubic-bezier(.4,0,.2,1); }
+    .hero-slide.active { opacity: 1; z-index: 1; }
+    .hero-slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.35) saturate(1.2); animation: ken-burns 12s ease-in-out infinite alternate; }
+    .hero-slide:nth-child(2) img { animation-delay: -3s; }
+    .hero-slide:nth-child(3) img { animation-delay: -6s; }
+    .hero-slide:nth-child(4) img { animation-delay: -9s; }
+    @keyframes ken-burns { 0%{transform:scale(1) translate(0,0)} 100%{transform:scale(1.12) translate(-1%,-1%)} }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(3,7,18,0.2) 0%, rgba(3,7,18,0.5) 40%, #030712 100%); z-index: 2; }
+    .hero-content { position: absolute; bottom: 100px; left: 0; right: 0; z-index: 3; }
     .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2); border-radius: 999px; padding: 6px 16px; font-size: 11px; font-weight: 600; color: #67e8f9; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 16px; }
     .hero h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 12px; }
     .hero p { font-size: 1.1rem; color: rgba(255,255,255,0.5); max-width: 560px; line-height: 1.6; }
-    @media(max-width:768px) { .hero { height: 400px; } .hero h1 { font-size: 2rem; } .hero p { font-size: .95rem; } }
+    .hero-text { opacity: 0; transform: translateY(16px); transition: opacity .8s ease, transform .8s ease; }
+    .hero-text.visible { opacity: 1; transform: translateY(0); }
+    .hero-dots { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; gap: 8px; }
+    .hero-dot { width: 32px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.15); cursor: pointer; transition: all .4s; position: relative; overflow: hidden; }
+    .hero-dot.active { background: rgba(255,255,255,.25); }
+    .hero-dot.active::after { content: ''; position: absolute; inset: 0; background: #67e8f9; border-radius: 2px; animation: dot-fill 6s linear forwards; }
+    @keyframes dot-fill { 0%{width:0} 100%{width:100%} }
+    @media(max-width:768px) { .hero { height: 440px; } .hero h1 { font-size: 2rem; } .hero p { font-size: .95rem; } .hero-content { bottom: 70px; } }
 
     /* ═══ LIVE TICKER ═══ */
     .ticker { display: flex; gap: 12px; overflow-x: auto; padding: 8px 0 16px; scrollbar-width: none; -ms-overflow-style: none; }
@@ -184,14 +197,31 @@
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
 
-  <!-- ═══════════ HERO ═══════════ -->
-  <section class="hero">
-    <img src="assets/images/hero_stadium.png" alt="Stadium" class="hero-img">
+  <!-- ═══════════ HERO SLIDESHOW ═══════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-slide active" data-badge="Live Intelligence" data-title="See the line.<br>Read the game." data-desc="LumeLine tracks 47 oddsmakers in real-time, scores their accuracy, detects line manipulation, and generates ML-powered consensus predictions.">
+      <img src="assets/images/hero_football.png" alt="NFL Football">
+    </div>
+    <div class="hero-slide" data-badge="Anomaly Detection" data-title="The house always knows.<br>Now you will too." data-desc="4 anomaly detectors scan every line movement. Synchronized moves, reverse steam traps, and house divergence — flagged instantly.">
+      <img src="assets/images/hero_basketball.png" alt="NBA Basketball">
+    </div>
+    <div class="hero-slide" data-badge="47+ Sources" data-title="Every bookmaker.<br>Every line. Tracked." data-desc="From Pinnacle to DraftKings — we capture every odds movement across 47 sources, score their accuracy, and rank them in real-time.">
+      <img src="assets/images/hero_aerial.png" alt="Stadium Aerial">
+    </div>
+    <div class="hero-slide" data-badge="ML Consensus" data-title="AI-powered.<br>Transparency-first." data-desc="Our weighted ensemble model generates consensus predictions with confidence scoring. Low confidence? We defer to the house. Built 100% with Lume.">
+      <img src="assets/images/hero_analytics.png" alt="Analytics">
+    </div>
     <div class="hero-overlay"></div>
     <div class="hero-content mx">
-      <div class="hero-badge"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.5);animation:pulse 2s infinite"></span> Live Intelligence</div>
-      <h1 class="grad-text">See the line.<br>Read the game.</h1>
-      <p>LumeLine tracks 47 oddsmakers in real-time, scores their accuracy, detects line manipulation, and generates ML-powered consensus predictions with confidence scores.</p>
+      <div class="hero-badge" id="hero-badge"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.5);animation:pulse 2s infinite"></span> <span id="hero-badge-text">Live Intelligence</span></div>
+      <h1 class="grad-text hero-text visible" id="hero-title">See the line.<br>Read the game.</h1>
+      <p class="hero-text visible" id="hero-desc">LumeLine tracks 47 oddsmakers in real-time, scores their accuracy, detects line manipulation, and generates ML-powered consensus predictions.</p>
+    </div>
+    <div class="hero-dots" id="hero-dots">
+      <div class="hero-dot active" onclick="goSlide(0)"></div>
+      <div class="hero-dot" onclick="goSlide(1)"></div>
+      <div class="hero-dot" onclick="goSlide(2)"></div>
+      <div class="hero-dot" onclick="goSlide(3)"></div>
     </div>
   </section>
 
@@ -657,6 +687,61 @@
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // ═══ HERO SLIDESHOW ═══
+  let heroIdx = 0;
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.hero-dot');
+  const heroTitle = document.getElementById('hero-title');
+  const heroDesc = document.getElementById('hero-desc');
+  const heroBadgeText = document.getElementById('hero-badge-text');
+
+  function goSlide(idx) {
+    // Reset auto-advance timer
+    clearInterval(heroTimer);
+    heroIdx = idx;
+    updateSlide();
+    heroTimer = setInterval(nextSlide, 6000);
+  }
+
+  function nextSlide() {
+    heroIdx = (heroIdx + 1) % slides.length;
+    updateSlide();
+  }
+
+  function updateSlide() {
+    // Fade out text
+    heroTitle.classList.remove('visible');
+    heroDesc.classList.remove('visible');
+
+    setTimeout(() => {
+      // Switch slides
+      slides.forEach((s, i) => s.classList.toggle('active', i === heroIdx));
+      dots.forEach((d, i) => {
+        d.classList.toggle('active', i === heroIdx);
+        // Reset animation by forcing reflow
+        if (i === heroIdx) {
+          d.style.animation = 'none';
+          d.offsetHeight;
+          d.style.animation = '';
+        }
+      });
+
+      // Update text from data attributes
+      const active = slides[heroIdx];
+      heroBadgeText.textContent = active.dataset.badge;
+      heroTitle.innerHTML = active.dataset.title;
+      heroDesc.textContent = active.dataset.desc;
+
+      // Fade in text
+      setTimeout(() => {
+        heroTitle.classList.add('visible');
+        setTimeout(() => heroDesc.classList.add('visible'), 150);
+      }, 100);
+    }, 400);
+  }
+
+  let heroTimer = setInterval(nextSlide, 6000);
 
   // ═══ BOOT ═══
   fetchAll();
