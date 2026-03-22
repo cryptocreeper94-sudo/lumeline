@@ -415,6 +415,109 @@ app.get('/api/stripe/status', (req, res) => {
 });
 
 // ═══════════════════════════════════════════
+//  STRIPE CONNECT (Partner Payouts)
+// ═══════════════════════════════════════════
+// Partners onboard via Stripe Connect Express — banking details are handled
+// entirely by Stripe's hosted form. Payouts flow: Platform → Orbit Staffing → Partner.
+
+let partnerConnectId = null; // In prod, stored in DB per partner
+
+app.post('/api/partner/connect', async (req, res) => {
+  try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(503).json({ error: 'Stripe not configured' });
+    }
+    const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY);
+    const { partner_name, partner_email } = req.body;
+
+    // Check if already created
+    if (partnerConnectId) {
+      const accountLink = await stripe.accountLinks.create({
+        account: partnerConnectId,
+        refresh_url: `${req.protocol}://${req.get('host')}/partner-onboarding.html`,
+        return_url: `${req.protocol}://${req.get('host')}/api/partner/connect/return`,
+        type: 'account_onboarding'
+      });
+      return res.json({ url: accountLink.url, account_id: partnerConnectId });
+    }
+
+    // Create Express connected account for partner
+    const account = await stripe.accounts.create({
+      type: 'express',
+      country: 'US',
+      email: partner_email || undefined,
+      business_type: 'individual',
+      individual: { first_name: 'Mathew', last_name: 'Kemper' },
+      capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
+      metadata: { partner: 'mathew_kemper', ecosystem: 'trust_layer', platform: 'orbit_staffing' }
+    });
+
+    partnerConnectId = account.id;
+    console.log(`💳 Partner Connect account created: ${account.id}`);
+
+    // Create onboarding link
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: `${req.protocol}://${req.get('host')}/partner-onboarding.html`,
+      return_url: `${req.protocol}://${req.get('host')}/api/partner/connect/return`,
+      type: 'account_onboarding'
+    });
+
+    res.json({ url: accountLink.url, account_id: account.id });
+  } catch (err) {
+    console.error('Partner connect error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/partner/connect/return', (req, res) => {
+  // Stripe redirects here after partner completes banking setup
+  res.redirect('/partner-onboarding.html#slide=7');
+});
+
+app.get('/api/partner/connect/status', async (req, res) => {
+  try {
+    if (!partnerConnectId || !process.env.STRIPE_SECRET_KEY) {
+      return res.json({ linked: false });
+    }
+    const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY);
+    const account = await stripe.accounts.retrieve(partnerConnectId);
+    res.json({
+      linked: account.charges_enabled && account.payouts_enabled,
+      details_submitted: account.details_submitted,
+      account_id: partnerConnectId
+    });
+  } catch (err) {
+    res.json({ linked: false, error: err.message });
+  }
+});
+
+app.post('/api/partner/payout', async (req, res) => {
+  try {
+    if (!partnerConnectId || !process.env.STRIPE_SECRET_KEY) {
+      return res.status(400).json({ error: 'Partner account not linked' });
+    }
+    const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY);
+    const { amount_cents, description } = req.body;
+
+    // Create transfer from platform to partner's connected account
+    const transfer = await stripe.transfers.create({
+      amount: amount_cents || 0,
+      currency: 'usd',
+      destination: partnerConnectId,
+      description: description || 'LumeLine Partner Payout — Orbit Staffing',
+      metadata: { partner: 'mathew_kemper', via: 'orbit_staffing' }
+    });
+
+    console.log(`💰 Partner payout: $${(amount_cents / 100).toFixed(2)} → ${partnerConnectId}`);
+    res.json({ success: true, transfer_id: transfer.id });
+  } catch (err) {
+    console.error('Payout error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════
 //  SCHEDULED INGESTION
 // ═══════════════════════════════════════════
 const INTERVAL = (parseInt(process.env.INGESTION_INTERVAL_MINUTES) || 15) * 60 * 1000;

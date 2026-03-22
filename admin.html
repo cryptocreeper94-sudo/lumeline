@@ -284,6 +284,21 @@
         </div>
       </div>
 
+      <!-- Bank Account & Onboarding -->
+      <div class="glass">
+        <div class="section-title">🏦 Bank Account & Payouts</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:13px;font-weight:700" id="bank-label">Bank Status</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.25)" id="bank-detail">Checking...</div>
+          </div>
+          <div style="flex:1"></div>
+          <a href="/partner-onboarding.html" class="btn btn-cyan" style="text-decoration:none">📽️ View Onboarding Presentation</a>
+          <button class="btn btn-green" id="link-bank-btn" onclick="startBankLink()" style="display:none">🏦 Link Bank Account</button>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,.12)">Payouts processed via Orbit Staffing · Stripe Connect</div>
+      </div>
+
       <!-- Earnings Tracker -->
       <div class="glass">
         <div class="section-title">💰 My Earnings</div>
@@ -548,7 +563,38 @@
         const refHash = 'mathew-partner-' + Math.random().toString(36).slice(2, 10);
         document.getElementById('ref-link-input').value = `https://lumeline.bet/ref/${refHash}`;
 
+        // Check bank account status
+        try {
+          const bankRes = await fetch('/api/partner/connect/status').then(r => r.json());
+          if (bankRes.linked) {
+            document.getElementById('bank-label').textContent = '✅ Bank Linked';
+            document.getElementById('bank-detail').textContent = 'Payouts active · Stripe Connect';
+            document.getElementById('bank-detail').style.color = '#6ee7b7';
+          } else {
+            document.getElementById('bank-label').textContent = '⚠️ Bank Not Linked';
+            document.getElementById('bank-detail').textContent = 'Link your bank to receive payouts';
+            document.getElementById('bank-detail').style.color = '#fbbf24';
+            document.getElementById('link-bank-btn').style.display = '';
+          }
+        } catch {
+          document.getElementById('bank-detail').textContent = 'Unable to check — link via onboarding';
+          document.getElementById('link-bank-btn').style.display = '';
+        }
+
       } catch (err) { console.error('Partner load error:', err); }
+    }
+
+    async function startBankLink() {
+      try {
+        const res = await fetch('/api/partner/connect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ partner_name: 'Mathew Kemper' })
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+        else alert('Error: ' + (data.error || 'Could not create link'));
+      } catch (err) { alert('Connection error: ' + err.message); }
     }
 
     // ═══ PIPELINE (owner only) ═══

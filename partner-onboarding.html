@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partner Onboarding — LumeLine</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',system-ui,sans-serif;background:#030712;color:#fff;min-height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+    /* ── SLIDESHOW ── */
+    .slideshow{position:fixed;inset:0;z-index:10}
+    .slide{position:absolute;inset:0;display:flex;opacity:0;pointer-events:none;transition:opacity .8s ease}
+    .slide.active{opacity:1;pointer-events:auto}
+    .slide-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.35) blur(2px)}
+    .slide-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(3,7,18,.85),rgba(3,7,18,.6))}
+    .slide-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 32px;width:100%;max-width:800px;margin:0 auto}
+    .slide-content h1{font-size:clamp(1.8rem,5vw,3.2rem);font-weight:900;letter-spacing:-.04em;margin-bottom:12px;line-height:1.1}
+    .slide-content h2{font-size:clamp(1rem,3vw,1.6rem);font-weight:700;margin-bottom:20px;color:rgba(255,255,255,.5)}
+    .slide-content p{font-size:clamp(13px,1.8vw,16px);color:rgba(255,255,255,.45);line-height:1.8;margin-bottom:16px;max-width:600px}
+    .grad-text{background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+    /* ── NARRATION BOX ── */
+    .narration{background:rgba(6,182,212,.04);border:1px solid rgba(6,182,212,.12);border-radius:14px;padding:16px 24px;margin-top:12px;max-width:560px;font-size:13px;color:rgba(255,255,255,.35);line-height:1.7;font-style:italic}
+    .narration::before{content:'🎙️ ';font-style:normal}
+
+    /* ── CONTROLS ── */
+    .slide-nav{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:12px;background:rgba(12,18,36,.8);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:10px 20px}
+    .nav-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.12);border:none;cursor:pointer;transition:all .3s}
+    .nav-dot.active{background:#67e8f9;box-shadow:0 0 12px rgba(6,182,212,.4)}
+    .nav-btn{padding:8px 20px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .25s}
+    .nav-prev{background:rgba(255,255,255,.04);color:rgba(255,255,255,.3)}
+    .nav-prev:hover{background:rgba(255,255,255,.08)}
+    .nav-next{background:linear-gradient(135deg,#06b6d4,#3b82f6);color:#fff}
+    .nav-next:hover{box-shadow:0 0 20px rgba(6,182,212,.3)}
+
+    /* ── SLIDE FEATURES ── */
+    .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;text-align:left}
+    .feature-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px 16px}
+    .feature-box .f-icon{font-size:20px;margin-bottom:6px}
+    .feature-box .f-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:4px}
+    .feature-box .f-desc{font-size:11px;color:rgba(255,255,255,.25);line-height:1.5}
+    .tier-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+    .tier-pill{padding:6px 14px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+
+    /* ── BANK LINK ── */
+    .bank-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 36px;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;border:none;font-family:inherit;background:linear-gradient(135deg,#06b6d4,#3b82f6);color:#fff;margin-top:16px;transition:all .3s;box-shadow:0 0 32px rgba(6,182,212,.2)}
+    .bank-btn:hover{box-shadow:0 0 56px rgba(6,182,212,.35);transform:translateY(-2px)}
+    .bank-status{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-size:12px;font-weight:600;margin-top:8px}
+    .bank-linked{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);color:#6ee7b7}
+    .bank-pending{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.15);color:#fbbf24}
+
+    /* ── PAYOUT FLOW ── */
+    .flow-chain{display:flex;align-items:center;justify-content:center;gap:0;margin:20px 0;flex-wrap:wrap}
+    .flow-node{padding:12px 20px;border-radius:12px;font-size:11px;font-weight:700;text-align:center;min-width:120px}
+    .flow-arrow{font-size:16px;color:rgba(255,255,255,.15);padding:0 8px}
+    .fn-stripe{background:rgba(99,91,255,.08);border:1px solid rgba(99,91,255,.2);color:#818cf8}
+    .fn-orbit{background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);color:#67e8f9}
+    .fn-bank{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:#6ee7b7}
+
+    /* ── AUDIO ── */
+    .audio-btn{position:fixed;top:20px;right:20px;z-index:40;padding:8px 16px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.3);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+    .audio-btn:hover{background:rgba(255,255,255,.08);color:#67e8f9}
+    .exit-btn{position:fixed;top:20px;left:20px;z-index:40;padding:8px 16px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.3);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;transition:all .2s}
+    .exit-btn:hover{background:rgba(255,255,255,.08);color:#67e8f9}
+
+    @media(max-width:640px){.feature-grid{grid-template-columns:1fr}.flow-chain{flex-direction:column;gap:8px}.flow-arrow{transform:rotate(90deg)}}
+  </style>
+</head><body>
+  <a href="/" class="exit-btn">✕ Exit</a>
+  <button class="audio-btn" id="audio-btn" onclick="toggleAudio()">🔊 Audio Off</button>
+
+  <!-- ═══ SLIDES ═══ -->
+  <div class="slideshow">
+
+    <!-- SLIDE 1: Welcome -->
+    <div class="slide active" data-bg="/assets/onboarding/onboarding_welcome_1774222801724.png">
+      <div class="slide-bg"></div><div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h2 style="color:rgba(255,255,255,.3)">Welcome to</h2>
+        <h1 class="grad-text">LumeLine</h1>
+        <p>Mathew, welcome to our partner program. LumeLine is the Trust Layer ecosystem's AI-powered odds intelligence platform — and you're now part of the team.</p>
+        <p style="color:rgba(255,255,255,.3)">This presentation will walk you through
+the system, your dashboard, your earning potential, and how to link your bank account for automatic payouts.</p>
+        <div class="narration">Welcome aboard, Mathew. I'm going to walk you through everything you need to know about LumeLine and your role as a partner. Let's get started.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: How It Works -->
+    <div class="slide" data-bg="/assets/onboarding/onboarding_pipeline_1774222813101.png">
+      <div class="slide-bg"></div><div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1 class="grad-text">How LumeLine Works</h1>
+        <p>Our AI ingests odds from 47+ sportsbooks every 15 minutes, detects anomalies, and generates ML-powered consensus predictions.</p>
+        <div class="feature-grid">
+          <div class="feature-box"><div class="f-icon">📡</div><div class="f-title">Real-Time Ingestion</div><div class="f-desc">47+ bookmakers polled continuously, capturing every line movement.</div></div>
+          <div class="feature-box"><div class="f-icon">🧠</div><div class="f-title">AI Anomaly Detection</div><div class="f-desc">4 detection algorithms: sync moves, reverse steam, house divergence, late flips.</div></div>
+          <div class="feature-box"><div class="f-icon">🎯</div><div class="f-title">Consensus Engine</div><div class="f-desc">ML-weighted ensemble predictions with confidence scoring.</div></div>
+          <div class="feature-box"><div class="f-icon">🔒</div><div class="f-title">Integrity Scoring</div><div class="f-desc">Every game rated 0–100 based on line consistency and source alignment.</div></div>
+        </div>
+        <div class="narration">LumeLine is built on a real-time data pipeline. We pull odds from forty-seven sportsbooks, run them through our anomaly detectors, and generate consensus predictions that users rely on for their decisions.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Your Dashboard -->
+    <div class="slide" data-bg="/assets/onboarding/onboarding_dashboard_1774222867586.png">
+      <div class="slide-bg"></div><div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1 class="grad-text">Your Partner Dashboard</h1>
+        <p>Your partner panel gives you view-only access to everything happening in the system — without exposing sensitive secrets.</p>
+        <div class="feature-grid">
+          <div class="feature-box"><div class="f-icon">🚦</div><div class="f-title">System Health</div><div class="f-desc">Real-time traffic lights for API, Database, Odds Feed, Twilio, Resend, and Stripe.</div></div>
+          <div class="feature-box"><div class="f-icon">📈</div><div class="f-title">Live Analytics</div><div class="f-desc">Page views, user growth, API calls, and pick volume with sparkline charts.</div></div>
+          <div class="feature-box"><div class="f-icon">💰</div><div class="f-title">Earnings Tracker</div><div class="f-desc">See your total earned, pending, and paid-out earnings in real time.</div></div>
+          <div class="feature-box"><div class="f-icon">🤝</div><div class="f-title">Affiliate Program</div><div class="f-desc">5-tier commission structure from 10% to 20% across the entire ecosystem.</div></div>
+        </div>
+        <div class="narration">This is your command center. You'll see system health indicators, live analytics, your earnings, and the full affiliate program details. You have view access to everything except sensitive secrets like API keys and passwords.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: How You Earn -->
+    <div class="slide" data-bg="/assets/onboarding/onboarding_earnings_1774222827619.png">
+      <div class="slide-bg"></div><div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1 class="grad-text">How You Earn</h1>
+        <p>You earn commissions on referrals across the entire 34-app Trust Layer ecosystem through TrustHub.</p>
+        <div class="tier-row">
+          <div class="tier-pill" style="background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.06)">BASE 10%</div>
+          <div class="tier-pill" style="background:rgba(192,192,192,.08);color:#d4d4d4;border:1px solid rgba(192,192,192,.15)">SILVER 12.5%</div>
+          <div class="tier-pill" style="background:rgba(251,191,36,.08);color:#fbbf24;border:1px solid rgba(251,191,36,.15)">GOLD 15%</div>
+          <div class="tier-pill" style="background:rgba(6,182,212,.08);color:#67e8f9;border:1px solid rgba(6,182,212,.15)">PLATINUM 17.5%</div>
+          <div class="tier-pill" style="background:rgba(168,85,247,.08);color:#c4b5fd;border:1px solid rgba(168,85,247,.15)">DIAMOND 20%</div>
+        </div>
+        <p>Your referral link works across all apps. Share it with anyone — when they subscribe or transact, you earn. Minimum payout: 10 SIG, processed within 48 hours via TrustHub.</p>
+        <div class="narration">As a partner, you earn commissions at every level. Start at ten percent as a base affiliate and work your way up to twenty percent at the Diamond tier. Your referral link works across all thirty-four apps in the ecosystem. Payouts are processed in SIG tokens through TrustHub.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Link Your Bank Account -->
+    <div class="slide" data-bg="/assets/onboarding/onboarding_banking_1774222840210.png">
+      <div class="slide-bg"></div><div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1 class="grad-text">Link Your Bank Account</h1>
+        <p>To receive payouts, connect your bank account through Stripe Connect. This is a secure, PCI-compliant process — we never see or store your banking details.</p>
+        <div class="feature-grid">
+          <div class="feature-box"><div class="f-icon">🔐</div><div class="f-title">Stripe Hosted Form</div><div class="f-desc">Your banking info is entered on Stripe's secure page — never on ours.</div></div>
+          <div class="feature-box"><div class="f-icon">🏦</div><div class="f-title">Direct Deposits</div><div class="f-desc">Payouts go directly to your linked bank account via Orbit Staffing.</div></div>
+        </div>
+        <button class="bank-btn" id="bank-btn" onclick="linkBankAccount()">🏦 Link Bank Account via Stripe</button>
+        <div id="bank-status-wrap"></div>
+        <div class="narration">Click the button above to connect your bank. You'll be redirected to Stripe's secure page where you'll enter your banking details. This is the same platform used by millions of businesses. We never see your account numbers — it's all handled by Stripe.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Payout Flow -->
+    <div class="slide" data-bg="/assets/onboarding/onboarding_payout_flow_1774222882980.png">
+      <div class="slide-bg"></div><div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1 class="grad-text">Your Payout Flow</h1>
+        <p>Here's exactly how money flows from users to your bank account:</p>
+        <div class="flow-chain">
+          <div class="flow-node fn-stripe">💳<br>User Payment<br><span style="font-size:9px;opacity:.5">via Stripe</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node fn-stripe">📦<br>LumeLine<br><span style="font-size:9px;opacity:.5">Platform</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node fn-orbit">🏢<br>Orbit Staffing<br><span style="font-size:9px;opacity:.5">HR & Finance</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node fn-bank">🏦<br>Your Bank<br><span style="font-size:9px;opacity:.5">Mathew Kemper</span></div>
+        </div>
+        <p style="margin-top:12px">Orbit Staffing is our HR and financial arm. They handle all contractor payouts across the ecosystem using Stripe Connect. Your earnings are transferred automatically based on your affiliate activity.</p>
+        <div class="narration">Here's the full payout chain. When a user pays through Stripe, the funds flow through LumeLine to Orbit Staffing — our HR and financial arm — and then directly to your bank account. This is the same system we use for all partners across the ecosystem.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Getting Started -->
+    <div class="slide" data-bg="/assets/onboarding/onboarding_getstarted_1774222897343.png">
+      <div class="slide-bg"></div><div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1 class="grad-text">You're All Set</h1>
+        <p>Here's how to access your partner dashboard going forward:</p>
+        <div class="feature-grid">
+          <div class="feature-box"><div class="f-icon">1️⃣</div><div class="f-title">Triple-Click the Trust Layer Badge</div><div class="f-desc">Find the Trust Layer logo in the footer of any LumeLine page. Triple-click it to open the secure access gate.</div></div>
+          <div class="feature-box"><div class="f-icon">2️⃣</div><div class="f-title">Enter Your Password</div><div class="f-desc">Use the secure password you set during your first login. This gives you access to the partner dashboard.</div></div>
+          <div class="feature-box"><div class="f-icon">3️⃣</div><div class="f-title">Share Your Referral Link</div><div class="f-desc">Find your unique referral link in the dashboard. Share it — every referral earns you commission.</div></div>
+          <div class="feature-box"><div class="f-icon">4️⃣</div><div class="f-title">Need Help?</div><div class="f-desc">Reach out via Signal Chat or contact the team through the Trust Layer ecosystem.</div></div>
+        </div>
+        <div style="margin-top:20px">
+          <a href="/admin.html" class="bank-btn" style="text-decoration:none;font-size:14px;padding:14px 32px">🚀 Go to Partner Dashboard</a>
+        </div>
+        <div class="narration">That's everything you need to know, Mathew. Triple-click the Trust Layer badge in the footer to access your dashboard anytime. Share your referral link, and start earning. Welcome to the team.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ NAVIGATION ═══ -->
+  <div class="slide-nav">
+    <button class="nav-btn nav-prev" onclick="prevSlide()">← Back</button>
+    <div id="nav-dots"></div>
+    <button class="nav-btn nav-next" onclick="nextSlide()" id="nav-next-btn">Next →</button>
+  </div>
+
+  <script>
+    // ═══ SLIDESHOW ENGINE ═══
+    const slides = document.querySelectorAll('.slide');
+    let current = 0;
+    let audioEnabled = false;
+
+    // Set background images
+    slides.forEach(s => {
+      const bg = s.getAttribute('data-bg');
+      if (bg) s.querySelector('.slide-bg').style.backgroundImage = `url(${bg})`;
+    });
+
+    // Build dots
+    const dotsWrap = document.getElementById('nav-dots');
+    slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => goToSlide(i);
+      dotsWrap.appendChild(dot);
+    });
+
+    function goToSlide(idx) {
+      slides[current].classList.remove('active');
+      document.querySelectorAll('.nav-dot')[current].classList.remove('active');
+      current = idx;
+      slides[current].classList.add('active');
+      document.querySelectorAll('.nav-dot')[current].classList.add('active');
+      // Update button text
+      document.getElementById('nav-next-btn').textContent = current === slides.length - 1 ? 'Finish ✓' : 'Next →';
+      // Try to play audio for this slide
+      playSlideAudio(current);
+    }
+
+    function nextSlide() {
+      if (current === slides.length - 1) {
+        window.location.href = '/admin.html';
+        return;
+      }
+      goToSlide(current + 1);
+    }
+
+    function prevSlide() {
+      if (current > 0) goToSlide(current - 1);
+    }
+
+    // Keyboard nav
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      else if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    // ═══ AUDIO (ElevenLabs MP3) ═══
+    let currentAudio = null;
+    const audioFiles = [
+      '/assets/onboarding/slide1.mp3',
+      '/assets/onboarding/slide2.mp3',
+      '/assets/onboarding/slide3.mp3',
+      '/assets/onboarding/slide4.mp3',
+      '/assets/onboarding/slide5.mp3',
+      '/assets/onboarding/slide6.mp3',
+      '/assets/onboarding/slide7.mp3'
+    ];
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      document.getElementById('audio-btn').textContent = audioEnabled ? '🔊 Audio On' : '🔇 Audio Off';
+      if (audioEnabled) playSlideAudio(current);
+      else if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    }
+
+    function playSlideAudio(idx) {
+      if (!audioEnabled) return;
+      if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+      const audio = new Audio(audioFiles[idx]);
+      audio.volume = 0.8;
+      audio.play().catch(() => {}); // May fail if files don't exist yet
+      currentAudio = audio;
+      // Auto-advance when audio ends (optional)
+      audio.onended = () => {
+        if (idx < slides.length - 1) setTimeout(() => nextSlide(), 1500);
+      };
+    }
+
+    // ═══ STRIPE CONNECT ═══
+    async function linkBankAccount() {
+      const btn = document.getElementById('bank-btn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Creating secure link...';
+      try {
+        const res = await fetch('/api/partner/connect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ partner_name: 'Mathew Kemper', partner_email: '' })
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error(data.error || 'Failed to create account link');
+        }
+      } catch (err) {
+        btn.textContent = '🏦 Link Bank Account via Stripe';
+        btn.disabled = false;
+        alert('Connection error: ' + err.message + '\n\nPlease ensure the server is running.');
+      }
+    }
+
+    // Check if bank is already linked
+    async function checkBankStatus() {
+      try {
+        const res = await fetch('/api/partner/connect/status');
+        const data = await res.json();
+        if (data.linked) {
+          document.getElementById('bank-btn').style.display = 'none';
+          document.getElementById('bank-status-wrap').innerHTML =
+            '<div class="bank-status bank-linked">✓ Bank account linked — payouts active</div>';
+        }
+      } catch {}
+    }
+    checkBankStatus();
+  </script>
+</body></html>
