@@ -1,110 +1,235 @@
-# LumeLine — Technical Integration Brief for Mathew
-### Prepared by DarkWave Studios · Trust Layer Ecosystem
-### Revision 2.0 · March 2026
+# LumeLine ↔ Partner Integration Specification
+**Document Type:** Technical Integration Contract  
+**Version:** 3.0.0  
+**Last Updated:** 2026-03-22  
+**Status:** Draft — Pending Partner Review  
+**Classification:** Confidential — Partner Eyes Only
 
 ---
 
-> **TL;DR:** Jason's building a real-time odds intelligence engine that tracks every bookmaker, detects when they're colluding, and uses ML to tell you who's lying. Mathew's picks are already ranked #1 in the system. Here's how to connect your site to it.
+## Table of Contents
+1. [System Overview](#1-system-overview)
+2. [Authentication & Authorization](#2-authentication--authorization)
+3. [API Specification](#3-api-specification)
+4. [Data Contracts & Schemas](#4-data-contracts--schemas)
+5. [Security Requirements](#5-security-requirements)
+6. [Error Handling](#6-error-handling)
+7. [Rate Limiting & Quotas](#7-rate-limiting--quotas)
+8. [Webhook Integration](#8-webhook-integration)
+9. [Widget Embed Security](#9-widget-embed-security)
+10. [Push Notification Architecture](#10-push-notification-architecture)
+11. [Data Privacy & Retention](#11-data-privacy--retention)
+12. [Environment Configuration](#12-environment-configuration)
+13. [Deployment & Infrastructure](#13-deployment--infrastructure)
+14. [Monitoring & Observability](#14-monitoring--observability)
+15. [Incident Response](#15-incident-response)
+16. [SLA & Availability](#16-sla--availability)
+17. [DarkWave UI Standards](#17-darkwave-ui-standards)
+18. [Onboarding Checklist](#18-onboarding-checklist)
 
 ---
 
-## 1. What LumeLine Actually Does
+## 1. System Overview
 
-LumeLine treats every oddsmaker as a **signal source** — not a place to bet, but a data point to analyze. It runs a continuous intelligence pipeline:
+LumeLine is an odds intelligence platform that ingests line data from 47 bookmakers, scores source accuracy, detects anomalous line manipulation, and produces weighted consensus predictions. It is part of the Trust Layer ecosystem.
+
+### Architecture
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  47 Books   │────▶│  Snapshot    │────▶│  Anomaly    │────▶│  Consensus  │
-│  Polled     │     │  Engine      │     │  Detector   │     │  Engine     │
-│  Every 15m  │     │  3 Markets   │     │  5 Signals  │     │  ML + GPT-4 │
-└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
-       │                   │                   │                    │
-       ▼                   ▼                   ▼                    ▼
-   Odds API         PostgreSQL          Integrity Score      Weighted Vote
-   ESPN/API-FB      Time-Series         Collusion Flags      House Lean Bias
-                    Line Movements      Reverse Steam        AI Reasoning
+                        ┌───────────────────────────┐
+                        │      Load Balancer         │
+                        │   (Render / Cloudflare)    │
+                        └─────────┬─────────────────┘
+                                  │
+                        ┌─────────▼─────────────────┐
+                        │     Express API Server     │
+                        │     Node.js 20 LTS         │
+                        │     Helmet + CORS + Auth   │
+                        └──┬──────┬──────┬──────────┘
+                           │      │      │
+              ┌────────────┘      │      └────────────┐
+              ▼                   ▼                    ▼
+    ┌──────────────────┐ ┌───────────────┐  ┌──────────────────┐
+    │  Neon PostgreSQL │ │  The Odds API │  │  OpenAI API      │
+    │  (Serverless)    │ │  (Upstream)   │  │  (Advisory Only) │
+    │  TLS Required    │ │  API Key Auth │  │  No PII Sent     │
+    └──────────────────┘ └───────────────┘  └──────────────────┘
 ```
 
-### The Engine Breakdown
-
-| Module | What It Does | Lines of Code |
-|--------|-------------|---------------|
-| `ingestion.js` | Polls The Odds API for spreads, moneylines, totals across NFL + NBA. Captures every line movement with millisecond timestamps. Logs API quota usage. | 142 |
-| `scoring.lume` | Calculates source accuracy (hit rate, CLV, consistency, timing). Auto-tiers sources as Sharp → Reliable → Neutral → Fade based on 30-day performance windows. | 180 |
-| `anomaly.lume` | Runs 5 detection algorithms: synchronized moves, reverse steam traps, house divergence, late flips, outlier consensus. Each anomaly penalizes the game's integrity score. | 168 |
-| `consensus.lume` | Weighted ensemble — Sharp sources get 2.5x weight, Fade sources get 0.3x. Uses `ask gpt4` for natural language analysis. When confidence < 60%, system defers to house line. | 145 |
-| `db.js` | Neon Serverless PostgreSQL with 7 tables, 4 enum types, 12 composite indexes, 2 materialized views for real-time leaderboard and active games. | 108 |
-| `server.js` | Express REST API with 8 endpoints, CORS, scheduled ingestion (cron), widget data endpoint for partner embedding, health monitoring. | 168 |
-| `dashboard.lume` | Full premium UI built in Lume — glass-card glassmorphism, floating orb animations, 3-column bento grid, game card carousel, source leaderboard, pattern feed, AI insight panel. | 320 |
-| `schema.sql` | PostgreSQL schema with UUID primary keys, JSONB metadata columns, cascade deletes, check constraints, trigram indexes for fuzzy search. | 156 |
-
-**Total: ~1,400 lines across 12 files. Built in 2 hours.**
+### Data Flow
+1. **Ingestion** — Polls The Odds API every 15 min for spreads, moneylines, totals
+2. **Scoring** — Calculates per-source accuracy (hit rate, CLV, consistency, timing)
+3. **Anomaly Detection** — 5 signals: `sync_move`, `reverse_steam`, `house_divergence`, `late_flip`, `outlier_consensus`
+4. **Consensus** — Weighted ensemble. Sharp sources: 2.5x weight. Below 60% confidence: house-lean bias activates
+5. **Serving** — REST API + optional widget embed + webhook push
 
 ---
 
-## 2. Mathew's Current Standing
+## 2. Authentication & Authorization
 
-Mathew's picks are fed into the system as an **external source**. His current stats:
-
-| Metric | Value | Rank |
-|--------|-------|------|
-| **Accuracy (30d)** | 71% | **#1 overall** |
-| **Last 10** | 8-2 | Streak |
-| **Tier** | ⭐ **Sharp** | Auto-promoted |
-| **Weight Multiplier** | 2.5x | Highest tier |
-| **Total Picks** | 124 | Growing |
-
-The system auto-promoted Mathew to Sharp tier based on his 71% hit rate — higher than Pinnacle (68%) and Circa (64%). His picks carry the heaviest weight in consensus calculations.
-
----
-
-## 3. Integration Options
-
-### Option A: Widget Embed (Easy)
-Drop a `<script>` tag and LumeLine renders a mini-dashboard on your site.
-
-```html
-<!-- LumeLine Widget -->
-<div id="lumeline-widget"></div>
-<script src="https://lumeline.dwtl.io/widget.js" 
-        data-source="mathew" 
-        data-theme="dark"
-        data-games="6"></script>
-```
-
-### Option B: REST API (Full Control)
+### API Key Authentication
+All partner API requests require a bearer token issued by LumeLine.
 
 ```
-Base URL: https://lumeline.dwtl.io/api
-
-GET  /api/games              → All active games with consensus
-GET  /api/games/:id          → Full game breakdown (snapshots, anomalies)
-GET  /api/sources             → Source leaderboard
-GET  /api/sources/:slug       → Individual source profile
-POST /api/picks               → Submit a pick
-GET  /api/widget              → Pre-formatted widget data
-GET  /api/health              → System health
-POST /api/ingest              → Trigger manual ingestion
+Authorization: Bearer ll_partner_<key>
 ```
 
-**Submit a pick:**
+**Key format:** `ll_partner_` prefix + 48-char base64 token  
+**Key rotation:** Every 90 days. Both old and new keys are valid for a 7-day grace period.  
+**Key storage:** Keys must be stored encrypted at rest. Do not commit keys to version control. Use environment variables or a secrets manager (e.g., Doppler, AWS Secrets Manager, Vault).
+
+### Permission Scopes
+
+| Scope | Description | Granted By Default |
+|-------|-------------|-------------------|
+| `read:games` | List games, consensus, snapshots | ✅ |
+| `read:sources` | View source leaderboard | ✅ |
+| `write:picks` | Submit external picks | ✅ |
+| `read:anomalies` | View anomaly details | ✅ |
+| `read:widget` | Access widget data endpoint | ✅ |
+| `write:ingest` | Trigger manual ingestion | ❌ Admin only |
+| `admin` | Full access | ❌ Internal only |
+
+### IP Allowlisting (Optional)
+Partners may optionally register up to 5 static IP addresses. If configured, requests from non-allowlisted IPs are rejected with `403`.
+
 ```json
-POST /api/picks
+PATCH /api/partner/config
 {
-  "source_slug": "mathew",
-  "game_id": "uuid-of-game",
-  "market": "spread",
-  "pick_value": "KC -3.5",
-  "confidence": 85
+  "allowed_ips": ["203.0.113.10", "198.51.100.0/24"]
 }
 ```
 
-**Response:**
+---
+
+## 3. API Specification
+
+**Base URL:** `https://lumeline.dwtl.io/api`  
+**Protocol:** HTTPS only (HTTP requests return `301`)  
+**Content-Type:** `application/json`  
+**API Version:** `v1` (included in response headers as `X-API-Version`)
+
+### Endpoints
+
+#### `GET /api/health`
+Health check. No auth required.
+```json
+// Response 200
+{
+  "status": "healthy",
+  "version": "0.1.0",
+  "uptime": 84232,
+  "db": "connected",
+  "ingestion_last_run": "2026-03-22T18:15:00Z",
+  "ingestion_status": "success"
+}
+```
+
+#### `GET /api/games`
+Returns active games with latest consensus. Auth required.
+
+**Query Parameters:**
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| `sport` | string | `null` | Filter by sport (`NFL`, `NBA`) |
+| `status` | string | `upcoming` | `upcoming`, `live`, `final` |
+| `limit` | int | `25` | Max results (1-100) |
+| `offset` | int | `0` | Pagination offset |
+
+```json
+// Response 200
+{
+  "games": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "external_id": "abc123",
+      "sport": "NFL",
+      "home_team": "Kansas City Chiefs",
+      "away_team": "Denver Broncos",
+      "start_time": "2026-03-23T01:20:00Z",
+      "status": "upcoming",
+      "integrity_score": 88,
+      "home_likelihood": 72,
+      "away_likelihood": 28,
+      "confidence": 81,
+      "house_lean": false,
+      "reasoning": "4 of 5 sharps favor KC...",
+      "sources_agree": 4,
+      "sources_disagree": 1,
+      "active_anomalies": 0
+    }
+  ],
+  "count": 6,
+  "limit": 25,
+  "offset": 0
+}
+```
+
+#### `GET /api/games/:id`
+Full game breakdown including snapshots and anomalies.
+
+```json
+// Response 200
+{
+  "game": { /* game object */ },
+  "snapshots": [
+    {
+      "id": "uuid",
+      "source_name": "Pinnacle",
+      "source_tier": "sharp",
+      "market": "spread",
+      "line": -3.5,
+      "odds_home": -110,
+      "odds_away": -110,
+      "captured_at": "2026-03-22T18:15:00Z",
+      "time_to_game": 420
+    }
+  ],
+  "anomalies": [
+    {
+      "id": "uuid",
+      "signal_type": "sync_move",
+      "severity": "high",
+      "description": "3 sources moved in sync within 4 minutes",
+      "detected_at": "2026-03-22T17:50:00Z"
+    }
+  ]
+}
+```
+
+#### `GET /api/sources`
+Source leaderboard sorted by 30-day accuracy.
+
+#### `GET /api/sources/:slug`
+Individual source profile. Slug examples: `pinnacle`, `draftkings`, `mathew`.
+
+#### `POST /api/picks`
+Submit an external pick. Auth required, scope `write:picks`.
+
+**Request Body:**
 ```json
 {
+  "source_slug": "mathew",       // required — registered source slug
+  "game_id": "uuid",             // required — must reference an active game
+  "market": "spread",            // optional — spread|moneyline|total (default: spread)
+  "pick_value": "KC -3.5",      // required — free-text pick description
+  "confidence": 85               // optional — 0-100 (default: 50)
+}
+```
+
+**Validation Rules:**
+- `source_slug` must exist in the `sources` table
+- `game_id` must reference a game with status `upcoming` or `live`
+- `confidence` must be 0–100
+- Duplicate picks (same source + game + market) return `409 Conflict`
+
+```json
+// Response 201
+{
   "id": "pick_uuid",
-  "source_id": "mathew_uuid",
+  "source_id": "source_uuid",
   "game_id": "game_uuid",
+  "market": "spread",
   "pick_value": "KC -3.5",
   "confidence": 85,
   "result": null,
@@ -112,248 +237,562 @@ POST /api/picks
 }
 ```
 
----
+#### `GET /api/widget`
+Pre-formatted data for the embeddable widget. Returns the top 6 games with simplified consensus data and source count. Auth required, scope `read:widget`.
 
-## 4. Push Notifications (for Mathew's Customers)
-
-We recommend combining **Twilio** (SMS/push) + **Resend** (email) for a full notification stack.
-
-### Twilio Setup (SMS Alerts)
-```bash
-npm install twilio
-```
-```javascript
-import twilio from 'twilio';
-const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
-
-// Send alert when LumeLine flags a high-confidence consensus
-async function sendAlert(phone, game, consensus) {
-  await client.messages.create({
-    body: `🎯 LumeLine Alert: ${game.away_team} @ ${game.home_team} — ` +
-          `${consensus.confidence}% confidence, ${consensus.integrity}/100 integrity. ` +
-          `${consensus.house_lean ? '🏠 House Lean Active' : '✅ Clean'}`,
-    from: process.env.TWILIO_PHONE,
-    to: phone
-  });
+```json
+// Response 200
+{
+  "games": [ /* simplified game objects */ ],
+  "updated_at": "2026-03-22T18:15:00Z",
+  "branding": "LumeLine · Trust Layer",
+  "source_count": 47
 }
-```
-
-### Resend Setup (Styled Email)
-```bash
-npm install resend
-```
-```javascript
-import { Resend } from 'resend';
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-async function sendDailyBrief(email, games, topSource) {
-  await resend.emails.send({
-    from: 'LumeLine <alerts@lumeline.dwtl.io>',
-    to: email,
-    subject: `📊 Daily Brief — ${games.length} games, ${topSource.name} leads at ${topSource.accuracy_30d}%`,
-    html: buildEmailTemplate(games, topSource)  // Premium HTML email
-  });
-}
-```
-
-### Recommended Architecture
-```
-LumeLine Consensus Engine
-         │
-         ├── High Confidence (≥70%) ──▶ Twilio SMS ──▶ Mathew's Customers
-         ├── Anomaly Alert ──────────▶ Twilio SMS ──▶ Mathew's Customers
-         └── Daily Summary ──────────▶ Resend Email ──▶ Full breakdown
-```
-
-**Environment Variables Needed:**
-```bash
-TWILIO_SID=ACxxxxxxxxxx
-TWILIO_AUTH=your_auth_token
-TWILIO_PHONE=+1234567890
-RESEND_API_KEY=re_xxxxxxxxxx
 ```
 
 ---
 
-## 5. DarkWave Design System (Ultra-Premium UI)
+## 4. Data Contracts & Schemas
 
-Our canonical design language — **DarkWave** — is what makes everything look like it costs $50K to build. Here's the system:
-
-### Color Palette
-```css
---bg-primary:      #030712    /* Deep space black */
---bg-card:         rgba(12, 18, 36, 0.65)  /* Glass */
---accent-cyan:     #67e8f9    /* Primary accent */
---accent-emerald:  #6ee7b7    /* Success */
---accent-amber:    #fbbf24    /* Warning */
---accent-red:      #fca5a5    /* Danger */
---accent-purple:   #a78bfa    /* AI/ML elements */
---text-primary:    #ffffff
---text-secondary:  rgba(255, 255, 255, 0.4)
---text-muted:      rgba(255, 255, 255, 0.15)
+### Game Object
+```typescript
+interface Game {
+  id: string;            // UUID v4
+  external_id: string;   // The Odds API game ID
+  sport: 'NFL' | 'NBA';
+  league: string;
+  home_team: string;
+  away_team: string;
+  start_time: string;    // ISO 8601 UTC
+  status: 'upcoming' | 'live' | 'final';
+  home_score: number | null;
+  away_score: number | null;
+  integrity_score: number;  // 0-100
+  created_at: string;
+  updated_at: string;
+}
 ```
 
-### Glass Cards
+### Consensus Object
+```typescript
+interface Consensus {
+  game_id: string;
+  home_likelihood: number;   // 0-100
+  away_likelihood: number;   // 0-100, always 100 - home_likelihood
+  confidence: number;        // 0-99, never 100
+  alignment: number;         // 0-100, % of weighted vote in dominant direction
+  integrity: number;         // 0-100, penalized by anomalies
+  house_lean: boolean;       // true when confidence < 60 or integrity < 50
+  reasoning: string;         // AI-generated or fallback text
+  sources_agree: number;
+  sources_disagree: number;
+  generated_at: string;
+}
+```
+
+### Source Object
+```typescript
+interface Source {
+  id: string;
+  name: string;
+  slug: string;
+  type: 'bookmaker' | 'external' | 'model';
+  tier: 'sharp' | 'reliable' | 'neutral' | 'fade' | 'unranked';
+  accuracy_7d: number;
+  accuracy_30d: number;
+  accuracy_90d: number;
+  clv_score: number;
+  total_picks: number;
+  correct_picks: number;
+}
+```
+
+### Anomaly Object
+```typescript
+interface Anomaly {
+  id: string;
+  game_id: string;
+  signal_type: 'sync_move' | 'reverse_steam' | 'house_divergence' | 'late_flip' | 'outlier_consensus';
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  description: string;
+  sources_involved: string[];  // UUIDs
+  confidence: number;
+  detected_at: string;
+  resolved: boolean;
+}
+```
+
+### Enum: Severity → Integrity Penalty
+| Severity | Integrity Penalty | Threshold |
+|----------|------------------|-----------|
+| `critical` | -30 | ≥ 6 sources in sync |
+| `high` | -20 | Reverse steam, late flips |
+| `medium` | -10 | House divergence > 3.5pts |
+| `low` | -5 | Minor outliers |
+
+---
+
+## 5. Security Requirements
+
+### Transport
+- **TLS 1.2+** required for all connections. TLS 1.0/1.1 rejected.
+- **HSTS** header set with `max-age=31536000; includeSubDomains`.
+- **Certificate pinning** not required but recommended for mobile clients.
+
+### Headers
+The API sets the following security headers via `helmet`:
+```
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 0
+Referrer-Policy: strict-origin-when-cross-origin
+Content-Security-Policy: default-src 'self'
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+```
+
+### Input Validation
+- All string inputs sanitized (HTML entities escaped, SQL injection prevented via parameterized queries)
+- UUID parameters validated with regex `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`
+- Request body size limited to 10KB
+- `confidence` field validated as integer 0–100
+- `market` field validated against enum `['spread', 'moneyline', 'total', 'prop']`
+
+### Secrets Management
+| Secret | Storage | Rotation |
+|--------|---------|----------|
+| `DATABASE_URL` | Environment variable | On credential change |
+| `ODDS_API_KEY` | Environment variable | Annual |
+| `OPENAI_API_KEY` | Environment variable | On compromise |
+| `PARTNER_API_KEYS` | Database (hashed, bcrypt) | 90-day rotation |
+| `TWILIO_AUTH` | Environment variable | Annual |
+| `RESEND_API_KEY` | Environment variable | Annual |
+
+### CORS Policy
+```javascript
+cors({
+  origin: [
+    'https://lumeline.dwtl.io',
+    'https://*.dwtl.io',
+    process.env.PARTNER_ORIGIN  // partner's domain
+  ],
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false,
+  maxAge: 86400
+})
+```
+
+---
+
+## 6. Error Handling
+
+### Error Response Format
+All errors follow a consistent schema:
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Human-readable description",
+    "field": "confidence",          // optional, for validation errors
+    "request_id": "req_abc123"      // for support escalation
+  }
+}
+```
+
+### Error Codes
+
+| HTTP | Code | When |
+|------|------|------|
+| `400` | `VALIDATION_ERROR` | Invalid request body or query params |
+| `401` | `AUTH_REQUIRED` | Missing or malformed `Authorization` header |
+| `403` | `FORBIDDEN` | Valid key but insufficient scope, or IP not allowlisted |
+| `404` | `NOT_FOUND` | Resource does not exist |
+| `409` | `CONFLICT` | Duplicate pick (same source + game + market) |
+| `429` | `RATE_LIMITED` | Too many requests (see §7) |
+| `500` | `INTERNAL_ERROR` | Unhandled server error. Includes `request_id` for debugging |
+| `502` | `UPSTREAM_ERROR` | The Odds API or Neon is unreachable |
+| `503` | `SERVICE_UNAVAILABLE` | During deployment or maintenance window |
+
+### Retry Policy (Recommended)
+- `429`: Retry after `Retry-After` header value (seconds)
+- `502/503`: Exponential backoff, max 3 retries, initial delay 1s
+- `500`: Do not retry automatically. Log `request_id` and escalate.
+
+---
+
+## 7. Rate Limiting & Quotas
+
+### Default Partner Limits
+
+| Tier | Requests/min | Requests/day | Burst |
+|------|-------------|--------------|-------|
+| **Free** | 30 | 1,000 | 10/sec |
+| **Partner** | 120 | 10,000 | 30/sec |
+| **Enterprise** | 600 | 100,000 | 100/sec |
+
+### Rate Limit Headers
+Every response includes:
+```
+X-RateLimit-Limit: 120
+X-RateLimit-Remaining: 117
+X-RateLimit-Reset: 1711137600
+```
+
+### Quota Exhaustion
+When quota is exceeded, the API returns:
+```json
+// 429 Too Many Requests
+{
+  "error": {
+    "code": "RATE_LIMITED",
+    "message": "Rate limit exceeded. Retry after 42 seconds.",
+    "retry_after": 42
+  }
+}
+```
+
+---
+
+## 8. Webhook Integration
+
+Partners can register webhooks for push-based event delivery.
+
+### Supported Events
+
+| Event | Trigger | Payload |
+|-------|---------|---------|
+| `consensus.generated` | New consensus for a game | Game + Consensus objects |
+| `anomaly.detected` | New anomaly flagged | Anomaly object |
+| `source.tier_changed` | Source promoted/demoted | Source object (before + after) |
+| `game.result` | Game completed, results scored | Game + pick results |
+
+### Webhook Registration
+```json
+POST /api/webhooks
+{
+  "url": "https://mathews-site.com/hooks/lumeline",
+  "events": ["consensus.generated", "anomaly.detected"],
+  "secret": "whsec_<partner-generated-secret>"
+}
+```
+
+### Webhook Security
+- **HMAC-SHA256 signature** in `X-LumeLine-Signature` header
+- Computed as `HMAC-SHA256(webhook_secret, request_body)`
+- Partner must validate signature before processing payload
+- Payloads are delivered with `Content-Type: application/json`
+- **Timeout:** 10 seconds. If endpoint does not respond, retried 3x with exponential backoff (1s, 5s, 30s)
+- **Failure threshold:** After 50 consecutive failures, webhook is disabled and partner is notified
+
+### Signature Validation (Node.js)
+```javascript
+import crypto from 'crypto';
+
+function verifyWebhook(body, signature, secret) {
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(body)
+    .digest('hex');
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  );
+}
+```
+
+---
+
+## 9. Widget Embed Security
+
+### Content Security Policy
+The widget script is served from `https://lumeline.dwtl.io/widget.js` and renders inside a sandboxed `<iframe>`.
+
+```html
+<iframe 
+  src="https://lumeline.dwtl.io/embed?partner=mathew&theme=dark"
+  sandbox="allow-scripts allow-same-origin"
+  style="width:100%;height:400px;border:none;"
+  loading="lazy"
+></iframe>
+```
+
+### Widget Configuration
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| `partner` | string | required | Partner slug for branding |
+| `theme` | string | `dark` | `dark` or `light` |
+| `games` | int | `6` | Number of games to display (1-12) |
+| `sport` | string | `all` | `NFL`, `NBA`, or `all` |
+
+### Restrictions
+- Widget makes authenticated requests to `/api/widget` using an embedded read-only token
+- Token is scoped to `read:widget` only — no write access
+- Widget does not set cookies or access `localStorage`
+- `X-Frame-Options` is set to `ALLOW-FROM` partner's registered domain only
+
+---
+
+## 10. Push Notification Architecture
+
+### Recommended Stack
+
+| Channel | Provider | Use Case |
+|---------|----------|----------|
+| SMS | Twilio | Time-sensitive alerts (high-confidence consensus, anomalies) |
+| Email | Resend | Daily summaries, detailed game breakdowns |
+| Push | Twilio (or OneSignal) | Mobile app notifications |
+
+### Twilio Integration
+
+**Required Environment Variables:**
+```
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_PHONE_NUMBER=+1234567890
+```
+
+**Message Template:**
+```
+🎯 LumeLine: {away} @ {home}
+Consensus: {home_likelihood}% | Confidence: {confidence}%
+Integrity: {integrity}/100 {house_lean ? "🏠 House Lean" : "✅ Clean"}
+```
+
+**Compliance:** All SMS recipients must opt in via double opt-in. Include `Reply STOP to unsubscribe` in every message. Maintain an opt-out list and honor removals within 24 hours per TCPA requirements.
+
+### Resend Integration
+
+**Required Environment Variables:**
+```
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+RESEND_FROM_ADDRESS=alerts@yourdomain.com
+```
+
+**DNS Requirements:** Configure SPF, DKIM, and DMARC records for sending domain to ensure deliverability.
+
+---
+
+## 11. Data Privacy & Retention
+
+### Data Classification
+
+| Data Type | Classification | Retention |
+|-----------|---------------|-----------|
+| Odds snapshots | Public | 1 year |
+| Game results | Public | Indefinite |
+| Source accuracy | Public | Indefinite |
+| Anomaly records | Internal | 1 year |
+| Partner API keys | Sensitive | Until revoked |
+| Pick submissions | Partner-owned | 1 year, exportable on request |
+| Webhook URLs | Sensitive | Until deregistered |
+
+### Partner Data Rights
+- Partners own their submitted pick data
+- Data export available via `GET /api/partner/export` (CSV or JSON)
+- Data deletion available on request within 30 days
+- LumeLine does not sell or share partner data with third parties
+- Aggregated, anonymized data may be used to improve consensus models
+
+### PII Policy
+LumeLine does not collect or store personally identifiable information. Source names (e.g., "Mathew") are display names only — no email, phone, address, or payment data is stored in the LumeLine database. Push notification recipient lists are managed entirely on the partner's side, not ours.
+
+---
+
+## 12. Environment Configuration
+
+### Required Variables
+```bash
+# Database
+DATABASE_URL=postgresql://user:pass@host/lumeline?sslmode=require
+
+# Upstream APIs
+ODDS_API_KEY=<key>
+
+# Server
+PORT=3000
+NODE_ENV=production
+```
+
+### Optional Variables
+```bash
+# AI Reasoning (optional — falls back to rule-based)
+OPENAI_API_KEY=sk-<key>
+
+# Ingestion
+INGESTION_INTERVAL_MINUTES=15        # default: 15
+SUPPORTED_SPORTS=americanfootball_nfl,basketball_nba
+
+# Scoring Thresholds
+SHARP_THRESHOLD=62                   # accuracy_30d >= this → Sharp tier
+RELIABLE_THRESHOLD=55
+FADE_THRESHOLD=48
+
+# Anomaly Detection
+SYNC_WINDOW_MINUTES=5
+SYNC_MIN_SOURCES=3
+DIVERGENCE_THRESHOLD=3.5
+
+# Consensus
+CONFIDENCE_THRESHOLD=60              # below this → house lean
+HOUSE_LEAN_ENABLED=true
+
+# Security
+PARTNER_ORIGIN=https://mathews-site.com
+```
+
+---
+
+## 13. Deployment & Infrastructure
+
+### Current Stack
+
+| Layer | Service | Region |
+|-------|---------|--------|
+| Compute | Render (Web Service) | US East (Ohio) |
+| Database | Neon Serverless PostgreSQL | US East |
+| CDN | Cloudflare (planned) | Global |
+| DNS | Cloudflare | Global |
+| Monitoring | Render Metrics + custom `/api/health` | — |
+
+### Render Configuration (`render.yaml`)
+```yaml
+services:
+  - type: web
+    name: lumeline
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server/server.js
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: ODDS_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /api/health
+    autoDeploy: true
+```
+
+### Deployment Process
+1. Push to `main` branch on GitHub
+2. Render auto-deploys via webhook
+3. Health check validates `/api/health` returns `200`
+4. If health check fails, Render rolls back to previous deployment
+5. Zero-downtime deploys via rolling restart
+
+---
+
+## 14. Monitoring & Observability
+
+### Health Check
+`GET /api/health` returns database connectivity status, last ingestion timestamp, and uptime. Recommended polling interval: 60 seconds.
+
+### Ingestion Log
+Every ingestion cycle is logged to `ingestion_log` table:
+```sql
+SELECT run_at, sport, source_count, snapshot_count, anomaly_count, duration_ms, status
+FROM ingestion_log ORDER BY run_at DESC LIMIT 10;
+```
+
+### Key Metrics to Monitor
+- Ingestion success rate (target: > 99%)
+- Ingestion duration (alert if > 30s)
+- API response time p95 (target: < 200ms)
+- Database connection pool utilization
+- Odds API quota remaining (alert if < 50)
+- Anomaly spike (alert if > 5 anomalies in 1 hour)
+
+---
+
+## 15. Incident Response
+
+### Severity Levels
+
+| Level | Definition | Response Time | Example |
+|-------|-----------|---------------|---------|
+| **SEV1** | System down, no data serving | 15 min | Database unreachable |
+| **SEV2** | Degraded, partial data | 1 hour | Odds API quota exhausted |
+| **SEV3** | Non-critical issue | 4 hours | Single source not reporting |
+| **SEV4** | Cosmetic / minor | Next business day | Widget styling issue |
+
+### Escalation
+- SEV1/SEV2: Contact Jason directly
+- SEV3/SEV4: Open GitHub issue on `cryptocreeper94-sudo/lumeline`
+
+---
+
+## 16. SLA & Availability
+
+### Targets (Best Effort — Pre-Production)
+
+| Metric | Target |
+|--------|--------|
+| Uptime | 99.5% monthly |
+| API latency (p95) | < 200ms |
+| Data freshness | ≤ 15 min lag |
+| Webhook delivery | ≤ 30s from event |
+| Incident response (SEV1) | 15 min |
+
+> **Note:** These are best-effort targets during pre-production. Formal SLA will be established once the platform reaches v1.0.
+
+---
+
+## 17. DarkWave UI Standards
+
+For partners who want their UI to visually integrate with LumeLine, we provide our canonical design specs.
+
+### Color Tokens
 ```css
-.glass-card {
-  background: rgba(12, 18, 36, 0.65);
+--ll-bg:           #030712;
+--ll-card:         rgba(12, 18, 36, 0.65);
+--ll-border:       rgba(255, 255, 255, 0.08);
+--ll-cyan:         #67e8f9;
+--ll-emerald:      #6ee7b7;
+--ll-amber:        #fbbf24;
+--ll-red:          #fca5a5;
+--ll-purple:       #a78bfa;
+--ll-text:         #ffffff;
+--ll-text-muted:   rgba(255, 255, 255, 0.4);
+```
+
+### Glass Card Pattern
+```css
+.ll-card {
+  background: var(--ll-card);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.75rem;
+  border: 1px solid var(--ll-border);
+  border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
-.glass-card:hover {
-  transform: scale(1.02) translateY(-2px);
+.ll-card:hover {
+  transform: scale(1.015) translateY(-2px);
   border-color: rgba(255, 255, 255, 0.12);
 }
 ```
 
-### Floating Orbs (Background Ambience)
-Fixed-position blurred circles with slow animations:
-```css
-.orb {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.04;
-  pointer-events: none;
-  animation: float 12s ease-in-out infinite;
-}
-```
-
-### Gradient Text
-```css
-.gradient-text {
-  background: linear-gradient(135deg, #f0f9ff, #67e8f9, #f0f9ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-```
-
-### Canonical Layout
-- **3-column bento grid** on desktop (280px | 1fr | 300px)
-- **Responsive collapse** to single column on mobile
-- **Reveal-on-scroll** animations with staggered delays
-- **Google Fonts: Inter** (weights 300–900)
-- **Micro-animations**: pulse dots, shimmer effects, hover transforms
+### Typography
+- **Font:** Inter (Google Fonts) — weights 400, 600, 700, 800
+- **Scale:** Titles 1.4rem/800, Body 13px/400, Labels 10px/600 uppercase
 
 ---
 
-## 6. Architecture Summary
+## 18. Onboarding Checklist
 
-```
-              ┌─────────────────────────────────────────┐
-              │          LumeLine Platform               │
-              │         Trust Layer Ecosystem            │
-              ├─────────────────────────────────────────┤
-              │                                         │
-              │   ┌──────────┐    ┌──────────────────┐ │
-              │   │  Lume    │    │   Express API    │ │
-              │   │  Source  │───▶│   server.js      │ │
-              │   │  Files   │    │   8 endpoints    │ │
-              │   └──────────┘    └────────┬─────────┘ │
-              │                            │           │
-              │          ┌─────────────────┤           │
-              │          │                 │           │
-              │   ┌──────┴──────┐   ┌─────┴────────┐ │
-              │   │   Neon      │   │  Odds API    │ │
-              │   │ PostgreSQL  │   │  47 Books    │ │
-              │   │  7 Tables   │   │  3 Markets   │ │
-              │   │  2 Views    │   │  15min Poll  │ │
-              │   └─────────────┘   └──────────────┘ │
-              │                                       │
-              │   ┌───────────────────────────────┐   │
-              │   │      Anomaly Engine           │   │
-              │   │  sync_move · reverse_steam    │   │
-              │   │  house_divergence · late_flip  │   │
-              │   │  outlier_consensus             │   │
-              │   └───────────────────────────────┘   │
-              │                                       │
-              │   ┌───────────────────────────────┐   │
-              │   │    ML Consensus Engine         │   │
-              │   │  Weighted ensemble + GPT-4     │   │
-              │   │  Sharp: 2.5x  Fade: 0.3x      │   │
-              │   │  House lean when conf < 60%    │   │
-              │   └───────────────────────────────┘   │
-              │                                       │
-              │   ┌───────────────────────────────┐   │
-              │   │     DarkWave Dashboard         │   │
-              │   │  Glass cards · Floating orbs   │   │
-              │   │  Bento grid · Game carousel     │   │
-              │   │  Pattern feed · AI insights    │   │
-              │   └───────────────────────────────┘   │
-              │                                       │
-              ├───────────────┬─────────────────────┤ │
-              │  Widget API   │   Pick Submission    │ │
-              │  GET /widget  │   POST /picks        │ │
-              └───────────────┴─────────────────────┘ │
-                      │                 ▲               │
-                      ▼                 │               │
-              ┌───────────────┐  ┌─────────────┐       │
-              │  Mathew's     │  │ Mathew's    │       │
-              │  Site         │  │ Picks       │       │
-              │  (Widget)     │  │ (71% Sharp) │       │
-              └───────────────┘  └─────────────┘       │
-                                                        │
-              ┌─────────────────────────────────────────┘
-              │
-              ▼
-       ┌──────────────┐    ┌──────────────┐
-       │   Twilio     │    │   Resend     │
-       │   SMS Push   │    │   Email      │
-       │   Alerts     │    │   Briefs     │
-       └──────────────┘    └──────────────┘
-```
+| # | Step | Owner | Status |
+|---|------|-------|--------|
+| 1 | Review this integration spec | Partner | ☐ |
+| 2 | Register partner domain with LumeLine | Jason | ☐ |
+| 3 | Generate partner API key | Jason | ☐ |
+| 4 | Configure CORS origin for partner domain | Jason | ☐ |
+| 5 | Partner implements auth header in requests | Partner | ☐ |
+| 6 | Partner tests against staging environment | Partner | ☐ |
+| 7 | Register webhook URL (if using push) | Partner | ☐ |
+| 8 | Configure Twilio/Resend credentials (if using notifications) | Partner | ☐ |
+| 9 | Embed widget OR integrate REST API | Partner | ☐ |
+| 10 | End-to-end test: submit pick → verify in leaderboard | Both | ☐ |
+| 11 | Go live | Both | ☐ |
 
 ---
 
-## 7. Getting Started
-
-### Prerequisites
-- Node.js 20+
-- PostgreSQL (or Neon Serverless account)
-- The Odds API key (free: 500 req/mo, paid: unlimited)
-- OpenAI API key (optional, for AI reasoning)
-
-### Setup
-```bash
-git clone https://github.com/cryptocreeper94-sudo/lumeline.git
-cd lumeline
-npm install
-cp .env.example .env        # Fill in your keys
-npm run db:init              # Create tables
-npm run dev                  # Start server with hot reload
-```
-
-### Quick Test
-```bash
-# Health check
-curl http://localhost:3000/api/health
-
-# Source leaderboard
-curl http://localhost:3000/api/sources
-
-# Submit a pick as Mathew
-curl -X POST http://localhost:3000/api/picks \
-  -H "Content-Type: application/json" \
-  -d '{"source_slug":"mathew","game_id":"uuid","pick_value":"KC -3.5","confidence":85}'
-
-# Trigger ingestion
-curl -X POST http://localhost:3000/api/ingest
-```
-
----
-
-## 8. What's Coming
-
-- **Live WebSocket feed** — real-time line movement streaming
-- **Historical backtesting** — test consensus model against 3 years of data
-- **Multi-sport expansion** — MLB, NHL, UFC, Soccer
-- **Mathew's Dashboard** — personal analytics page for his picks
-- **Mobile app** — React Native companion for on-the-go alerts
-
----
-
-*Built with [Lume](https://lume-lang.vercel.app) · DarkWave Studios · Trust Layer Ecosystem*
-*"The house always knows. Now you will too."*
+*LumeLine · Trust Layer Ecosystem · DarkWave Studios*  
+*Document Version 3.0.0 — Confidential*
