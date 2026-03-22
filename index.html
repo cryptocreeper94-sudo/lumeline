@@ -189,6 +189,128 @@
     /* ═══ REVEAL ═══ */
     .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ═══════════════════════════════════════════════ */
+    /* ═══ COMPREHENSIVE MOBILE RESPONSIVE STYLES ═══ */
+    /* ═══════════════════════════════════════════════ */
+
+    /* Tablet: 768–1100px */
+    @media (max-width: 1100px) {
+      .grid3 { grid-template-columns: 1fr; }
+    }
+
+    /* Mobile: ≤768px */
+    @media (max-width: 768px) {
+      body { font-size: 14px; }
+      .mx { padding: 0 16px; }
+
+      /* ── NAV ── */
+      nav .mx-nav-links { display: none; }
+
+      /* ── HERO ── */
+      .hero { height: 420px; }
+      .hero h1 { font-size: 1.85rem; line-height: 1.1; }
+      .hero p { font-size: 0.88rem; max-width: 100%; }
+      .hero-content { bottom: 60px; }
+      .hero-badge { font-size: 9px; padding: 5px 12px; }
+      .hero-dots { bottom: 20px; }
+      .hero-dot { width: 24px; }
+
+      /* ── TICKER ── */
+      .ticker { gap: 8px; padding: 6px 0 12px; }
+      .ticker-item { min-width: 170px; padding: 8px 12px; border-radius: 10px; }
+      .ticker-teams { font-size: 11px; }
+      .ticker-odds { font-size: 12px; }
+
+      /* ── TABS ── */
+      .tabs { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; flex-wrap: nowrap; gap: 4px; margin-bottom: 16px; padding-bottom: 4px; }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tab { padding: 8px 16px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+
+      /* ── SECTION ── */
+      .section { margin-bottom: 32px; }
+      .section-head { flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 14px; }
+      .section-title { font-size: 1.15rem; }
+
+      /* ── GAME CARDS ── */
+      .game-card { width: 300px; }
+      .game-img { height: 160px; }
+      .game-body { padding: 16px; }
+      .game-team { font-size: 14px; }
+      .game-likelihood { font-size: 18px; }
+      .game-ai { font-size: 10px; }
+      .carousel-btn { width: 36px; height: 36px; font-size: 14px; }
+      .carousel-prev { left: -8px; }
+      .carousel-next { right: -8px; }
+
+      /* ── LEADERBOARD / SOURCES ── */
+      .source { gap: 10px; padding: 10px 12px; }
+      .source-avatar { width: 34px; height: 34px; font-size: 14px; border-radius: 10px; }
+      .source-name { font-size: 12px; }
+      .source-pct { font-size: 15px; }
+      .source-rank { font-size: 12px; width: 20px; }
+
+      /* ── STATS ── */
+      .stat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .stat-val { font-size: 20px; }
+      .stat-label { font-size: 8px; }
+      .stat-box { padding: 12px; }
+
+      /* ── PATTERN FEED ── */
+      .pattern { padding: 12px; }
+      .pattern-title { font-size: 11px; }
+      .pattern-desc { font-size: 10px; }
+
+      /* ── FEATURE CARDS ── */
+      .feat-grid { grid-template-columns: 1fr; gap: 12px; }
+      .feat { height: 200px; }
+      .feat-body { padding: 16px; height: 130px; }
+      .feat h3 { font-size: 14px; }
+      .feat p { font-size: 11px; }
+
+      /* ── CTA ── */
+      .cta-section { padding: 40px 0; }
+      .cta-section h2 { font-size: 1.5rem; }
+      .cta-section p { font-size: 13px; }
+      .cta-btn { padding: 12px 28px; font-size: 13px; width: 100%; justify-content: center; }
+
+      /* ── FOOTER ── */
+      footer .mx > div:first-child { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+      footer .mx > div:last-child { flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+
+      /* ── MODALS ── */
+      #game-modal > div,
+      #source-modal > div,
+      #submit-modal > div {
+        width: 95vw !important;
+        max-height: 85vh !important;
+        margin: 12px !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+      }
+    }
+
+    /* Small mobile: ≤480px */
+    @media (max-width: 480px) {
+      .hero { height: 360px; }
+      .hero h1 { font-size: 1.55rem; }
+      .hero p { font-size: 0.82rem; }
+      .hero-content { bottom: 50px; }
+
+      .game-card { width: 260px; }
+      .game-img { height: 130px; }
+      .game-team { font-size: 13px; }
+      .game-likelihood { font-size: 16px; }
+
+      .stat-val { font-size: 18px; }
+
+      .cta-section h2 { font-size: 1.3rem; }
+
+      footer .mx > div:first-child { grid-template-columns: 1fr !important; }
+
+      .source { flex-wrap: wrap; }
+      .source-acc { margin-left: auto; }
+    }
   </style>
 </head>
 <body>

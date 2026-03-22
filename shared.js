@@ -10,12 +10,20 @@ function injectShell() {
       <span style="font-size:18px;font-weight:900;background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">LumeLine</span>
       <span style="font-size:9px;color:rgba(6,182,212,.4);border:1px solid rgba(6,182,212,.15);border-radius:999px;padding:2px 8px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">Beta</span>
     </a>
-    <div style="display:flex;align-items:center;gap:20px">
+    <div class="nav-links" style="display:flex;align-items:center;gap:20px">
       <a href="/" style="font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;font-weight:500;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Dashboard</a>
       <a href="/roadmap.html" style="font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;font-weight:500;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Roadmap</a>
       <a href="/developers.html" style="font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;font-weight:500;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Developers</a>
       <a href="/login.html" style="font-size:12px;color:#67e8f9;text-decoration:none;font-weight:700;padding:6px 16px;border-radius:10px;border:1px solid rgba(6,182,212,.2);background:rgba(6,182,212,.06);transition:all .2s" onmouseover="this.style.background='rgba(6,182,212,.12)'" onmouseout="this.style.background='rgba(6,182,212,.06)'">Sign In</a>
     </div>
+    <button class="nav-burger" onclick="document.querySelector('.nav-mobile').classList.toggle('open')" style="display:none;background:none;border:none;color:#67e8f9;font-size:22px;cursor:pointer;padding:4px 8px">☰</button>
+  </div>
+  <div class="nav-mobile" style="display:none;padding:12px 24px;border-top:1px solid rgba(255,255,255,.04)">
+    <a href="/" style="display:block;font-size:14px;color:rgba(255,255,255,.4);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">Dashboard</a>
+    <a href="/roadmap.html" style="display:block;font-size:14px;color:rgba(255,255,255,.4);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">Roadmap</a>
+    <a href="/developers.html" style="display:block;font-size:14px;color:rgba(255,255,255,.4);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">Developers</a>
+    <a href="/executive-summary.html" style="display:block;font-size:14px;color:rgba(255,255,255,.4);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">Executive Summary</a>
+    <a href="/login.html" style="display:block;font-size:14px;color:#67e8f9;text-decoration:none;padding:10px 0;font-weight:700">Sign In →</a>
   </div>`;
   document.body.prepend(nav);
   document.body.style.paddingTop = '56px';
@@ -23,7 +31,7 @@ function injectShell() {
   // Footer
   const footer = document.createElement('footer');
   footer.style.cssText = 'border-top:1px solid rgba(255,255,255,.05);padding:40px 24px 32px;max-width:1360px;margin:60px auto 0';
-  footer.innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-bottom:32px">
+  footer.innerHTML = `<div class="footer-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-bottom:32px">
     <div>
       <div style="font-size:18px;font-weight:900;margin-bottom:8px;background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">LumeLine</div>
       <p style="font-size:11px;color:rgba(255,255,255,.2);line-height:1.7;margin-bottom:16px">Odds intelligence platform. Built 100% with Lume. Part of the Trust Layer ecosystem.</p>
@@ -55,7 +63,7 @@ function injectShell() {
       <a href="/responsible-gaming.html" class="fl">Responsible Gaming</a>
     </div>
   </div>
-  <div style="border-top:1px solid rgba(255,255,255,.04);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+  <div class="footer-bottom" style="border-top:1px solid rgba(255,255,255,.04);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
     <div style="font-size:10px;color:rgba(255,255,255,.15)">&copy; 2026 DarkWave Studios, LLC · All rights reserved</div>
     <div style="display:flex;align-items:center;gap:12px">
       <a href="https://dwtl.io" target="_blank" style="font-size:9px;color:rgba(6,182,212,.3);text-decoration:none">🛡️ Trust Layer</a>
@@ -65,9 +73,22 @@ function injectShell() {
   </div>`;
   document.body.appendChild(footer);
 
-  // Inject footer link styles
+  // Inject styles
   const s = document.createElement('style');
-  s.textContent = `.fl{display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s}.fl:hover{color:#67e8f9}`;
+  s.textContent = `
+    .fl{display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s}
+    .fl:hover{color:#67e8f9}
+    .nav-mobile.open{display:block!important}
+    @media(max-width:768px){
+      .nav-links{display:none!important}
+      .nav-burger{display:block!important}
+      .footer-grid{grid-template-columns:1fr 1fr!important;gap:24px!important}
+      .footer-bottom{flex-direction:column;align-items:center;text-align:center}
+    }
+    @media(max-width:480px){
+      .footer-grid{grid-template-columns:1fr!important}
+    }
+  `;
   document.head.appendChild(s);
 }
 
