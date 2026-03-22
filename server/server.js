@@ -301,6 +301,120 @@ app.post('/api/notifications/daily', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════
+//  ADMIN ENDPOINTS
+// ═══════════════════════════════════════════
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const { rows } = await db.query(`
+      SELECT u.*, (SELECT COUNT(*) FROM user_picks WHERE user_id = u.id) as pick_count
+      FROM users u ORDER BY u.created_at DESC
+    `);
+    res.json({ users: rows, count: rows.length });
+  } catch (err) {
+    res.json({ users: [], count: 0 });
+  }
+});
+
+app.get('/api/admin/env', (req, res) => {
+  res.json({
+    DATABASE_URL: !!process.env.DATABASE_URL,
+    ODDS_API_KEY: !!process.env.ODDS_API_KEY && process.env.ODDS_API_KEY !== 'your_key_here',
+    TWILIO: !!process.env.TWILIO_ACCOUNT_SID,
+    RESEND: !!process.env.RESEND_API_KEY,
+    STRIPE: !!process.env.STRIPE_SECRET_KEY,
+    JWT: !!process.env.JWT_SECRET
+  });
+});
+
+// ═══════════════════════════════════════════
+//  STRIPE CHECKOUT
+// ═══════════════════════════════════════════
+app.post('/api/stripe/checkout', async (req, res) => {
+  try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(503).json({ error: 'Stripe not configured' });
+    }
+    const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY);
+    const { plan, user_id } = req.body;
+
+    const prices = {
+      pro: { amount: 999, name: 'LumeLine Pro', interval: 'month' }
+    };
+    const p = prices[plan];
+    if (!p) return res.status(400).json({ error: 'Invalid plan' });
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: { name: p.name, description: 'Real-time alerts, advanced anomaly reports, historical data, API access' },
+          recurring: { interval: p.interval },
+          unit_amount: p.amount
+        },
+        quantity: 1
+      }],
+      success_url: `${req.protocol}://${req.get('host')}/dashboard.html?upgrade=success`,
+      cancel_url: `${req.protocol}://${req.get('host')}/dashboard.html?upgrade=cancel`,
+      metadata: { user_id: user_id || '', plan }
+    });
+
+    res.json({ url: session.url, session_id: session.id });
+  } catch (err) {
+    console.error('Stripe checkout error:', err);
+    res.status(500).json({ error: 'Checkout failed', message: err.message });
+  }
+});
+
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  try {
+    if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+      return res.status(503).json({ error: 'Stripe not configured' });
+    }
+    const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY);
+    const sig = req.headers['stripe-signature'];
+    const event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object;
+        const userId = session.metadata?.user_id;
+        if (userId) {
+          await db.query(
+            "UPDATE users SET preferences = preferences || $1 WHERE id = $2",
+            [JSON.stringify({ plan: 'pro', stripe_customer_id: session.customer, stripe_subscription_id: session.subscription }), userId]
+          );
+          console.log(`💳 User ${userId} upgraded to Pro`);
+        }
+        break;
+      }
+      case 'customer.subscription.deleted': {
+        const sub = event.data.object;
+        await db.query(
+          "UPDATE users SET preferences = preferences - 'plan' - 'stripe_subscription_id' WHERE preferences->>'stripe_subscription_id' = $1",
+          [sub.id]
+        );
+        console.log(`💳 Subscription cancelled: ${sub.id}`);
+        break;
+      }
+    }
+
+    res.json({ received: true });
+  } catch (err) {
+    console.error('Stripe webhook error:', err);
+    res.status(400).json({ error: 'Webhook failed' });
+  }
+});
+
+app.get('/api/stripe/status', (req, res) => {
+  res.json({
+    configured: !!process.env.STRIPE_SECRET_KEY,
+    publishable_key: process.env.STRIPE_PUBLISHABLE_KEY || null
+  });
+});
+
+// ═══════════════════════════════════════════
 //  SCHEDULED INGESTION
 // ═══════════════════════════════════════════
 const INTERVAL = (parseInt(process.env.INGESTION_INTERVAL_MINUTES) || 15) * 60 * 1000;

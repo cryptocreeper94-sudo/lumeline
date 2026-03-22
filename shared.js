@@ -66,7 +66,7 @@ function injectShell() {
   <div class="footer-bottom" style="border-top:1px solid rgba(255,255,255,.04);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
     <div style="font-size:10px;color:rgba(255,255,255,.15)">&copy; 2026 DarkWave Studios, LLC · All rights reserved</div>
     <div style="display:flex;align-items:center;gap:12px">
-      <a href="https://dwtl.io" target="_blank" style="font-size:9px;color:rgba(6,182,212,.3);text-decoration:none">🛡️ Trust Layer</a>
+      <a href="https://dwtl.io" target="_blank" class="tl-admin-trigger" style="font-size:9px;color:rgba(6,182,212,.3);text-decoration:none;cursor:pointer">🛡️ Trust Layer</a>
       <a href="https://lume-lang.org" target="_blank" style="font-size:9px;color:rgba(168,85,247,.3);text-decoration:none">◆ Lume</a>
       <span style="font-size:9px;color:rgba(255,255,255,.1);font-family:monospace">v0.1.0</span>
     </div>
@@ -90,6 +90,23 @@ function injectShell() {
     }
   `;
   document.head.appendChild(s);
+
+  // Triple-click Trust Layer badge → Admin
+  let tlClicks = 0;
+  let tlTimer = null;
+  const tlBadge = footer.querySelector('.tl-admin-trigger');
+  if (tlBadge) {
+    tlBadge.addEventListener('click', (e) => {
+      e.preventDefault();
+      tlClicks++;
+      clearTimeout(tlTimer);
+      if (tlClicks >= 3) {
+        tlClicks = 0;
+        window.location.href = '/admin.html#admin';
+      }
+      tlTimer = setTimeout(() => { tlClicks = 0; }, 800);
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', injectShell);

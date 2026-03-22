@@ -523,13 +523,24 @@
       <div style="border-top:1px solid rgba(255,255,255,.04);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
         <div style="font-size:10px;color:rgba(255,255,255,.15)">&copy; 2026 DarkWave Studios, LLC · All rights reserved</div>
         <div style="display:flex;align-items:center;gap:12px">
-          <a href="https://dwtl.io" target="_blank" style="font-size:9px;color:rgba(6,182,212,.3);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(6,182,212,.3)'">🛡️ Trust Layer</a>
+          <a href="https://dwtl.io" target="_blank" id="tl-badge-main" style="font-size:9px;color:rgba(6,182,212,.3);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s;cursor:pointer" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(6,182,212,.3)'">🛡️ Trust Layer</a>
           <a href="https://lume-lang.org" target="_blank" style="font-size:9px;color:rgba(168,85,247,.3);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s" onmouseover="this.style.color='#a78bfa'" onmouseout="this.style.color='rgba(168,85,247,.3)'">◆ Lume</a>
           <span style="font-size:9px;color:rgba(255,255,255,.1);font-family:monospace">v0.1.0</span>
         </div>
       </div>
     </div>
   </footer>
+  <script>
+    // Triple-click Trust Layer badge → Admin
+    (function(){
+      let c=0,t=null;
+      document.getElementById('tl-badge-main').addEventListener('click',function(e){
+        e.preventDefault();c++;clearTimeout(t);
+        if(c>=3){c=0;window.location.href='/admin.html#admin';}
+        t=setTimeout(()=>{c=0},800);
+      });
+    })();
+  </script>
 
   <!-- ═══════════ GAME DETAIL MODAL ═══════════ -->
   <div id="game-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);align-items:center;justify-content:center">

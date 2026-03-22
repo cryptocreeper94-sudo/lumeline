@@ -17,6 +17,7 @@
     "express": "^4.21.0",
     "pg": "^8.13.0",
     "resend": "^4.1.0",
+    "stripe": "^17.0.0",
     "twilio": "^5.4.0"
   },
   "keywords": ["odds", "sports", "betting", "intelligence", "transparency", "trust-layer", "lume"],

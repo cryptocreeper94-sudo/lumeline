@@ -1,0 +1,344 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — LumeLine</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',system-ui,sans-serif;background:#030712;color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}
+    .mx{max-width:1360px;margin:0 auto;padding:0 24px}
+    .glass{background:rgba(12,18,36,.6);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:24px;margin-bottom:16px}
+    .grad-text{background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    #pin-gate{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px}
+    #pin-gate .logo{font-size:24px;font-weight:900}
+    #pin-gate .sub{font-size:11px;color:rgba(255,255,255,.15);text-transform:uppercase;letter-spacing:.12em}
+    .pin-inputs{display:flex;gap:10px;margin:20px 0}
+    .pin-inputs input{width:48px;height:56px;text-align:center;font-size:22px;font-weight:800;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;color:#fff;outline:none;font-family:inherit;transition:all .25s}
+    .pin-inputs input:focus{border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.03);box-shadow:0 0 16px rgba(6,182,212,.08)}
+    .pin-err{font-size:12px;color:#fca5a5;text-align:center;min-height:18px}
+    #admin-panel{display:none;padding-top:20px}
+    .admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+    .admin-header h1{font-size:1.5rem;font-weight:900;letter-spacing:-.03em}
+    .admin-badge{font-size:9px;padding:4px 12px;border-radius:999px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    .badge-owner{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.15)}
+    .badge-viewer{background:rgba(168,85,247,.1);color:#c4b5fd;border:1px solid rgba(168,85,247,.15)}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+    .stat{text-align:center;padding:18px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px}
+    .stat .val{font-size:24px;font-weight:900;display:block;margin-bottom:4px}
+    .stat .lbl{font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+    .section-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{text-align:left;padding:10px 12px;color:rgba(255,255,255,.25);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid rgba(255,255,255,.04)}
+    td{padding:10px 12px;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.02)}
+    .btn{padding:8px 20px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+    .btn-cyan{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);color:#67e8f9}
+    .btn-cyan:hover{background:rgba(6,182,212,.18)}
+    .btn-red{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.15);color:#fca5a5}
+    .btn-red:hover{background:rgba(239,68,68,.15)}
+    .btn-green{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);color:#6ee7b7}
+    .btn-green:hover{background:rgba(16,185,129,.15)}
+    .btn:disabled{opacity:.3;cursor:not-allowed}
+    .log{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);background:rgba(0,0,0,.3);border-radius:12px;padding:16px;max-height:200px;overflow-y:auto;line-height:1.8}
+    .log .ok{color:#6ee7b7}.log .err{color:#fca5a5}.log .info{color:#67e8f9}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:768px){.grid{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}}
+    @media(max-width:480px){.grid{grid-template-columns:1fr}}
+    .stripe-products{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+    .stripe-product{padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.02);text-align:center}
+    .stripe-product.active{border-color:rgba(6,182,212,.2);background:rgba(6,182,212,.03)}
+    .stripe-product .price{font-size:24px;font-weight:900;margin:8px 0 4px}
+    .stripe-product .name{font-size:13px;font-weight:700;margin-bottom:4px}
+    .stripe-product .desc{font-size:10px;color:rgba(255,255,255,.2)}
+  </style>
+</head><body>
+  <!-- PIN Gate -->
+  <div id="pin-gate">
+    <div class="logo grad-text">LumeLine</div>
+    <div class="sub">Developer Access</div>
+    <div class="pin-inputs" id="pin-inputs">
+      <input type="password" maxlength="1" inputmode="numeric" oninput="pinNext(this,0)">
+      <input type="password" maxlength="1" inputmode="numeric" oninput="pinNext(this,1)">
+      <input type="password" maxlength="1" inputmode="numeric" oninput="pinNext(this,2)">
+      <input type="password" maxlength="1" inputmode="numeric" oninput="pinNext(this,3)">
+    </div>
+    <div class="pin-err" id="pin-err"></div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin-panel">
+    <div class="mx">
+      <div class="admin-header">
+        <div>
+          <h1 class="grad-text">🔧 Admin Dashboard</h1>
+          <div style="font-size:11px;color:rgba(255,255,255,.15);margin-top:4px">LumeLine · Trust Layer · <span id="admin-role-text">Owner</span></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="admin-badge" id="admin-badge">OWNER</span>
+          <button class="btn btn-red" onclick="lockAdmin()">🔒 Lock</button>
+        </div>
+      </div>
+
+      <!-- System Stats -->
+      <div class="grid" id="sys-stats">
+        <div class="stat"><span class="val" style="color:#6ee7b7" id="a-status">—</span><span class="lbl">API Status</span></div>
+        <div class="stat"><span class="val" style="color:#67e8f9" id="a-uptime">—</span><span class="lbl">Uptime</span></div>
+        <div class="stat"><span class="val" style="color:#a78bfa" id="a-users">—</span><span class="lbl">Users</span></div>
+        <div class="stat"><span class="val" style="color:#fbbf24" id="a-revenue">—</span><span class="lbl">MRR</span></div>
+      </div>
+
+      <div class="two-col">
+        <!-- Pipeline Controls -->
+        <div class="glass">
+          <div class="section-title">🧠 Pipeline Controls</div>
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="pipeline-btns">
+            <button class="btn btn-cyan" onclick="runPipeline()">▶ Run ML Pipeline</button>
+            <button class="btn btn-green" onclick="runIngest()">🔄 Run Ingestion</button>
+            <button class="btn btn-cyan" onclick="refreshData()">📡 Refresh Dashboard</button>
+          </div>
+          <div class="log" id="pipeline-log"><span class="info">[system]</span> Ready</div>
+        </div>
+
+        <!-- Stripe / Revenue -->
+        <div class="glass">
+          <div class="section-title">💳 Stripe Revenue</div>
+          <div class="stripe-products" id="stripe-products">
+            <div class="stripe-product">
+              <div class="name">Free</div>
+              <div class="price" style="color:rgba(255,255,255,.3)">$0</div>
+              <div class="desc">Basic dashboard</div>
+            </div>
+            <div class="stripe-product active">
+              <div class="name">Pro</div>
+              <div class="price" style="color:#67e8f9">$9.99</div>
+              <div class="desc">Alerts + API + History</div>
+            </div>
+            <div class="stripe-product">
+              <div class="name">Enterprise</div>
+              <div class="price" style="color:#a78bfa">Custom</div>
+              <div class="desc">White-label + API</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,.2);margin-bottom:8px">
+            Stripe Status: <span id="stripe-status" style="color:#6ee7b7">Connected</span>
+          </div>
+          <div style="display:flex;gap:8px" id="stripe-btns">
+            <button class="btn btn-cyan" onclick="window.open('https://dashboard.stripe.com','_blank')">Open Stripe ↗</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="glass">
+        <div class="section-title">👤 Registered Users</div>
+        <div style="overflow-x:auto">
+          <table id="users-table">
+            <thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Verified</th><th>Picks</th><th>Joined</th><th>Last Login</th></tr></thead>
+            <tbody id="users-body"><tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.15);padding:24px">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sources / Data -->
+      <div class="two-col">
+        <div class="glass">
+          <div class="section-title">📊 Sources Overview</div>
+          <table id="sources-table">
+            <thead><tr><th>Source</th><th>Type</th><th>Tier</th><th>Accuracy</th></tr></thead>
+            <tbody id="sources-body"></tbody>
+          </table>
+        </div>
+
+        <div class="glass">
+          <div class="section-title">🎮 Active Games</div>
+          <table id="games-table">
+            <thead><tr><th>Game</th><th>Sport</th><th>Confidence</th><th>Integrity</th></tr></thead>
+            <tbody id="games-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Environment -->
+      <div class="glass">
+        <div class="section-title">🔐 Environment</div>
+        <table>
+          <tbody>
+            <tr><td>DATABASE_URL</td><td style="color:#6ee7b7" id="env-db">—</td></tr>
+            <tr><td>ODDS_API_KEY</td><td id="env-odds">—</td></tr>
+            <tr><td>TWILIO_ACCOUNT_SID</td><td id="env-twilio">—</td></tr>
+            <tr><td>RESEND_API_KEY</td><td id="env-resend">—</td></tr>
+            <tr><td>STRIPE_SECRET_KEY</td><td id="env-stripe">—</td></tr>
+            <tr><td>JWT_SECRET</td><td id="env-jwt">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ═══ ACCESS CONTROL ═══
+    const OWNER_PIN = '0424';
+    const MATHEW_PIN = '1337'; // Mathew backdoor — view only
+    let role = null; // 'owner' or 'viewer'
+
+    function pinNext(input, idx) {
+      if (input.value && idx < 3) {
+        document.getElementById('pin-inputs').querySelectorAll('input')[idx + 1].focus();
+      }
+      const inputs = document.getElementById('pin-inputs').querySelectorAll('input');
+      const pin = Array.from(inputs).map(i => i.value).join('');
+      if (pin.length === 4) checkPin(pin);
+    }
+
+    function checkPin(pin) {
+      if (pin === OWNER_PIN) {
+        role = 'owner';
+        unlockAdmin();
+      } else if (pin === MATHEW_PIN) {
+        role = 'viewer';
+        unlockAdmin();
+      } else {
+        document.getElementById('pin-err').textContent = 'Invalid PIN';
+        const inputs = document.getElementById('pin-inputs').querySelectorAll('input');
+        inputs.forEach(i => { i.value = ''; i.style.borderColor = 'rgba(239,68,68,.3)'; });
+        inputs[0].focus();
+        setTimeout(() => inputs.forEach(i => i.style.borderColor = ''), 1000);
+      }
+    }
+
+    function unlockAdmin() {
+      document.getElementById('pin-gate').style.display = 'none';
+      document.getElementById('admin-panel').style.display = '';
+
+      if (role === 'viewer') {
+        // Mathew mode — view only
+        document.getElementById('admin-badge').textContent = 'VIEWER';
+        document.getElementById('admin-badge').className = 'admin-badge badge-viewer';
+        document.getElementById('admin-role-text').textContent = 'Viewer (Mathew)';
+
+        // Disable all action buttons
+        document.querySelectorAll('#pipeline-btns .btn').forEach(b => b.disabled = true);
+        document.querySelectorAll('#stripe-btns .btn').forEach(b => b.disabled = true);
+      } else {
+        document.getElementById('admin-badge').textContent = 'OWNER';
+        document.getElementById('admin-badge').className = 'admin-badge badge-owner';
+        document.getElementById('admin-role-text').textContent = 'Owner';
+      }
+
+      loadAdminData();
+    }
+
+    function lockAdmin() {
+      role = null;
+      document.getElementById('admin-panel').style.display = 'none';
+      document.getElementById('pin-gate').style.display = 'flex';
+      document.getElementById('pin-err').textContent = '';
+      const inputs = document.getElementById('pin-inputs').querySelectorAll('input');
+      inputs.forEach(i => i.value = '');
+      inputs[0].focus();
+    }
+
+    // ═══ DATA LOADING ═══
+    async function loadAdminData() {
+      try {
+        // Health
+        const health = await fetch('/api/health').then(r => r.json());
+        document.getElementById('a-status').textContent = health.status === 'healthy' ? '● Online' : '○ Offline';
+        const hrs = Math.floor(health.uptime / 3600);
+        const mins = Math.floor((health.uptime % 3600) / 60);
+        document.getElementById('a-uptime').textContent = `${hrs}h ${mins}m`;
+
+        // Sources
+        const srcData = await fetch('/api/sources').then(r => r.json());
+        document.getElementById('sources-body').innerHTML = srcData.sources.map(s =>
+          `<tr><td style="font-weight:600">${s.name}</td><td>${s.type}</td><td><span class="admin-badge" style="font-size:8px;padding:2px 8px;${s.tier==='sharp'?'background:rgba(6,182,212,.1);color:#67e8f9;border:1px solid rgba(6,182,212,.15)':s.tier==='reliable'?'background:rgba(16,185,129,.1);color:#6ee7b7;border:1px solid rgba(16,185,129,.15)':'background:rgba(255,255,255,.04);color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.06)'}">${s.tier}</span></td><td style="color:${parseFloat(s.accuracy_30d)>60?'#6ee7b7':'rgba(255,255,255,.4)'}">${s.accuracy_30d}%</td></tr>`
+        ).join('');
+
+        // Games
+        const gameData = await fetch('/api/games').then(r => r.json());
+        document.getElementById('games-body').innerHTML = (gameData.games || []).slice(0, 10).map(g =>
+          `<tr><td style="font-weight:600">${g.away_team} @ ${g.home_team}</td><td>${g.sport || 'NFL'}</td><td style="color:${g.confidence>=60?'#67e8f9':'rgba(255,255,255,.4)'}">${g.confidence}%</td><td>${g.integrity}/100</td></tr>`
+        ).join('') || '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.1)">No active games</td></tr>';
+
+        // Users (admin-only endpoint)
+        try {
+          const userData = await fetch('/api/admin/users').then(r => r.json());
+          document.getElementById('a-users').textContent = userData.count || 0;
+          document.getElementById('users-body').innerHTML = (userData.users || []).map((u, i) =>
+            `<tr><td>${i+1}</td><td style="font-weight:600">${u.display_name}</td><td>${u.phone || u.email || '—'}</td><td>${u.verified ? '<span style="color:#6ee7b7">✓</span>' : '<span style="color:rgba(255,255,255,.2)">✗</span>'}</td><td>${u.pick_count || 0}</td><td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td><td>${u.last_login ? new Date(u.last_login).toLocaleDateString() : '—'}</td></tr>`
+          ).join('') || '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.1)">No users yet</td></tr>';
+        } catch { document.getElementById('a-users').textContent = '0'; }
+
+        // Env status
+        try {
+          const env = await fetch('/api/admin/env').then(r => r.json());
+          document.getElementById('env-db').textContent = env.DATABASE_URL ? '✅ Set' : '❌ Missing';
+          document.getElementById('env-db').style.color = env.DATABASE_URL ? '#6ee7b7' : '#fca5a5';
+          document.getElementById('env-odds').textContent = env.ODDS_API_KEY ? '✅ Set' : '⚠️ Missing';
+          document.getElementById('env-odds').style.color = env.ODDS_API_KEY ? '#6ee7b7' : '#fbbf24';
+          document.getElementById('env-twilio').textContent = env.TWILIO ? '✅ Set' : '⚠️ Missing';
+          document.getElementById('env-twilio').style.color = env.TWILIO ? '#6ee7b7' : '#fbbf24';
+          document.getElementById('env-resend').textContent = env.RESEND ? '✅ Set' : '⚠️ Missing';
+          document.getElementById('env-resend').style.color = env.RESEND ? '#6ee7b7' : '#fbbf24';
+          document.getElementById('env-stripe').textContent = env.STRIPE ? '✅ Set' : '⚠️ Missing';
+          document.getElementById('env-stripe').style.color = env.STRIPE ? '#6ee7b7' : '#fbbf24';
+          document.getElementById('env-jwt').textContent = env.JWT ? '✅ Set' : '⚠️ Missing';
+          document.getElementById('env-jwt').style.color = env.JWT ? '#6ee7b7' : '#fbbf24';
+          document.getElementById('stripe-status').textContent = env.STRIPE ? 'Connected' : 'Not configured';
+          document.getElementById('stripe-status').style.color = env.STRIPE ? '#6ee7b7' : '#fbbf24';
+        } catch {}
+
+        // Revenue placeholder
+        document.getElementById('a-revenue').textContent = '$0';
+
+        log('info', 'Admin data loaded');
+      } catch (err) {
+        log('err', 'Failed to load admin data: ' + err.message);
+      }
+    }
+
+    // ═══ PIPELINE ═══
+    async function runPipeline() {
+      if (role !== 'owner') return;
+      log('info', 'Running ML pipeline...');
+      try {
+        const res = await fetch('/api/pipeline', { method: 'POST' });
+        const data = await res.json();
+        log('ok', `Pipeline complete: ${data.games} games, ${data.anomalies} anomalies, ${data.consensus} consensus (${data.duration_ms}ms)`);
+      } catch (err) {
+        log('err', 'Pipeline failed: ' + err.message);
+      }
+    }
+
+    async function runIngest() {
+      if (role !== 'owner') return;
+      log('info', 'Running ingestion...');
+      try {
+        const res = await fetch('/api/ingest', { method: 'POST' });
+        const data = await res.json();
+        log('ok', `Ingestion complete: ${JSON.stringify(data)}`);
+      } catch (err) {
+        log('err', 'Ingestion failed: ' + err.message);
+      }
+    }
+
+    function refreshData() {
+      log('info', 'Refreshing...');
+      loadAdminData();
+    }
+
+    function log(type, msg) {
+      const el = document.getElementById('pipeline-log');
+      const ts = new Date().toLocaleTimeString();
+      el.innerHTML += `\n<span class="${type}">[${ts}]</span> ${msg}`;
+      el.scrollTop = el.scrollHeight;
+    }
+
+    // Auto-focus first PIN input
+    document.getElementById('pin-inputs').querySelectorAll('input')[0].focus();
+
+    // Check if came from footer triple-click (hash)
+    if (window.location.hash === '#admin') {
+      document.getElementById('pin-inputs').querySelectorAll('input')[0].focus();
+    }
+  </script>
+</body></html>
