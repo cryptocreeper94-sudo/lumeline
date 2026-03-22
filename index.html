@@ -558,6 +558,20 @@
   }
 
   // ═══ LEADERBOARD ═══
+  const sportsbookURLs = {
+    'pinnacle': 'https://www.pinnacle.com',
+    'circa': 'https://www.circasports.com',
+    'betmgm': 'https://sports.betmgm.com',
+    'draftkings': 'https://sportsbook.draftkings.com',
+    'fanduel': 'https://sportsbook.fanduel.com',
+    'betrivers': 'https://www.betrivers.com',
+    'caesars': 'https://www.caesars.com/sportsbook-and-casino',
+    'pointsbet': 'https://www.pointsbet.com',
+    'betus': 'https://www.betus.com.pa',
+    'bovada': 'https://www.bovada.lv',
+    'mathew': null // external — no sportsbook link
+  };
+
   function renderLeaderboard() {
     const el = document.getElementById('leaderboard');
     const sources = allSources.length ? allSources : [];
@@ -570,7 +584,11 @@
       const rankClass = i < 3 ? ' source-rank-top' : '';
       const tierLabel = s.tier.charAt(0).toUpperCase() + s.tier.slice(1);
       const meta = s.type === 'external' ? `External · ${tierLabel}` : `${tierLabel} · ${s.type}`;
-      return `<div class="source" onclick="openSourceDetail('${s.slug}')"><span class="source-rank${rankClass}">${i+1}</span><div class="source-avatar" style="background:${bg};border:1px solid ${border};color:${color}">${s.name.charAt(0)}</div><div class="source-info"><div class="source-name">${star}${s.name}</div><div class="source-meta">${meta}</div></div><div class="source-acc"><span class="source-pct" style="color:${color}">${acc}%</span><span class="source-picks">${s.total_picks || 0} picks</span></div></div>`;
+      const url = sportsbookURLs[s.slug];
+      const linkBtn = url
+        ? `<a href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Open ${s.name}" style="display:flex;align-items:center;gap:4px;font-size:9px;color:rgba(6,182,212,.5);text-decoration:none;padding:4px 10px;border-radius:8px;border:1px solid rgba(6,182,212,.12);background:rgba(6,182,212,.04);transition:all .2s;white-space:nowrap" onmouseover="this.style.borderColor='rgba(6,182,212,.3)';this.style.color='#67e8f9';this.style.background='rgba(6,182,212,.08)'" onmouseout="this.style.borderColor='rgba(6,182,212,.12)';this.style.color='rgba(6,182,212,.5)';this.style.background='rgba(6,182,212,.04)'">Open ↗</a>`
+        : '';
+      return `<div class="source" onclick="openSourceDetail('${s.slug}')"><span class="source-rank${rankClass}">${i+1}</span><div class="source-avatar" style="background:${bg};border:1px solid ${border};color:${color}">${s.name.charAt(0)}</div><div class="source-info"><div class="source-name">${star}${s.name}</div><div class="source-meta">${meta}</div></div><div class="source-acc"><span class="source-pct" style="color:${color}">${acc}%</span><span class="source-picks">${s.total_picks || 0} picks</span></div>${linkBtn}</div>`;
     }).join('');
   }
 
