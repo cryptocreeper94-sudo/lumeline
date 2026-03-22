@@ -184,5 +184,6 @@ INSERT INTO sources (name, slug, type, tier, accuracy_30d) VALUES
     ('PointsBet', 'pointsbet', 'bookmaker', 'neutral', 51.0),
     ('BetUS', 'betus', 'bookmaker', 'fade', 42.0),
     ('Bovada', 'bovada', 'bookmaker', 'neutral', 50.0),
-    ('Mathew', 'mathew', 'external', 'sharp', 71.0)
+    ('Mathew', 'mathew', 'external', 'sharp', 71.0),
+    ('Bet365', 'bet365', 'bookmaker', 'reliable', 59.0)
 ON CONFLICT (slug) DO NOTHING;
