@@ -2,16 +2,21 @@
   "name": "lumeline",
   "version": "0.1.0",
   "description": "LumeLine — Odds Intelligence Platform | Trust Layer Ecosystem",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "server/server.js",
   "scripts": {
-    "dev": "lume watch src/app.lume",
-    "build": "lume build src/app.lume --target=browser",
-    "serve": "lume run server/index.lume",
-    "test": "lume test tests/"
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "db:init": "psql $DATABASE_URL -f db/schema.sql",
+    "ingest": "node -e \"import('./server/ingestion.js').then(m => m.runIngestion())\""
   },
   "dependencies": {
-    "@lume/compiler": "^0.8.0"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "pg": "^8.13.0"
   },
+  "keywords": ["odds", "sports", "betting", "intelligence", "transparency", "trust-layer", "lume"],
   "author": "DarkWave Studios",
   "license": "MIT"
 }

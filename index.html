@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LumeLine — Odds Intelligence | Trust Layer</title>
+  <meta name="description" content="Sports odds transparency engine. Track oddsmakers, detect manipulation, get ML-powered consensus predictions.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #030712;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ═══ ORBS ═══ */
+    .orb { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; }
+    .orb-1 { width: 900px; height: 900px; background: #06b6d4; top: -10%; left: 40%; opacity: 0.03; animation: f1 14s ease-in-out infinite; }
+    .orb-2 { width: 700px; height: 700px; background: #3b82f6; bottom: 5%; right: -5%; opacity: 0.025; animation: f2 11s ease-in-out infinite; }
+    .orb-3 { width: 500px; height: 500px; background: #a855f7; top: 50%; left: -5%; opacity: 0.03; animation: f3 16s ease-in-out infinite; }
+    @keyframes f1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(25px,-18px)} }
+    @keyframes f2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-18px,12px)} }
+    @keyframes f3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(14px,-14px)} }
+
+    /* ═══ GLASS ═══ */
+    .glass { background: rgba(12,18,36,0.6); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; overflow: hidden; transition: all .35s cubic-bezier(.4,0,.2,1); }
+    .glass:hover { transform: translateY(-3px) scale(1.01); border-color: rgba(255,255,255,0.12); box-shadow: 0 16px 48px rgba(0,0,0,0.35); }
+    .glass-glow { box-shadow: 0 0 50px rgba(6,182,212,0.1), 0 8px 32px rgba(0,0,0,0.3); }
+    .glass-glow:hover { box-shadow: 0 0 70px rgba(6,182,212,0.15), 0 16px 48px rgba(0,0,0,0.4); }
+
+    /* ═══ GRADIENTS ═══ */
+    .grad-text { background: linear-gradient(135deg, #f0f9ff, #67e8f9, #f0f9ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .grad-text-gold { background: linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* ═══ CONTAINER ═══ */
+    .mx { max-width: 1360px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* ═══ HERO ═══ */
+    .hero { position: relative; height: 520px; overflow: hidden; margin-bottom: -60px; }
+    .hero-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.45); }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(3,7,18,0.3) 0%, rgba(3,7,18,0.6) 50%, #030712 100%); }
+    .hero-content { position: absolute; bottom: 90px; left: 0; right: 0; z-index: 2; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2); border-radius: 999px; padding: 6px 16px; font-size: 11px; font-weight: 600; color: #67e8f9; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 16px; }
+    .hero h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 12px; }
+    .hero p { font-size: 1.1rem; color: rgba(255,255,255,0.5); max-width: 560px; line-height: 1.6; }
+    @media(max-width:768px) { .hero { height: 400px; } .hero h1 { font-size: 2rem; } .hero p { font-size: .95rem; } }
+
+    /* ═══ LIVE TICKER ═══ */
+    .ticker { display: flex; gap: 12px; overflow-x: auto; padding: 8px 0 16px; scrollbar-width: none; -ms-overflow-style: none; }
+    .ticker::-webkit-scrollbar { display: none; }
+    .ticker-item { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 16px; min-width: 200px; transition: all .25s; cursor: pointer; }
+    .ticker-item:hover { background: rgba(6,182,212,0.06); border-color: rgba(6,182,212,0.15); }
+    .ticker-live { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,.5); animation: pulse 2s infinite; flex-shrink: 0; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .ticker-teams { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.7); white-space: nowrap; }
+    .ticker-odds { font-size: 13px; font-weight: 800; color: #67e8f9; margin-left: auto; white-space: nowrap; }
+
+    /* ═══ SECTION ═══ */
+    .section { margin-bottom: 48px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .section-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
+    .section-sub { font-size: 12px; color: rgba(255,255,255,.25); font-weight: 500; }
+    .divider { height: 1px; background: linear-gradient(to right, transparent, rgba(255,255,255,.06), transparent); margin: 32px 0; }
+
+    /* ═══ TABS ═══ */
+    .tabs { display: flex; gap: 6px; margin-bottom: 24px; }
+    .tab { padding: 10px 24px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .25s; border: 1px solid transparent; background: rgba(255,255,255,.03); color: rgba(255,255,255,.3); user-select: none; }
+    .tab:hover { background: rgba(255,255,255,.05); color: rgba(255,255,255,.6); }
+    .tab-active { background: rgba(6,182,212,.1); border-color: rgba(6,182,212,.25); color: #67e8f9; box-shadow: 0 0 24px rgba(6,182,212,.06); }
+
+    /* ═══ CAROUSEL ═══ */
+    .carousel-wrap { position: relative; }
+    .carousel { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; padding: 4px 0 16px; }
+    .carousel::-webkit-scrollbar { display: none; }
+    .carousel-item { scroll-snap-align: start; flex: 0 0 auto; }
+    .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(12,18,36,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.1); color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all .25s; }
+    .carousel-btn:hover { background: rgba(6,182,212,.15); border-color: rgba(6,182,212,.3); box-shadow: 0 0 20px rgba(6,182,212,.15); }
+    .carousel-prev { left: -16px; }
+    .carousel-next { right: -16px; }
+
+    /* ═══ GAME CARD (Big) ═══ */
+    .game-card { width: 380px; border-radius: 16px; overflow: hidden; cursor: pointer; position: relative; }
+    .game-img { width: 100%; height: 200px; object-fit: cover; transition: transform .6s ease; }
+    .game-card:hover .game-img { transform: scale(1.08); }
+    .game-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(12,18,36,0.95)); pointer-events: none; }
+    .game-body { padding: 20px; position: relative; z-index: 2; margin-top: -40px; }
+    .game-teams-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .game-team { font-size: 15px; font-weight: 700; }
+    .game-vs { font-size: 11px; color: rgba(255,255,255,.2); font-weight: 600; margin: 0 8px; }
+    .game-likelihood { font-size: 22px; font-weight: 900; }
+    .game-conf-row { display: flex; align-items: center; justify-content: space-between; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.25); margin-bottom: 6px; }
+    .bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,.04); overflow: hidden; margin-bottom: 12px; }
+    .bar-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+    .bar-cyan { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+    .bar-green { background: linear-gradient(90deg, #10b981, #34d399); }
+    .bar-amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .bar-red { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .game-footer { display: flex; align-items: center; justify-content: space-between; }
+    .integrity { font-size: 10px; color: rgba(255,255,255,.3); }
+    .badge { font-size: 9px; font-weight: 700; padding: 4px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: .06em; }
+    .badge-clean { background: rgba(16,185,129,.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,.2); }
+    .badge-house { background: rgba(245,158,11,.12); color: #fbbf24; border: 1px solid rgba(245,158,11,.2); }
+    .badge-danger { background: rgba(239,68,68,.12); color: #fca5a5; border: 1px solid rgba(239,68,68,.2); }
+    .badge-sharp { background: rgba(6,182,212,.12); color: #67e8f9; border: 1px solid rgba(6,182,212,.2); }
+    .badge-reliable { background: rgba(16,185,129,.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,.2); }
+    .badge-neutral { background: rgba(255,255,255,.04); color: rgba(255,255,255,.3); border: 1px solid rgba(255,255,255,.06); }
+    .badge-fade { background: rgba(239,68,68,.08); color: #fca5a5; border: 1px solid rgba(239,68,68,.15); }
+    .game-ai { font-size: 11px; color: rgba(255,255,255,.3); line-height: 1.6; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.04); }
+
+    /* ═══ 3-COL GRID ═══ */
+    .grid3 { display: grid; grid-template-columns: 300px 1fr 320px; gap: 20px; }
+    @media(max-width:1100px) { .grid3 { grid-template-columns: 1fr; } }
+
+    /* ═══ SOURCE CARD ═══ */
+    .source { display: flex; align-items: center; gap: 14px; padding: 14px 16px; cursor: pointer; transition: all .25s; border-radius: 14px; }
+    .source:hover { background: rgba(255,255,255,.03); }
+    .source-rank { font-size: 14px; font-weight: 800; color: rgba(255,255,255,.15); width: 24px; text-align: center; flex-shrink: 0; }
+    .source-rank-top { color: #fbbf24; }
+    .source-avatar { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; flex-shrink: 0; }
+    .source-info { flex: 1; min-width: 0; }
+    .source-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .source-meta { font-size: 10px; color: rgba(255,255,255,.2); }
+    .source-acc { text-align: right; }
+    .source-pct { font-size: 18px; font-weight: 900; display: block; }
+    .source-picks { font-size: 9px; color: rgba(255,255,255,.18); }
+
+    /* ═══ PATTERN CARD ═══ */
+    .pattern { padding: 16px; border-left: 3px solid rgba(255,255,255,.05); margin-bottom: 2px; transition: all .25s; cursor: pointer; border-radius: 0 14px 14px 0; }
+    .pattern:hover { background: rgba(255,255,255,.02); }
+    .pattern-high { border-left-color: rgba(6,182,212,.5); }
+    .pattern-warn { border-left-color: rgba(245,158,11,.5); }
+    .pattern-danger { border-left-color: rgba(239,68,68,.5); }
+    .pattern-info { border-left-color: rgba(168,85,247,.5); }
+    .pattern-ok { border-left-color: rgba(16,185,129,.5); }
+    .pattern-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .pattern-title { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.65); }
+    .pattern-time { font-size: 9px; color: rgba(255,255,255,.15); }
+    .pattern-desc { font-size: 11px; color: rgba(255,255,255,.28); line-height: 1.6; }
+
+    /* ═══ STAT CARD ═══ */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-box { background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.04); border-radius: 14px; padding: 16px; text-align: center; transition: all .25s; }
+    .stat-box:hover { border-color: rgba(6,182,212,.15); background: rgba(6,182,212,.03); }
+    .stat-val { font-size: 24px; font-weight: 900; display: block; margin-bottom: 4px; }
+    .stat-label { font-size: 9px; color: rgba(255,255,255,.2); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; }
+
+    /* ═══ FEATURE CARDS ═══ */
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media(max-width:768px) { .feat-grid { grid-template-columns: 1fr; } }
+    .feat { position: relative; border-radius: 16px; overflow: hidden; height: 260px; cursor: pointer; }
+    .feat img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; filter: brightness(.5); }
+    .feat:hover img { transform: scale(1.06); filter: brightness(.6); }
+    .feat-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(3,7,18,.92) 0%, rgba(3,7,18,.3) 100%); }
+    .feat-body { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px; z-index: 2; height: 160px; display: flex; flex-direction: column; justify-content: flex-start; }
+    .feat-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; flex-shrink: 0; }
+    .feat h3 { font-size: 16px; font-weight: 800; margin-bottom: 6px; flex-shrink: 0; }
+    .feat p { font-size: 12px; color: rgba(255,255,255,.4); line-height: 1.5; flex-shrink: 0; }
+
+    /* ═══ CTA ═══ */
+    .cta-section { text-align: center; padding: 60px 0; }
+    .cta-section h2 { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 12px; }
+    .cta-section p { color: rgba(255,255,255,.35); margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+    .cta-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 36px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: all .3s; }
+    .cta-primary { background: linear-gradient(135deg, #06b6d4, #3b82f6); color: #fff; box-shadow: 0 0 30px rgba(6,182,212,.2); }
+    .cta-primary:hover { box-shadow: 0 0 50px rgba(6,182,212,.3); transform: translateY(-2px); }
+
+    /* ═══ FOOTER ═══ */
+    .footer { text-align: center; padding: 40px 0 56px; }
+    .footer p { font-size: 11px; color: rgba(255,255,255,.1); letter-spacing: .04em; }
+
+    /* ═══ REVEAL ═══ */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="hero">
+    <img src="assets/images/hero_stadium.png" alt="Stadium" class="hero-img">
+    <div class="hero-overlay"></div>
+    <div class="hero-content mx">
+      <div class="hero-badge"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.5);animation:pulse 2s infinite"></span> Live Intelligence</div>
+      <h1 class="grad-text">See the line.<br>Read the game.</h1>
+      <p>LumeLine tracks 47 oddsmakers in real-time, scores their accuracy, detects line manipulation, and generates ML-powered consensus predictions with confidence scores.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════ LIVE TICKER ═══════════ -->
+  <div class="mx reveal">
+    <div class="ticker">
+      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">KC -3.5 vs DEN</div><div class="ticker-odds" style="color:#67e8f9">72%</div></div>
+      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">BUF -1.5 vs MIA</div><div class="ticker-odds" style="color:#67e8f9">61%</div></div>
+      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">DAL +2.5 vs PHI</div><div class="ticker-odds" style="color:#fbbf24">55% ⚠️</div></div>
+      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">LAL -4 vs GSW</div><div class="ticker-odds" style="color:#67e8f9">58%</div></div>
+      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">BOS -6.5 vs MIL</div><div class="ticker-odds" style="color:#67e8f9">64%</div></div>
+      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">PHX +1 vs DEN</div><div class="ticker-odds" style="color:#ef4444">48% 🚨</div></div>
+    </div>
+  </div>
+
+  <div class="divider mx"></div>
+
+  <!-- ═══════════ SPORT TABS ═══════════ -->
+  <div class="mx">
+    <div class="tabs reveal">
+      <div class="tab tab-active">🏈 NFL</div>
+      <div class="tab">🏀 NBA</div>
+      <div class="tab">📊 All Sports</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ GAME CAROUSEL ═══════════ -->
+  <div class="mx section reveal">
+    <div class="section-head">
+      <div><div class="section-title grad-text">Today's Consensus</div><div class="section-sub" style="margin-top:4px">ML-weighted predictions across 47 sources</div></div>
+      <div class="section-sub">6 games · 2,841 snapshots</div>
+    </div>
+    <div class="carousel-wrap">
+      <button class="carousel-btn carousel-prev" onclick="document.getElementById('games').scrollBy({left:-400,behavior:'smooth'})">‹</button>
+      <button class="carousel-btn carousel-next" onclick="document.getElementById('games').scrollBy({left:400,behavior:'smooth'})">›</button>
+      <div class="carousel" id="games">
+
+        <!-- Game 1 -->
+        <div class="carousel-item"><div class="glass glass-glow game-card">
+          <img src="assets/images/nfl_chiefs.png" alt="KC Chiefs" class="game-img">
+          <div class="game-body">
+            <div class="game-teams-row">
+              <div><span class="game-team">DEN</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">KC</span></div>
+              <div class="game-likelihood" style="color:#67e8f9">72<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
+            </div>
+            <div class="game-conf-row"><span>Confidence</span><span style="color:rgba(255,255,255,.5);font-weight:700">81%</span></div>
+            <div class="bar"><div class="bar-fill bar-cyan" style="width:81%"></div></div>
+            <div class="game-footer"><span class="integrity">Integrity: 88/100</span><span class="badge badge-clean">✅ Clean</span></div>
+            <div class="game-ai">4 of 5 sharps favor KC. Clean lines, high alignment. Pinnacle and Circa moved early — strong CLV signal.</div>
+          </div>
+        </div></div>
+
+        <!-- Game 2 -->
+        <div class="carousel-item"><div class="glass game-card">
+          <img src="assets/images/nfl_bills.png" alt="BUF Bills" class="game-img">
+          <div class="game-body">
+            <div class="game-teams-row">
+              <div><span class="game-team">MIA</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">BUF</span></div>
+              <div class="game-likelihood" style="color:#6ee7b7">61<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
+            </div>
+            <div class="game-conf-row"><span>Confidence</span><span style="color:rgba(255,255,255,.5);font-weight:700">67%</span></div>
+            <div class="bar"><div class="bar-fill bar-green" style="width:67%"></div></div>
+            <div class="game-footer"><span class="integrity">Integrity: 74/100</span><span class="badge badge-clean">✅ Clean</span></div>
+            <div class="game-ai">BUF slightly favored. Mixed signals between sharp and public money. Mathew picked BUF.</div>
+          </div>
+        </div></div>
+
+        <!-- Game 3: House Lean -->
+        <div class="carousel-item"><div class="glass game-card">
+          <img src="assets/images/nfl_cowboys.png" alt="DAL Cowboys" class="game-img">
+          <div class="game-body">
+            <div class="game-teams-row">
+              <div><span class="game-team">PHI</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">DAL</span></div>
+              <div class="game-likelihood" style="color:#fbbf24">55<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
+            </div>
+            <div class="game-conf-row"><span>Confidence</span><span style="color:#fbbf24;font-weight:700">43%</span></div>
+            <div class="bar"><div class="bar-fill bar-amber" style="width:43%"></div></div>
+            <div class="game-footer"><span class="integrity" style="color:rgba(245,158,11,.5)">⚠️ Integrity: 42/100</span><span class="badge badge-house">🏠 House Lean</span></div>
+            <div class="game-ai">⚠️ 3 books moved DAL spread in sync within 4 min. Confidence suppressed. Deferring to house line.</div>
+          </div>
+        </div></div>
+
+        <!-- Game 4 -->
+        <div class="carousel-item"><div class="glass glass-glow game-card">
+          <img src="assets/images/nba_lakers.png" alt="LAL Lakers" class="game-img">
+          <div class="game-body">
+            <div class="game-teams-row">
+              <div><span class="game-team">GSW</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">LAL</span></div>
+              <div class="game-likelihood" style="color:#67e8f9">58<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
+            </div>
+            <div class="game-conf-row"><span>Confidence</span><span style="color:rgba(255,255,255,.5);font-weight:700">72%</span></div>
+            <div class="bar"><div class="bar-fill bar-cyan" style="width:72%"></div></div>
+            <div class="game-footer"><span class="integrity">Integrity: 90/100</span><span class="badge badge-clean">✅ Clean</span></div>
+            <div class="game-ai">Sharp consensus on LAL. Clean integrity. Mathew also picked LAL — his 8th straight correct pick.</div>
+          </div>
+        </div></div>
+
+        <!-- Game 5 -->
+        <div class="carousel-item"><div class="glass glass-glow game-card">
+          <img src="assets/images/nba_celtics.png" alt="BOS Celtics" class="game-img">
+          <div class="game-body">
+            <div class="game-teams-row">
+              <div><span class="game-team">MIL</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">BOS</span></div>
+              <div class="game-likelihood" style="color:#67e8f9">64<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
+            </div>
+            <div class="game-conf-row"><span>Confidence</span><span style="color:rgba(255,255,255,.5);font-weight:700">78%</span></div>
+            <div class="bar"><div class="bar-fill bar-cyan" style="width:78%"></div></div>
+            <div class="game-footer"><span class="integrity">Integrity: 95/100</span><span class="badge badge-clean">✅ Clean</span></div>
+            <div class="game-ai">Strongest consensus today. 5 of 6 sources agree. Highest integrity game — clean across the board.</div>
+          </div>
+        </div></div>
+
+        <!-- Game 6: Danger -->
+        <div class="carousel-item"><div class="glass game-card">
+          <img src="assets/images/nba_suns.png" alt="PHX Suns" class="game-img">
+          <div class="game-body">
+            <div class="game-teams-row">
+              <div><span class="game-team">DEN</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">PHX</span></div>
+              <div class="game-likelihood" style="color:#fca5a5">48<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
+            </div>
+            <div class="game-conf-row"><span>Confidence</span><span style="color:#ef4444;font-weight:700">38%</span></div>
+            <div class="bar"><div class="bar-fill bar-red" style="width:38%"></div></div>
+            <div class="game-footer"><span class="integrity" style="color:rgba(239,68,68,.5)">🚨 Integrity: 55/100</span><span class="badge badge-danger">🚨 Suspect</span></div>
+            <div class="game-ai">Reverse steam detected. DEN line moved +1.5 → -2 → +1 in 20min — classic trap. Deferring to house.</div>
+          </div>
+        </div></div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="divider mx"></div>
+
+  <!-- ═══════════ 3-COLUMN INTEL GRID ═══════════ -->
+  <div class="mx section">
+    <div class="grid3">
+
+      <!-- LEFT: Leaderboard -->
+      <div class="glass reveal" style="padding: 20px; align-self: start;">
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">📊 Source Leaderboard</div>
+
+        <div class="source"><span class="source-rank source-rank-top">1</span><div class="source-avatar" style="background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(245,158,11,.1));border:1px solid rgba(251,191,36,.25);color:#fbbf24">M</div><div class="source-info"><div class="source-name">⭐ Mathew</div><div class="source-meta">External · 8-2 last 10</div></div><div class="source-acc"><span class="source-pct" style="color:#fbbf24">71%</span><span class="source-picks">124 picks</span></div></div>
+
+        <div class="source"><span class="source-rank source-rank-top">2</span><div class="source-avatar" style="background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(6,182,212,.05));border:1px solid rgba(6,182,212,.2);color:#67e8f9">P</div><div class="source-info"><div class="source-name">Pinnacle</div><div class="source-meta">Sharp · Best CLV</div></div><div class="source-acc"><span class="source-pct" style="color:#67e8f9">68%</span><span class="source-picks">892 picks</span></div></div>
+
+        <div class="source"><span class="source-rank source-rank-top">3</span><div class="source-avatar" style="background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(6,182,212,.05));border:1px solid rgba(6,182,212,.2);color:#67e8f9">C</div><div class="source-info"><div class="source-name">Circa Sports</div><div class="source-meta">Sharp · Early mover</div></div><div class="source-acc"><span class="source-pct" style="color:#67e8f9">64%</span><span class="source-picks">756 picks</span></div></div>
+
+        <div class="source"><span class="source-rank">4</span><div class="source-avatar" style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.15);color:#6ee7b7">B</div><div class="source-info"><div class="source-name">BetMGM</div><div class="source-meta">Reliable</div></div><div class="source-acc"><span class="source-pct" style="color:#6ee7b7">58%</span><span class="source-picks">1,204</span></div></div>
+
+        <div class="source"><span class="source-rank">5</span><div class="source-avatar" style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.15);color:#6ee7b7">D</div><div class="source-info"><div class="source-name">DraftKings</div><div class="source-meta">Reliable</div></div><div class="source-acc"><span class="source-pct" style="color:#6ee7b7">56%</span><span class="source-picks">1,450</span></div></div>
+
+        <div class="source"><span class="source-rank">6</span><div class="source-avatar" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.3)">F</div><div class="source-info"><div class="source-name">FanDuel</div><div class="source-meta">Neutral</div></div><div class="source-acc"><span class="source-pct" style="color:rgba(255,255,255,.35)">52%</span><span class="source-picks">1,380</span></div></div>
+
+        <div class="source"><span class="source-rank">7</span><div class="source-avatar" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.12);color:#fca5a5">C</div><div class="source-info"><div class="source-name">Caesars</div><div class="source-meta" style="color:rgba(239,68,68,.4)">Fade material</div></div><div class="source-acc"><span class="source-pct" style="color:#fca5a5">44%</span><span class="source-picks">1,100</span></div></div>
+      </div>
+
+      <!-- CENTER: Stats -->
+      <div class="reveal" style="align-self:start">
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">📈 Intelligence Overview</div>
+        <div class="stat-grid" style="margin-bottom:20px">
+          <div class="stat-box"><span class="stat-val" style="color:#67e8f9">47</span><span class="stat-label">Sources Active</span></div>
+          <div class="stat-box"><span class="stat-val" style="color:#6ee7b7">2,841</span><span class="stat-label">Snapshots Today</span></div>
+          <div class="stat-box"><span class="stat-val" style="color:#fbbf24">3</span><span class="stat-label">Anomalies</span></div>
+          <div class="stat-box"><span class="stat-val" style="color:#a78bfa">74</span><span class="stat-label">Avg Integrity</span></div>
+        </div>
+
+        <!-- Consensus Meter -->
+        <div class="glass" style="padding:24px;margin-bottom:20px">
+          <div style="font-size:11px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;font-weight:600">Consensus Meter — Best Game</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div><div style="font-size:24px;font-weight:900" class="grad-text">BOS -6.5</div><div style="font-size:11px;color:rgba(255,255,255,.25);margin-top:2px">vs Milwaukee Bucks</div></div>
+            <div style="text-align:right"><div style="font-size:32px;font-weight:900;color:#67e8f9">78<span style="font-size:14px;color:rgba(255,255,255,.2)">%</span></div><div style="font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.1em">confidence</div></div>
+          </div>
+          <div class="bar" style="height:8px;margin-bottom:16px"><div class="bar-fill bar-cyan" style="width:78%;height:100%"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.2)">
+            <span>5 of 6 sources agree</span>
+            <span>Integrity: <strong style="color:#6ee7b7">95/100</strong></span>
+          </div>
+        </div>
+
+        <!-- AI Insight -->
+        <div class="glass" style="padding:24px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(6,182,212,.1));border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:14px">🧠</div>
+            <div><div style="font-size:12px;font-weight:700">AI Pattern Analysis</div><div style="font-size:9px;color:rgba(255,255,255,.2)">Updated 2 min ago</div></div>
+          </div>
+          <p style="font-size:12px;color:rgba(255,255,255,.35);line-height:1.7">Today's market shows strong sharp alignment on 4 of 6 games. The DAL/PHI game has the most concerning line activity — 3 synchronized moves within a 4-minute window is the strongest collusion signal we've seen this week. BOS/MIL is the cleanest game with 95/100 integrity. Mathew's picks are tracking with sharp consensus at a 71% clip.</p>
+        </div>
+      </div>
+
+      <!-- RIGHT: Pattern Feed -->
+      <div class="glass reveal" style="padding:20px;align-self:start">
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">⚡ Pattern Feed</div>
+
+        <div class="pattern pattern-high"><div class="pattern-head"><span class="pattern-title">🔥 Sharp Alignment</span><span class="pattern-time">2 min ago</span></div><div class="pattern-desc">4 of 5 Sharp-tier sources aligned on KC -3.5. Historical win rate when this pattern forms: 74%.</div></div>
+
+        <div class="pattern pattern-warn"><div class="pattern-head"><span class="pattern-title">⚠️ Sync Move Detected</span><span class="pattern-time">18 min ago</span></div><div class="pattern-desc">3 books moved DAL +2.5 within 4 minutes — flagged as possible coordination. Integrity downgraded to 42.</div></div>
+
+        <div class="pattern pattern-danger"><div class="pattern-head"><span class="pattern-title">🔄 Reverse Steam</span><span class="pattern-time">34 min ago</span></div><div class="pattern-desc">DEN line moved from +1.5 to -2 then snapped back to +1 within 20 minutes — classic trap pattern.</div></div>
+
+        <div class="pattern pattern-info"><div class="pattern-head"><span class="pattern-title">📊 Mathew's Streak</span><span class="pattern-time">1 hr ago</span></div><div class="pattern-desc">External source 'Mathew' is 8-2 in last 10. Auto-promoted to Sharp tier. Weight multiplier: 2.5x.</div></div>
+
+        <div class="pattern pattern-ok"><div class="pattern-head"><span class="pattern-title">✅ Clean Line: BOS vs MIL</span><span class="pattern-time">1 hr ago</span></div><div class="pattern-desc">All sources consistent for 6+ hours. Integrity: 95/100. No anomalies detected. Strongest consensus today.</div></div>
+
+        <div class="pattern pattern-warn"><div class="pattern-head"><span class="pattern-title">🏠 House Lean Active</span><span class="pattern-time">2 hr ago</span></div><div class="pattern-desc">PHX vs DEN — confidence 38%, below 60% threshold. System deferring to house line per protocol.</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider mx"></div>
+
+  <!-- ═══════════ FEATURE ROW ═══════════ -->
+  <div class="mx section reveal">
+    <div class="section-head"><div class="section-title grad-text">Platform Capabilities</div></div>
+    <div class="feat-grid">
+      <div class="feat glass">
+        <img src="assets/images/analytics_screen.png" alt="Intelligence">
+        <div class="feat-overlay"></div>
+        <div class="feat-body">
+          <div class="feat-icon" style="background:linear-gradient(135deg,rgba(6,182,212,.2),rgba(6,182,212,.05));border:1px solid rgba(6,182,212,.2)">📡</div>
+          <h3>Real-Time Ingestion</h3>
+          <p>Polls 47 bookmakers every 15 minutes. Captures every line movement with millisecond timestamps.</p>
+        </div>
+      </div>
+      <div class="feat glass">
+        <img src="assets/images/hero_stadium.png" alt="Scoring" style="object-position:center 80%">
+        <div class="feat-overlay"></div>
+        <div class="feat-body">
+          <div class="feat-icon" style="background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.2)">🛡️</div>
+          <h3>Anomaly Detection</h3>
+          <p>Detects synchronized moves, reverse steam traps, and house divergence. Flags games that smell wrong.</p>
+        </div>
+      </div>
+      <div class="feat glass">
+        <img src="assets/images/stadium_aerial.png" alt="Consensus">
+        <div class="feat-overlay"></div>
+        <div class="feat-body">
+          <div class="feat-icon" style="background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(168,85,247,.05));border:1px solid rgba(168,85,247,.2)">🧠</div>
+          <h3>AI Consensus Engine</h3>
+          <p>Weighted ensemble model with GPT-4 analysis. Leans with the house when confidence is low.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider mx"></div>
+
+  <!-- ═══════════ CTA ═══════════ -->
+  <div class="mx cta-section reveal">
+    <h2 class="grad-text">The house always knows.<br>Now you will too.</h2>
+    <p>LumeLine brings transparency to an opaque game. Built with Lume. Part of the Trust Layer ecosystem.</p>
+    <button class="cta-btn cta-primary">◆ Connect Your Source</button>
+  </div>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <div class="divider mx"></div>
+  <div class="footer">
+    <p>LumeLine · Trust Layer Ecosystem · Built with Lume</p>
+    <p style="margin-top:6px;font-size:10px">DarkWave Studios · 2026</p>
+  </div>
+
+  <!-- ═══════════ REVEAL ON SCROLL ═══════════ -->
+  <script>
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  </script>
+
+</body>
+</html>
