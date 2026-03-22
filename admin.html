@@ -9,19 +9,32 @@
     .mx{max-width:1360px;margin:0 auto;padding:0 24px}
     .glass{background:rgba(12,18,36,.6);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:24px;margin-bottom:16px}
     .grad-text{background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    #pin-gate{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px}
-    #pin-gate .logo{font-size:24px;font-weight:900}
-    #pin-gate .sub{font-size:11px;color:rgba(255,255,255,.15);text-transform:uppercase;letter-spacing:.12em}
-    .pin-inputs{display:flex;gap:10px;margin:20px 0}
-    .pin-inputs input{width:48px;height:56px;text-align:center;font-size:22px;font-weight:800;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;color:#fff;outline:none;font-family:inherit;transition:all .25s}
-    .pin-inputs input:focus{border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.03);box-shadow:0 0 16px rgba(6,182,212,.08)}
-    .pin-err{font-size:12px;color:#fca5a5;text-align:center;min-height:18px}
-    #admin-panel{display:none;padding-top:20px}
+
+    /* ── GATE ── */
+    #gate{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px}
+    #gate .logo{font-size:28px;font-weight:900}
+    #gate .sub{font-size:11px;color:rgba(255,255,255,.15);text-transform:uppercase;letter-spacing:.12em}
+    #gate input{width:280px;padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;color:#fff;font-size:14px;font-family:inherit;outline:none;transition:all .25s;text-align:center}
+    #gate input:focus{border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.03);box-shadow:0 0 16px rgba(6,182,212,.08)}
+    .gate-btn{padding:12px 32px;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;transition:all .3s;font-family:inherit;background:linear-gradient(135deg,#06b6d4,#3b82f6);color:#fff;margin-top:8px}
+    .gate-btn:hover{transform:translateY(-1px);box-shadow:0 0 24px rgba(6,182,212,.2)}
+    .gate-err{font-size:12px;color:#fca5a5;min-height:18px;text-align:center}
+
+    /* ── PASSWORD SETUP ── */
+    #pw-setup{display:none;text-align:center}
+    #pw-setup h2{font-size:1.3rem;font-weight:800;margin-bottom:4px}
+    #pw-setup .sub{margin-bottom:24px}
+    .pw-reqs{text-align:left;max-width:280px;margin:0 auto 16px;font-size:11px;color:rgba(255,255,255,.3)}
+    .pw-reqs .ok{color:#6ee7b7}
+    .pw-reqs .fail{color:#fca5a5}
+
+    /* ── PANELS ── */
+    #admin-panel,#partner-panel{display:none;padding-top:20px}
     .admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
     .admin-header h1{font-size:1.5rem;font-weight:900;letter-spacing:-.03em}
     .admin-badge{font-size:9px;padding:4px 12px;border-radius:999px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
     .badge-owner{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.15)}
-    .badge-viewer{background:rgba(168,85,247,.1);color:#c4b5fd;border:1px solid rgba(168,85,247,.15)}
+    .badge-partner{background:rgba(168,85,247,.1);color:#c4b5fd;border:1px solid rgba(168,85,247,.15)}
     .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
     .stat{text-align:center;padding:18px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px}
     .stat .val{font-size:24px;font-weight:900;display:block;margin-bottom:4px}
@@ -37,43 +50,79 @@
     .btn-red:hover{background:rgba(239,68,68,.15)}
     .btn-green{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);color:#6ee7b7}
     .btn-green:hover{background:rgba(16,185,129,.15)}
+    .btn-purple{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.15);color:#c4b5fd}
+    .btn-purple:hover{background:rgba(168,85,247,.15)}
     .btn:disabled{opacity:.3;cursor:not-allowed}
     .log{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);background:rgba(0,0,0,.3);border-radius:12px;padding:16px;max-height:200px;overflow-y:auto;line-height:1.8}
     .log .ok{color:#6ee7b7}.log .err{color:#fca5a5}.log .info{color:#67e8f9}
     .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media(max-width:768px){.grid{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}}
-    @media(max-width:480px){.grid{grid-template-columns:1fr}}
+
+    /* ── AFFILIATE ── */
+    .tier-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    .tier-base{background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.06)}
+    .tier-silver{background:rgba(192,192,192,.08);color:#d4d4d4;border:1px solid rgba(192,192,192,.15)}
+    .tier-gold{background:rgba(251,191,36,.08);color:#fbbf24;border:1px solid rgba(251,191,36,.15)}
+    .tier-platinum{background:rgba(6,182,212,.08);color:#67e8f9;border:1px solid rgba(6,182,212,.15)}
+    .tier-diamond{background:rgba(168,85,247,.08);color:#c4b5fd;border:1px solid rgba(168,85,247,.15)}
+    .tier-progress{height:6px;border-radius:3px;background:rgba(255,255,255,.04);overflow:hidden;margin:8px 0}
+    .tier-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#06b6d4,#a78bfa);transition:width 1s ease}
+    .ref-link{display:flex;align-items:center;gap:8px;padding:12px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:12px}
+    .ref-link input{flex:1;background:none;border:none;color:#67e8f9;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none}
+    .ref-link .copy-btn{padding:6px 14px;border-radius:8px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);color:#67e8f9;font-size:10px;font-weight:700;cursor:pointer}
+    .earnings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+
+    /* ── STRIPE ── */
     .stripe-products{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
     .stripe-product{padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.02);text-align:center}
     .stripe-product.active{border-color:rgba(6,182,212,.2);background:rgba(6,182,212,.03)}
     .stripe-product .price{font-size:24px;font-weight:900;margin:8px 0 4px}
     .stripe-product .name{font-size:13px;font-weight:700;margin-bottom:4px}
     .stripe-product .desc{font-size:10px;color:rgba(255,255,255,.2)}
+
+    @media(max-width:768px){.grid{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}.earnings-grid{grid-template-columns:1fr}.stripe-products{grid-template-columns:1fr}}
+    @media(max-width:480px){.grid{grid-template-columns:1fr}}
   </style>
 </head><body>
-  <!-- PIN Gate -->
-  <div id="pin-gate">
+
+  <!-- ═══ GATE ═══ -->
+  <div id="gate">
     <div class="logo grad-text">LumeLine</div>
-    <div class="sub">Developer Access</div>
-    <div class="pin-inputs" id="pin-inputs">
-      <input type="password" maxlength="1" inputmode="numeric" oninput="pinNext(this,0)">
-      <input type="password" maxlength="1" inputmode="numeric" oninput="pinNext(this,1)">
-      <input type="password" maxlength="1" inputmode="numeric" oninput="pinNext(this,2)">
-      <input type="password" maxlength="1" inputmode="numeric" oninput="pinNext(this,3)">
-    </div>
-    <div class="pin-err" id="pin-err"></div>
+    <div class="sub">Secure Access</div>
+    <input type="password" id="gate-input" placeholder="Enter access credential" onkeydown="if(event.key==='Enter')checkGate()">
+    <button class="gate-btn" onclick="checkGate()">Authenticate</button>
+    <div class="gate-err" id="gate-err"></div>
   </div>
 
-  <!-- Admin Panel -->
+  <!-- ═══ PASSWORD SETUP (Mathew first login) ═══ -->
+  <div id="pw-setup">
+    <div class="logo grad-text" style="font-size:24px;margin-bottom:4px">LumeLine</div>
+    <h2>Set Your Partner Password</h2>
+    <div class="sub" style="font-size:11px;color:rgba(255,255,255,.2)">Welcome, Mathew! Set a secure password to replace your temp credential.</div>
+    <div style="max-width:320px;margin:24px auto 0">
+      <input type="password" id="pw-new" placeholder="New password" style="width:100%;padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-size:14px;outline:none;margin-bottom:8px" oninput="validatePw()">
+      <input type="password" id="pw-confirm" placeholder="Confirm password" style="width:100%;padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-size:14px;outline:none;margin-bottom:12px" oninput="validatePw()">
+      <div class="pw-reqs" id="pw-reqs">
+        <div id="req-len">○ At least 8 characters</div>
+        <div id="req-cap">○ At least 1 uppercase letter</div>
+        <div id="req-spec">○ At least 1 special character</div>
+        <div id="req-match">○ Passwords match</div>
+      </div>
+      <button class="gate-btn" id="pw-submit" onclick="setPartnerPassword()" disabled style="width:100%">Set Password & Continue</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ═══ OWNER ADMIN PANEL ═══ -->
+  <!-- ═══════════════════════════════════════════ -->
   <div id="admin-panel">
     <div class="mx">
       <div class="admin-header">
         <div>
           <h1 class="grad-text">🔧 Admin Dashboard</h1>
-          <div style="font-size:11px;color:rgba(255,255,255,.15);margin-top:4px">LumeLine · Trust Layer · <span id="admin-role-text">Owner</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,.15);margin-top:4px">LumeLine · Trust Layer · Owner</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
-          <span class="admin-badge" id="admin-badge">OWNER</span>
+          <span class="admin-badge badge-owner">OWNER</span>
           <button class="btn btn-red" onclick="lockAdmin()">🔒 Lock</button>
         </div>
       </div>
@@ -93,83 +142,159 @@
           <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="pipeline-btns">
             <button class="btn btn-cyan" onclick="runPipeline()">▶ Run ML Pipeline</button>
             <button class="btn btn-green" onclick="runIngest()">🔄 Run Ingestion</button>
-            <button class="btn btn-cyan" onclick="refreshData()">📡 Refresh Dashboard</button>
+            <button class="btn btn-cyan" onclick="refreshData()">📡 Refresh</button>
           </div>
           <div class="log" id="pipeline-log"><span class="info">[system]</span> Ready</div>
         </div>
 
-        <!-- Stripe / Revenue -->
+        <!-- Stripe -->
         <div class="glass">
           <div class="section-title">💳 Stripe Revenue</div>
-          <div class="stripe-products" id="stripe-products">
-            <div class="stripe-product">
-              <div class="name">Free</div>
-              <div class="price" style="color:rgba(255,255,255,.3)">$0</div>
-              <div class="desc">Basic dashboard</div>
-            </div>
-            <div class="stripe-product active">
-              <div class="name">Pro</div>
-              <div class="price" style="color:#67e8f9">$9.99</div>
-              <div class="desc">Alerts + API + History</div>
-            </div>
-            <div class="stripe-product">
-              <div class="name">Enterprise</div>
-              <div class="price" style="color:#a78bfa">Custom</div>
-              <div class="desc">White-label + API</div>
-            </div>
+          <div class="stripe-products">
+            <div class="stripe-product"><div class="name">Free</div><div class="price" style="color:rgba(255,255,255,.3)">$0</div><div class="desc">Basic dashboard</div></div>
+            <div class="stripe-product active"><div class="name">Pro</div><div class="price" style="color:#67e8f9">$9.99</div><div class="desc">Alerts + API + History</div></div>
+            <div class="stripe-product"><div class="name">Enterprise</div><div class="price" style="color:#a78bfa">Custom</div><div class="desc">White-label + API</div></div>
           </div>
-          <div style="font-size:11px;color:rgba(255,255,255,.2);margin-bottom:8px">
-            Stripe Status: <span id="stripe-status" style="color:#6ee7b7">Connected</span>
-          </div>
-          <div style="display:flex;gap:8px" id="stripe-btns">
-            <button class="btn btn-cyan" onclick="window.open('https://dashboard.stripe.com','_blank')">Open Stripe ↗</button>
-          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,.2);margin-bottom:8px">Stripe: <span id="stripe-status" style="color:#6ee7b7">Connected</span></div>
+          <button class="btn btn-cyan" onclick="window.open('https://dashboard.stripe.com','_blank')">Open Stripe ↗</button>
         </div>
       </div>
 
-      <!-- Users Table -->
+      <!-- Users -->
       <div class="glass">
-        <div class="section-title">👤 Registered Users</div>
+        <div class="section-title">👤 Users</div>
         <div style="overflow-x:auto">
-          <table id="users-table">
-            <thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Verified</th><th>Picks</th><th>Joined</th><th>Last Login</th></tr></thead>
-            <tbody id="users-body"><tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.15);padding:24px">Loading...</td></tr></tbody>
-          </table>
+          <table><thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Verified</th><th>Picks</th><th>Joined</th><th>Last Login</th></tr></thead>
+          <tbody id="users-body"><tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.1);padding:24px">Loading...</td></tr></tbody></table>
         </div>
       </div>
 
-      <!-- Sources / Data -->
       <div class="two-col">
         <div class="glass">
-          <div class="section-title">📊 Sources Overview</div>
-          <table id="sources-table">
-            <thead><tr><th>Source</th><th>Type</th><th>Tier</th><th>Accuracy</th></tr></thead>
-            <tbody id="sources-body"></tbody>
-          </table>
+          <div class="section-title">📊 Sources</div>
+          <table><thead><tr><th>Source</th><th>Type</th><th>Tier</th><th>Acc</th></tr></thead><tbody id="sources-body"></tbody></table>
         </div>
-
         <div class="glass">
           <div class="section-title">🎮 Active Games</div>
-          <table id="games-table">
-            <thead><tr><th>Game</th><th>Sport</th><th>Confidence</th><th>Integrity</th></tr></thead>
-            <tbody id="games-body"></tbody>
-          </table>
+          <table><thead><tr><th>Game</th><th>Sport</th><th>Conf</th><th>Int</th></tr></thead><tbody id="games-body"></tbody></table>
         </div>
       </div>
 
       <!-- Environment -->
       <div class="glass">
         <div class="section-title">🔐 Environment</div>
-        <table>
+        <table><tbody>
+          <tr><td>DATABASE_URL</td><td id="env-db">—</td></tr>
+          <tr><td>ODDS_API_KEY</td><td id="env-odds">—</td></tr>
+          <tr><td>TWILIO_ACCOUNT_SID</td><td id="env-twilio">—</td></tr>
+          <tr><td>RESEND_API_KEY</td><td id="env-resend">—</td></tr>
+          <tr><td>STRIPE_SECRET_KEY</td><td id="env-stripe">—</td></tr>
+          <tr><td>JWT_SECRET</td><td id="env-jwt">—</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ═══ PARTNER PANEL (Mathew) ═══ -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div id="partner-panel">
+    <div class="mx">
+      <div class="admin-header">
+        <div>
+          <h1 class="grad-text">📊 Partner Dashboard</h1>
+          <div style="font-size:11px;color:rgba(255,255,255,.15);margin-top:4px">LumeLine · Trust Layer · Partner Access</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="admin-badge badge-partner">PARTNER</span>
+          <button class="btn btn-red" onclick="lockAdmin()">🔒 Lock</button>
+        </div>
+      </div>
+
+      <!-- Partner Stats -->
+      <div class="grid">
+        <div class="stat"><span class="val" style="color:#6ee7b7" id="p-status">—</span><span class="lbl">API Status</span></div>
+        <div class="stat"><span class="val" style="color:#67e8f9" id="p-uptime">—</span><span class="lbl">Uptime</span></div>
+        <div class="stat"><span class="val" style="color:#a78bfa" id="p-users">—</span><span class="lbl">Users</span></div>
+        <div class="stat"><span class="val" style="color:#fbbf24" id="p-games">—</span><span class="lbl">Active Games</span></div>
+      </div>
+
+      <!-- Earnings Tracker -->
+      <div class="glass">
+        <div class="section-title">💰 My Earnings</div>
+        <div class="earnings-grid">
+          <div class="stat"><span class="val" style="color:#6ee7b7" id="earn-total">0 SIG</span><span class="lbl">Total Earned</span></div>
+          <div class="stat"><span class="val" style="color:#67e8f9" id="earn-pending">0 SIG</span><span class="lbl">Pending</span></div>
+          <div class="stat"><span class="val" style="color:#a78bfa" id="earn-paid">0 SIG</span><span class="lbl">Paid Out</span></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-green" onclick="requestPayout()" id="payout-btn" disabled>💸 Request Payout (min 10 SIG)</button>
+          <a href="https://trusthub.tlid.io" target="_blank" class="btn btn-purple" style="text-decoration:none">View in TrustHub ↗</a>
+        </div>
+      </div>
+
+      <!-- Affiliate / Referral -->
+      <div class="glass">
+        <div class="section-title">🤝 Affiliate & Referral Program</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+          <span class="tier-badge" id="aff-tier-badge">BASE</span>
+          <div>
+            <div style="font-size:13px;font-weight:700" id="aff-tier-name">Base Tier</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.25)" id="aff-tier-rate">10% commission rate</div>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(255,255,255,.15);margin-bottom:4px">
+              <span id="aff-tier-current">0 referrals</span>
+              <span id="aff-tier-next">5 for Silver</span>
+            </div>
+            <div class="tier-progress"><div class="tier-progress-fill" id="aff-tier-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.25);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Your Referral Link</div>
+        <div class="ref-link">
+          <input type="text" id="ref-link-input" value="https://lumeline.bet/ref/loading..." readonly>
+          <button class="copy-btn" onclick="copyRefLink()">Copy</button>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,.15);margin-bottom:20px">This link works across the entire Trust Layer 34-app ecosystem · <a href="https://trusthub.tlid.io" target="_blank" style="color:rgba(6,182,212,.4);text-decoration:none">Powered by TrustHub</a></div>
+
+        <!-- Commission Tiers -->
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.25);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Commission Tiers</div>
+        <table style="margin-bottom:16px">
+          <thead><tr><th>Tier</th><th>Min Referrals</th><th>Commission</th></tr></thead>
           <tbody>
-            <tr><td>DATABASE_URL</td><td style="color:#6ee7b7" id="env-db">—</td></tr>
-            <tr><td>ODDS_API_KEY</td><td id="env-odds">—</td></tr>
-            <tr><td>TWILIO_ACCOUNT_SID</td><td id="env-twilio">—</td></tr>
-            <tr><td>RESEND_API_KEY</td><td id="env-resend">—</td></tr>
-            <tr><td>STRIPE_SECRET_KEY</td><td id="env-stripe">—</td></tr>
-            <tr><td>JWT_SECRET</td><td id="env-jwt">—</td></tr>
+            <tr><td><span class="tier-badge tier-base" style="font-size:8px;padding:2px 8px">BASE</span></td><td>0</td><td>10%</td></tr>
+            <tr><td><span class="tier-badge tier-silver" style="font-size:8px;padding:2px 8px">SILVER</span></td><td>5</td><td>12.5%</td></tr>
+            <tr><td><span class="tier-badge tier-gold" style="font-size:8px;padding:2px 8px">GOLD</span></td><td>15</td><td>15%</td></tr>
+            <tr><td><span class="tier-badge tier-platinum" style="font-size:8px;padding:2px 8px">PLATINUM</span></td><td>30</td><td>17.5%</td></tr>
+            <tr><td><span class="tier-badge tier-diamond" style="font-size:8px;padding:2px 8px">DIAMOND</span></td><td>50</td><td>20%</td></tr>
           </tbody>
         </table>
+
+        <!-- Recent Referrals -->
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.25);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Recent Referrals</div>
+        <div id="aff-referrals" style="font-size:12px;color:rgba(255,255,255,.2)">No referrals yet — share your link to start earning!</div>
+      </div>
+
+      <!-- View-Only Data -->
+      <div class="two-col">
+        <div class="glass">
+          <div class="section-title">📊 Sources (View Only)</div>
+          <table><thead><tr><th>Source</th><th>Tier</th><th>Accuracy</th></tr></thead><tbody id="p-sources-body"></tbody></table>
+        </div>
+        <div class="glass">
+          <div class="section-title">🎮 Games (View Only)</div>
+          <table><thead><tr><th>Game</th><th>Sport</th><th>Confidence</th></tr></thead><tbody id="p-games-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- Users (View Only — no contact details) -->
+      <div class="glass">
+        <div class="section-title">👤 Users (View Only)</div>
+        <div style="overflow-x:auto">
+          <table><thead><tr><th>#</th><th>Name</th><th>Verified</th><th>Picks</th><th>Joined</th></tr></thead>
+          <tbody id="p-users-body"></tbody></table>
+        </div>
       </div>
     </div>
   </div>
@@ -177,168 +302,203 @@
   <script>
     // ═══ ACCESS CONTROL ═══
     const OWNER_PIN = '0424';
-    const MATHEW_PIN = '1337'; // Mathew backdoor — view only
-    let role = null; // 'owner' or 'viewer'
+    const PARTNER_TEMP = 'Temp12345!';
+    let partnerPassword = localStorage.getItem('lumeline_partner_pw') || null;
+    let role = null;
 
-    function pinNext(input, idx) {
-      if (input.value && idx < 3) {
-        document.getElementById('pin-inputs').querySelectorAll('input')[idx + 1].focus();
-      }
-      const inputs = document.getElementById('pin-inputs').querySelectorAll('input');
-      const pin = Array.from(inputs).map(i => i.value).join('');
-      if (pin.length === 4) checkPin(pin);
-    }
-
-    function checkPin(pin) {
-      if (pin === OWNER_PIN) {
+    function checkGate() {
+      const input = document.getElementById('gate-input').value;
+      if (input === OWNER_PIN) {
         role = 'owner';
-        unlockAdmin();
-      } else if (pin === MATHEW_PIN) {
-        role = 'viewer';
-        unlockAdmin();
+        showPanel();
+      } else if (input === PARTNER_TEMP && !partnerPassword) {
+        // First login — show password setup
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('pw-setup').style.display = '';
+      } else if (partnerPassword && input === partnerPassword) {
+        role = 'partner';
+        showPanel();
+      } else if (input === PARTNER_TEMP && partnerPassword) {
+        document.getElementById('gate-err').textContent = 'Temp credential expired. Use your set password.';
       } else {
-        document.getElementById('pin-err').textContent = 'Invalid PIN';
-        const inputs = document.getElementById('pin-inputs').querySelectorAll('input');
-        inputs.forEach(i => { i.value = ''; i.style.borderColor = 'rgba(239,68,68,.3)'; });
-        inputs[0].focus();
-        setTimeout(() => inputs.forEach(i => i.style.borderColor = ''), 1000);
+        document.getElementById('gate-err').textContent = 'Invalid credential';
+        document.getElementById('gate-input').value = '';
+        document.getElementById('gate-input').style.borderColor = 'rgba(239,68,68,.3)';
+        setTimeout(() => document.getElementById('gate-input').style.borderColor = '', 1000);
       }
     }
 
-    function unlockAdmin() {
-      document.getElementById('pin-gate').style.display = 'none';
-      document.getElementById('admin-panel').style.display = '';
+    function validatePw() {
+      const pw = document.getElementById('pw-new').value;
+      const confirm = document.getElementById('pw-confirm').value;
+      const len = pw.length >= 8;
+      const cap = /[A-Z]/.test(pw);
+      const spec = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
+      const match = pw === confirm && pw.length > 0;
 
-      if (role === 'viewer') {
-        // Mathew mode — view only
-        document.getElementById('admin-badge').textContent = 'VIEWER';
-        document.getElementById('admin-badge').className = 'admin-badge badge-viewer';
-        document.getElementById('admin-role-text').textContent = 'Viewer (Mathew)';
+      document.getElementById('req-len').className = len ? 'ok' : 'fail';
+      document.getElementById('req-len').textContent = (len ? '✓' : '○') + ' At least 8 characters';
+      document.getElementById('req-cap').className = cap ? 'ok' : 'fail';
+      document.getElementById('req-cap').textContent = (cap ? '✓' : '○') + ' At least 1 uppercase letter';
+      document.getElementById('req-spec').className = spec ? 'ok' : 'fail';
+      document.getElementById('req-spec').textContent = (spec ? '✓' : '○') + ' At least 1 special character';
+      document.getElementById('req-match').className = match ? 'ok' : 'fail';
+      document.getElementById('req-match').textContent = (match ? '✓' : '○') + ' Passwords match';
 
-        // Disable all action buttons
-        document.querySelectorAll('#pipeline-btns .btn').forEach(b => b.disabled = true);
-        document.querySelectorAll('#stripe-btns .btn').forEach(b => b.disabled = true);
+      document.getElementById('pw-submit').disabled = !(len && cap && spec && match);
+    }
+
+    function setPartnerPassword() {
+      const pw = document.getElementById('pw-new').value;
+      partnerPassword = pw;
+      localStorage.setItem('lumeline_partner_pw', pw);
+      role = 'partner';
+      document.getElementById('pw-setup').style.display = 'none';
+      showPanel();
+    }
+
+    function showPanel() {
+      document.getElementById('gate').style.display = 'none';
+      if (role === 'owner') {
+        document.getElementById('admin-panel').style.display = '';
+        loadOwnerData();
       } else {
-        document.getElementById('admin-badge').textContent = 'OWNER';
-        document.getElementById('admin-badge').className = 'admin-badge badge-owner';
-        document.getElementById('admin-role-text').textContent = 'Owner';
+        document.getElementById('partner-panel').style.display = '';
+        loadPartnerData();
       }
-
-      loadAdminData();
     }
 
     function lockAdmin() {
       role = null;
       document.getElementById('admin-panel').style.display = 'none';
-      document.getElementById('pin-gate').style.display = 'flex';
-      document.getElementById('pin-err').textContent = '';
-      const inputs = document.getElementById('pin-inputs').querySelectorAll('input');
-      inputs.forEach(i => i.value = '');
-      inputs[0].focus();
+      document.getElementById('partner-panel').style.display = 'none';
+      document.getElementById('gate').style.display = 'flex';
+      document.getElementById('gate-err').textContent = '';
+      document.getElementById('gate-input').value = '';
+      document.getElementById('gate-input').focus();
     }
 
-    // ═══ DATA LOADING ═══
-    async function loadAdminData() {
+    // ═══ OWNER DATA ═══
+    async function loadOwnerData() {
       try {
-        // Health
         const health = await fetch('/api/health').then(r => r.json());
         document.getElementById('a-status').textContent = health.status === 'healthy' ? '● Online' : '○ Offline';
         const hrs = Math.floor(health.uptime / 3600);
         const mins = Math.floor((health.uptime % 3600) / 60);
         document.getElementById('a-uptime').textContent = `${hrs}h ${mins}m`;
 
-        // Sources
         const srcData = await fetch('/api/sources').then(r => r.json());
         document.getElementById('sources-body').innerHTML = srcData.sources.map(s =>
-          `<tr><td style="font-weight:600">${s.name}</td><td>${s.type}</td><td><span class="admin-badge" style="font-size:8px;padding:2px 8px;${s.tier==='sharp'?'background:rgba(6,182,212,.1);color:#67e8f9;border:1px solid rgba(6,182,212,.15)':s.tier==='reliable'?'background:rgba(16,185,129,.1);color:#6ee7b7;border:1px solid rgba(16,185,129,.15)':'background:rgba(255,255,255,.04);color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.06)'}">${s.tier}</span></td><td style="color:${parseFloat(s.accuracy_30d)>60?'#6ee7b7':'rgba(255,255,255,.4)'}">${s.accuracy_30d}%</td></tr>`
+          `<tr><td style="font-weight:600">${s.name}</td><td>${s.type}</td><td>${s.tier}</td><td>${s.accuracy_30d}%</td></tr>`
         ).join('');
 
-        // Games
         const gameData = await fetch('/api/games').then(r => r.json());
         document.getElementById('games-body').innerHTML = (gameData.games || []).slice(0, 10).map(g =>
-          `<tr><td style="font-weight:600">${g.away_team} @ ${g.home_team}</td><td>${g.sport || 'NFL'}</td><td style="color:${g.confidence>=60?'#67e8f9':'rgba(255,255,255,.4)'}">${g.confidence}%</td><td>${g.integrity}/100</td></tr>`
+          `<tr><td style="font-weight:600">${g.away_team} @ ${g.home_team}</td><td>${g.sport||'NFL'}</td><td>${g.confidence}%</td><td>${g.integrity}/100</td></tr>`
         ).join('') || '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.1)">No active games</td></tr>';
 
-        // Users (admin-only endpoint)
         try {
           const userData = await fetch('/api/admin/users').then(r => r.json());
           document.getElementById('a-users').textContent = userData.count || 0;
           document.getElementById('users-body').innerHTML = (userData.users || []).map((u, i) =>
-            `<tr><td>${i+1}</td><td style="font-weight:600">${u.display_name}</td><td>${u.phone || u.email || '—'}</td><td>${u.verified ? '<span style="color:#6ee7b7">✓</span>' : '<span style="color:rgba(255,255,255,.2)">✗</span>'}</td><td>${u.pick_count || 0}</td><td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td><td>${u.last_login ? new Date(u.last_login).toLocaleDateString() : '—'}</td></tr>`
-          ).join('') || '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.1)">No users yet</td></tr>';
+            `<tr><td>${i+1}</td><td style="font-weight:600">${u.display_name}</td><td>${u.phone||u.email||'—'}</td><td>${u.verified?'<span style="color:#6ee7b7">✓</span>':'<span style="color:rgba(255,255,255,.2)">✗</span>'}</td><td>${u.pick_count||0}</td><td>${u.created_at?new Date(u.created_at).toLocaleDateString():'—'}</td><td>${u.last_login?new Date(u.last_login).toLocaleDateString():'—'}</td></tr>`
+          ).join('') || '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.1)">No users</td></tr>';
         } catch { document.getElementById('a-users').textContent = '0'; }
 
-        // Env status
         try {
           const env = await fetch('/api/admin/env').then(r => r.json());
-          document.getElementById('env-db').textContent = env.DATABASE_URL ? '✅ Set' : '❌ Missing';
-          document.getElementById('env-db').style.color = env.DATABASE_URL ? '#6ee7b7' : '#fca5a5';
-          document.getElementById('env-odds').textContent = env.ODDS_API_KEY ? '✅ Set' : '⚠️ Missing';
-          document.getElementById('env-odds').style.color = env.ODDS_API_KEY ? '#6ee7b7' : '#fbbf24';
-          document.getElementById('env-twilio').textContent = env.TWILIO ? '✅ Set' : '⚠️ Missing';
-          document.getElementById('env-twilio').style.color = env.TWILIO ? '#6ee7b7' : '#fbbf24';
-          document.getElementById('env-resend').textContent = env.RESEND ? '✅ Set' : '⚠️ Missing';
-          document.getElementById('env-resend').style.color = env.RESEND ? '#6ee7b7' : '#fbbf24';
-          document.getElementById('env-stripe').textContent = env.STRIPE ? '✅ Set' : '⚠️ Missing';
-          document.getElementById('env-stripe').style.color = env.STRIPE ? '#6ee7b7' : '#fbbf24';
-          document.getElementById('env-jwt').textContent = env.JWT ? '✅ Set' : '⚠️ Missing';
-          document.getElementById('env-jwt').style.color = env.JWT ? '#6ee7b7' : '#fbbf24';
+          ['db','odds','twilio','resend','stripe','jwt'].forEach(k => {
+            const key = k === 'db' ? 'DATABASE_URL' : k === 'odds' ? 'ODDS_API_KEY' : k.toUpperCase();
+            const val = env[key] || env[k.toUpperCase()];
+            const el = document.getElementById('env-' + k);
+            if (el) { el.textContent = val ? '✅ Set' : '⚠️ Missing'; el.style.color = val ? '#6ee7b7' : '#fbbf24'; }
+          });
           document.getElementById('stripe-status').textContent = env.STRIPE ? 'Connected' : 'Not configured';
           document.getElementById('stripe-status').style.color = env.STRIPE ? '#6ee7b7' : '#fbbf24';
         } catch {}
 
-        // Revenue placeholder
         document.getElementById('a-revenue').textContent = '$0';
-
         log('info', 'Admin data loaded');
-      } catch (err) {
-        log('err', 'Failed to load admin data: ' + err.message);
-      }
+      } catch (err) { log('err', 'Load failed: ' + err.message); }
     }
 
-    // ═══ PIPELINE ═══
+    // ═══ PARTNER DATA ═══
+    async function loadPartnerData() {
+      try {
+        const health = await fetch('/api/health').then(r => r.json());
+        document.getElementById('p-status').textContent = health.status === 'healthy' ? '● Online' : '○ Offline';
+        const hrs = Math.floor(health.uptime / 3600);
+        const mins = Math.floor((health.uptime % 3600) / 60);
+        document.getElementById('p-uptime').textContent = `${hrs}h ${mins}m`;
+
+        try {
+          const userData = await fetch('/api/admin/users').then(r => r.json());
+          document.getElementById('p-users').textContent = userData.count || 0;
+          // Show users WITHOUT contact info (partner view)
+          document.getElementById('p-users-body').innerHTML = (userData.users || []).map((u, i) =>
+            `<tr><td>${i+1}</td><td style="font-weight:600">${u.display_name}</td><td>${u.verified?'<span style="color:#6ee7b7">✓</span>':'✗'}</td><td>${u.pick_count||0}</td><td>${u.created_at?new Date(u.created_at).toLocaleDateString():'—'}</td></tr>`
+          ).join('') || '<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.1)">No users</td></tr>';
+        } catch {}
+
+        const srcData = await fetch('/api/sources').then(r => r.json());
+        document.getElementById('p-sources-body').innerHTML = srcData.sources.map(s =>
+          `<tr><td style="font-weight:600">${s.name}</td><td>${s.tier}</td><td>${s.accuracy_30d}%</td></tr>`
+        ).join('');
+
+        const gameData = await fetch('/api/games').then(r => r.json());
+        document.getElementById('p-games').textContent = (gameData.games || []).length;
+        document.getElementById('p-games-body').innerHTML = (gameData.games || []).slice(0, 10).map(g =>
+          `<tr><td style="font-weight:600">${g.away_team} @ ${g.home_team}</td><td>${g.sport||'NFL'}</td><td>${g.confidence}%</td></tr>`
+        ).join('') || '<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.1)">No games</td></tr>';
+
+        // Affiliate data (mock until TrustHub API integrates)
+        const refHash = 'mathew-partner-' + Math.random().toString(36).slice(2, 10);
+        document.getElementById('ref-link-input').value = `https://lumeline.bet/ref/${refHash}`;
+
+      } catch (err) { console.error('Partner load error:', err); }
+    }
+
+    // ═══ PIPELINE (owner only) ═══
     async function runPipeline() {
       if (role !== 'owner') return;
       log('info', 'Running ML pipeline...');
       try {
-        const res = await fetch('/api/pipeline', { method: 'POST' });
-        const data = await res.json();
-        log('ok', `Pipeline complete: ${data.games} games, ${data.anomalies} anomalies, ${data.consensus} consensus (${data.duration_ms}ms)`);
-      } catch (err) {
-        log('err', 'Pipeline failed: ' + err.message);
-      }
+        const data = await fetch('/api/pipeline', { method: 'POST' }).then(r => r.json());
+        log('ok', `Pipeline: ${data.games} games, ${data.anomalies} anomalies, ${data.consensus} consensus (${data.duration_ms}ms)`);
+      } catch (err) { log('err', 'Pipeline failed: ' + err.message); }
     }
 
     async function runIngest() {
       if (role !== 'owner') return;
       log('info', 'Running ingestion...');
       try {
-        const res = await fetch('/api/ingest', { method: 'POST' });
-        const data = await res.json();
-        log('ok', `Ingestion complete: ${JSON.stringify(data)}`);
-      } catch (err) {
-        log('err', 'Ingestion failed: ' + err.message);
-      }
+        const data = await fetch('/api/ingest', { method: 'POST' }).then(r => r.json());
+        log('ok', `Ingestion: ${JSON.stringify(data)}`);
+      } catch (err) { log('err', 'Ingestion failed: ' + err.message); }
     }
 
-    function refreshData() {
-      log('info', 'Refreshing...');
-      loadAdminData();
-    }
+    function refreshData() { log('info', 'Refreshing...'); role === 'owner' ? loadOwnerData() : loadPartnerData(); }
 
     function log(type, msg) {
       const el = document.getElementById('pipeline-log');
-      const ts = new Date().toLocaleTimeString();
-      el.innerHTML += `\n<span class="${type}">[${ts}]</span> ${msg}`;
+      if (!el) return;
+      el.innerHTML += `\n<span class="${type}">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
       el.scrollTop = el.scrollHeight;
     }
 
-    // Auto-focus first PIN input
-    document.getElementById('pin-inputs').querySelectorAll('input')[0].focus();
-
-    // Check if came from footer triple-click (hash)
-    if (window.location.hash === '#admin') {
-      document.getElementById('pin-inputs').querySelectorAll('input')[0].focus();
+    function copyRefLink() {
+      const input = document.getElementById('ref-link-input');
+      navigator.clipboard.writeText(input.value);
+      const btn = input.nextElementSibling;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
     }
+
+    function requestPayout() {
+      alert('Payout requests are processed through TrustHub. Minimum: 10 SIG. Processing within 48 hours.');
+    }
+
+    // Auto-focus
+    document.getElementById('gate-input').focus();
   </script>
 </body></html>
