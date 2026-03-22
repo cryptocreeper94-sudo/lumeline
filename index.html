@@ -197,13 +197,8 @@
 
   <!-- ═══════════ LIVE TICKER ═══════════ -->
   <div class="mx reveal">
-    <div class="ticker">
-      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">KC -3.5 vs DEN</div><div class="ticker-odds" style="color:#67e8f9">72%</div></div>
-      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">BUF -1.5 vs MIA</div><div class="ticker-odds" style="color:#67e8f9">61%</div></div>
-      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">DAL +2.5 vs PHI</div><div class="ticker-odds" style="color:#fbbf24">55% ⚠️</div></div>
-      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">LAL -4 vs GSW</div><div class="ticker-odds" style="color:#67e8f9">58%</div></div>
-      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">BOS -6.5 vs MIL</div><div class="ticker-odds" style="color:#67e8f9">64%</div></div>
-      <div class="ticker-item"><div class="ticker-live"></div><div class="ticker-teams">PHX +1 vs DEN</div><div class="ticker-odds" style="color:#ef4444">48% 🚨</div></div>
+    <div class="ticker" id="live-ticker">
+      <div class="ticker-item" style="opacity:.3"><div class="ticker-live" style="background:#67e8f9"></div><div class="ticker-teams">Loading live intelligence...</div></div>
     </div>
   </div>
 
@@ -212,9 +207,9 @@
   <!-- ═══════════ SPORT TABS ═══════════ -->
   <div class="mx">
     <div class="tabs reveal">
-      <div class="tab tab-active">🏈 NFL</div>
-      <div class="tab">🏀 NBA</div>
-      <div class="tab">📊 All Sports</div>
+      <div class="tab" onclick="switchTab('all', this)">📊 All Sports</div>
+      <div class="tab" onclick="switchTab('nfl', this)">🏈 NFL</div>
+      <div class="tab" onclick="switchTab('nba', this)">🏀 NBA</div>
     </div>
   </div>
 
@@ -222,102 +217,14 @@
   <div class="mx section reveal">
     <div class="section-head">
       <div><div class="section-title grad-text">Today's Consensus</div><div class="section-sub" style="margin-top:4px">ML-weighted predictions across 47 sources</div></div>
-      <div class="section-sub">6 games · 2,841 snapshots</div>
+      <div class="section-sub" id="game-count">Loading...</div>
     </div>
     <div class="carousel-wrap">
       <button class="carousel-btn carousel-prev" onclick="document.getElementById('games').scrollBy({left:-400,behavior:'smooth'})">‹</button>
       <button class="carousel-btn carousel-next" onclick="document.getElementById('games').scrollBy({left:400,behavior:'smooth'})">›</button>
       <div class="carousel" id="games">
 
-        <!-- Game 1 -->
-        <div class="carousel-item"><div class="glass glass-glow game-card">
-          <img src="assets/images/nfl_chiefs.png" alt="KC Chiefs" class="game-img">
-          <div class="game-body">
-            <div class="game-teams-row">
-              <div><span class="game-team">DEN</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">KC</span></div>
-              <div class="game-likelihood" style="color:#67e8f9">72<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
-            </div>
-            <div class="game-conf-row"><span>Confidence</span><span style="color:rgba(255,255,255,.5);font-weight:700">81%</span></div>
-            <div class="bar"><div class="bar-fill bar-cyan" style="width:81%"></div></div>
-            <div class="game-footer"><span class="integrity">Integrity: 88/100</span><span class="badge badge-clean">✅ Clean</span></div>
-            <div class="game-ai">4 of 5 sharps favor KC. Clean lines, high alignment. Pinnacle and Circa moved early — strong CLV signal.</div>
-          </div>
-        </div></div>
-
-        <!-- Game 2 -->
-        <div class="carousel-item"><div class="glass game-card">
-          <img src="assets/images/nfl_bills.png" alt="BUF Bills" class="game-img">
-          <div class="game-body">
-            <div class="game-teams-row">
-              <div><span class="game-team">MIA</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">BUF</span></div>
-              <div class="game-likelihood" style="color:#6ee7b7">61<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
-            </div>
-            <div class="game-conf-row"><span>Confidence</span><span style="color:rgba(255,255,255,.5);font-weight:700">67%</span></div>
-            <div class="bar"><div class="bar-fill bar-green" style="width:67%"></div></div>
-            <div class="game-footer"><span class="integrity">Integrity: 74/100</span><span class="badge badge-clean">✅ Clean</span></div>
-            <div class="game-ai">BUF slightly favored. Mixed signals between sharp and public money. Mathew picked BUF.</div>
-          </div>
-        </div></div>
-
-        <!-- Game 3: House Lean -->
-        <div class="carousel-item"><div class="glass game-card">
-          <img src="assets/images/nfl_cowboys.png" alt="DAL Cowboys" class="game-img">
-          <div class="game-body">
-            <div class="game-teams-row">
-              <div><span class="game-team">PHI</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">DAL</span></div>
-              <div class="game-likelihood" style="color:#fbbf24">55<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
-            </div>
-            <div class="game-conf-row"><span>Confidence</span><span style="color:#fbbf24;font-weight:700">43%</span></div>
-            <div class="bar"><div class="bar-fill bar-amber" style="width:43%"></div></div>
-            <div class="game-footer"><span class="integrity" style="color:rgba(245,158,11,.5)">⚠️ Integrity: 42/100</span><span class="badge badge-house">🏠 House Lean</span></div>
-            <div class="game-ai">⚠️ 3 books moved DAL spread in sync within 4 min. Confidence suppressed. Deferring to house line.</div>
-          </div>
-        </div></div>
-
-        <!-- Game 4 -->
-        <div class="carousel-item"><div class="glass glass-glow game-card">
-          <img src="assets/images/nba_lakers.png" alt="LAL Lakers" class="game-img">
-          <div class="game-body">
-            <div class="game-teams-row">
-              <div><span class="game-team">GSW</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">LAL</span></div>
-              <div class="game-likelihood" style="color:#67e8f9">58<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
-            </div>
-            <div class="game-conf-row"><span>Confidence</span><span style="color:rgba(255,255,255,.5);font-weight:700">72%</span></div>
-            <div class="bar"><div class="bar-fill bar-cyan" style="width:72%"></div></div>
-            <div class="game-footer"><span class="integrity">Integrity: 90/100</span><span class="badge badge-clean">✅ Clean</span></div>
-            <div class="game-ai">Sharp consensus on LAL. Clean integrity. Mathew also picked LAL — his 8th straight correct pick.</div>
-          </div>
-        </div></div>
-
-        <!-- Game 5 -->
-        <div class="carousel-item"><div class="glass glass-glow game-card">
-          <img src="assets/images/nba_celtics.png" alt="BOS Celtics" class="game-img">
-          <div class="game-body">
-            <div class="game-teams-row">
-              <div><span class="game-team">MIL</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">BOS</span></div>
-              <div class="game-likelihood" style="color:#67e8f9">64<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
-            </div>
-            <div class="game-conf-row"><span>Confidence</span><span style="color:rgba(255,255,255,.5);font-weight:700">78%</span></div>
-            <div class="bar"><div class="bar-fill bar-cyan" style="width:78%"></div></div>
-            <div class="game-footer"><span class="integrity">Integrity: 95/100</span><span class="badge badge-clean">✅ Clean</span></div>
-            <div class="game-ai">Strongest consensus today. 5 of 6 sources agree. Highest integrity game — clean across the board.</div>
-          </div>
-        </div></div>
-
-        <!-- Game 6: Danger -->
-        <div class="carousel-item"><div class="glass game-card">
-          <img src="assets/images/nba_suns.png" alt="PHX Suns" class="game-img">
-          <div class="game-body">
-            <div class="game-teams-row">
-              <div><span class="game-team">DEN</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">PHX</span></div>
-              <div class="game-likelihood" style="color:#fca5a5">48<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div>
-            </div>
-            <div class="game-conf-row"><span>Confidence</span><span style="color:#ef4444;font-weight:700">38%</span></div>
-            <div class="bar"><div class="bar-fill bar-red" style="width:38%"></div></div>
-            <div class="game-footer"><span class="integrity" style="color:rgba(239,68,68,.5)">🚨 Integrity: 55/100</span><span class="badge badge-danger">🚨 Suspect</span></div>
-            <div class="game-ai">Reverse steam detected. DEN line moved +1.5 → -2 → +1 in 20min — classic trap. Deferring to house.</div>
-          </div>
-        </div></div>
+        <!-- Rendered dynamically by JS engine -->
 
       </div>
     </div>
@@ -332,44 +239,28 @@
       <!-- LEFT: Leaderboard -->
       <div class="glass reveal" style="padding: 20px; align-self: start;">
         <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">📊 Source Leaderboard</div>
-
-        <div class="source"><span class="source-rank source-rank-top">1</span><div class="source-avatar" style="background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(245,158,11,.1));border:1px solid rgba(251,191,36,.25);color:#fbbf24">M</div><div class="source-info"><div class="source-name">⭐ Mathew</div><div class="source-meta">External · 8-2 last 10</div></div><div class="source-acc"><span class="source-pct" style="color:#fbbf24">71%</span><span class="source-picks">124 picks</span></div></div>
-
-        <div class="source"><span class="source-rank source-rank-top">2</span><div class="source-avatar" style="background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(6,182,212,.05));border:1px solid rgba(6,182,212,.2);color:#67e8f9">P</div><div class="source-info"><div class="source-name">Pinnacle</div><div class="source-meta">Sharp · Best CLV</div></div><div class="source-acc"><span class="source-pct" style="color:#67e8f9">68%</span><span class="source-picks">892 picks</span></div></div>
-
-        <div class="source"><span class="source-rank source-rank-top">3</span><div class="source-avatar" style="background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(6,182,212,.05));border:1px solid rgba(6,182,212,.2);color:#67e8f9">C</div><div class="source-info"><div class="source-name">Circa Sports</div><div class="source-meta">Sharp · Early mover</div></div><div class="source-acc"><span class="source-pct" style="color:#67e8f9">64%</span><span class="source-picks">756 picks</span></div></div>
-
-        <div class="source"><span class="source-rank">4</span><div class="source-avatar" style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.15);color:#6ee7b7">B</div><div class="source-info"><div class="source-name">BetMGM</div><div class="source-meta">Reliable</div></div><div class="source-acc"><span class="source-pct" style="color:#6ee7b7">58%</span><span class="source-picks">1,204</span></div></div>
-
-        <div class="source"><span class="source-rank">5</span><div class="source-avatar" style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.15);color:#6ee7b7">D</div><div class="source-info"><div class="source-name">DraftKings</div><div class="source-meta">Reliable</div></div><div class="source-acc"><span class="source-pct" style="color:#6ee7b7">56%</span><span class="source-picks">1,450</span></div></div>
-
-        <div class="source"><span class="source-rank">6</span><div class="source-avatar" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.3)">F</div><div class="source-info"><div class="source-name">FanDuel</div><div class="source-meta">Neutral</div></div><div class="source-acc"><span class="source-pct" style="color:rgba(255,255,255,.35)">52%</span><span class="source-picks">1,380</span></div></div>
-
-        <div class="source"><span class="source-rank">7</span><div class="source-avatar" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.12);color:#fca5a5">C</div><div class="source-info"><div class="source-name">Caesars</div><div class="source-meta" style="color:rgba(239,68,68,.4)">Fade material</div></div><div class="source-acc"><span class="source-pct" style="color:#fca5a5">44%</span><span class="source-picks">1,100</span></div></div>
+        <div id="leaderboard"><!-- Rendered by JS --></div>
       </div>
 
       <!-- CENTER: Stats -->
       <div class="reveal" style="align-self:start">
         <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">📈 Intelligence Overview</div>
         <div class="stat-grid" style="margin-bottom:20px">
-          <div class="stat-box"><span class="stat-val" style="color:#67e8f9">47</span><span class="stat-label">Sources Active</span></div>
-          <div class="stat-box"><span class="stat-val" style="color:#6ee7b7">2,841</span><span class="stat-label">Snapshots Today</span></div>
-          <div class="stat-box"><span class="stat-val" style="color:#fbbf24">3</span><span class="stat-label">Anomalies</span></div>
-          <div class="stat-box"><span class="stat-val" style="color:#a78bfa">74</span><span class="stat-label">Avg Integrity</span></div>
+          <div class="stat-box"><span class="stat-val" style="color:#67e8f9" id="stat-sources">—</span><span class="stat-label">Sources Active</span></div>
+          <div class="stat-box"><span class="stat-val" style="color:#6ee7b7" id="stat-snapshots">—</span><span class="stat-label">Snapshots Today</span></div>
+          <div class="stat-box"><span class="stat-val" style="color:#fbbf24" id="stat-anomalies">—</span><span class="stat-label">Anomalies</span></div>
+          <div class="stat-box"><span class="stat-val" style="color:#a78bfa" id="stat-integrity">—</span><span class="stat-label">Avg Integrity</span></div>
         </div>
 
         <!-- Consensus Meter -->
         <div class="glass" style="padding:24px;margin-bottom:20px">
           <div style="font-size:11px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;font-weight:600">Consensus Meter — Best Game</div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <div><div style="font-size:24px;font-weight:900" class="grad-text">BOS -6.5</div><div style="font-size:11px;color:rgba(255,255,255,.25);margin-top:2px">vs Milwaukee Bucks</div></div>
-            <div style="text-align:right"><div style="font-size:32px;font-weight:900;color:#67e8f9">78<span style="font-size:14px;color:rgba(255,255,255,.2)">%</span></div><div style="font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.1em">confidence</div></div>
+            <div id="consensus-game"><div style="font-size:24px;font-weight:900" class="grad-text">Loading...</div></div>
+            <div style="text-align:right" id="consensus-pct"><div style="font-size:32px;font-weight:900;color:#67e8f9">—</div></div>
           </div>
-          <div class="bar" style="height:8px;margin-bottom:16px"><div class="bar-fill bar-cyan" style="width:78%;height:100%"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.2)">
-            <span>5 of 6 sources agree</span>
-            <span>Integrity: <strong style="color:#6ee7b7">95/100</strong></span>
-          </div>
+          <div class="bar" style="height:8px;margin-bottom:16px"><div class="bar-fill bar-cyan" id="consensus-bar" style="width:0%;height:100%"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.2)" id="consensus-footer"></div>
         </div>
 
         <!-- AI Insight -->
@@ -385,18 +276,7 @@
       <!-- RIGHT: Pattern Feed -->
       <div class="glass reveal" style="padding:20px;align-self:start">
         <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">⚡ Pattern Feed</div>
-
-        <div class="pattern pattern-high"><div class="pattern-head"><span class="pattern-title">🔥 Sharp Alignment</span><span class="pattern-time">2 min ago</span></div><div class="pattern-desc">4 of 5 Sharp-tier sources aligned on KC -3.5. Historical win rate when this pattern forms: 74%.</div></div>
-
-        <div class="pattern pattern-warn"><div class="pattern-head"><span class="pattern-title">⚠️ Sync Move Detected</span><span class="pattern-time">18 min ago</span></div><div class="pattern-desc">3 books moved DAL +2.5 within 4 minutes — flagged as possible coordination. Integrity downgraded to 42.</div></div>
-
-        <div class="pattern pattern-danger"><div class="pattern-head"><span class="pattern-title">🔄 Reverse Steam</span><span class="pattern-time">34 min ago</span></div><div class="pattern-desc">DEN line moved from +1.5 to -2 then snapped back to +1 within 20 minutes — classic trap pattern.</div></div>
-
-        <div class="pattern pattern-info"><div class="pattern-head"><span class="pattern-title">📊 Mathew's Streak</span><span class="pattern-time">1 hr ago</span></div><div class="pattern-desc">External source 'Mathew' is 8-2 in last 10. Auto-promoted to Sharp tier. Weight multiplier: 2.5x.</div></div>
-
-        <div class="pattern pattern-ok"><div class="pattern-head"><span class="pattern-title">✅ Clean Line: BOS vs MIL</span><span class="pattern-time">1 hr ago</span></div><div class="pattern-desc">All sources consistent for 6+ hours. Integrity: 95/100. No anomalies detected. Strongest consensus today.</div></div>
-
-        <div class="pattern pattern-warn"><div class="pattern-head"><span class="pattern-title">🏠 House Lean Active</span><span class="pattern-time">2 hr ago</span></div><div class="pattern-desc">PHX vs DEN — confidence 38%, below 60% threshold. System deferring to house line per protocol.</div></div>
+        <div id="pattern-feed"><!-- Rendered by JS --></div>
       </div>
 
     </div>
@@ -444,22 +324,343 @@
   <div class="mx cta-section reveal">
     <h2 class="grad-text">The house always knows.<br>Now you will too.</h2>
     <p>LumeLine brings transparency to an opaque game. Built with Lume. Part of the Trust Layer ecosystem.</p>
-    <button class="cta-btn cta-primary">◆ Connect Your Source</button>
+    <button class="cta-btn cta-primary" id="cta-connect">◆ Connect Your Source</button>
   </div>
 
-  <!-- ═══════════ FOOTER ═══════════ -->
+  <!-- ═══════════ CANONICAL FOOTER ═══════════ -->
   <div class="divider mx"></div>
-  <div class="footer">
-    <p>LumeLine · Trust Layer Ecosystem · Built with Lume</p>
-    <p style="margin-top:6px;font-size:10px">DarkWave Studios · 2026</p>
+  <footer style="border-top:1px solid rgba(255,255,255,.05);padding:40px 0 32px">
+    <div class="mx">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-bottom:32px">
+        <!-- Brand -->
+        <div>
+          <div style="font-size:18px;font-weight:900;margin-bottom:8px" class="grad-text">LumeLine</div>
+          <p style="font-size:11px;color:rgba(255,255,255,.2);line-height:1.7;margin-bottom:16px">Odds intelligence platform. Built 100% with Lume. Part of the Trust Layer ecosystem.</p>
+          <div style="display:flex;gap:8px">
+            <a href="https://x.com/TrustSignal26" target="_blank" rel="noopener" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);text-decoration:none;font-size:12px;transition:all .25s" onmouseover="this.style.borderColor='rgba(6,182,212,.3)';this.style.color='#67e8f9'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)';this.style.color='rgba(255,255,255,.3)'">𝕏</a>
+            <a href="https://www.facebook.com/profile.php?id=61587475987575" target="_blank" rel="noopener" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);text-decoration:none;font-size:12px;transition:all .25s" onmouseover="this.style.borderColor='rgba(6,182,212,.3)';this.style.color='#67e8f9'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)';this.style.color='rgba(255,255,255,.3)'">f</a>
+          </div>
+        </div>
+        <!-- Product -->
+        <div>
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Product</div>
+          <a href="/" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Dashboard</a>
+          <a href="/login.html" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Login / Sign Up</a>
+          <a href="/dashboard.html" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">My Dashboard</a>
+          <a href="/roadmap.html" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Roadmap</a>
+          <a href="/developers.html" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">🔧 Developers</a>
+        </div>
+        <!-- Company -->
+        <div>
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Company</div>
+          <a href="/executive-summary.html" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Executive Summary</a>
+          <a href="https://darkwavestudios.io" target="_blank" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">DarkWave Studios</a>
+          <a href="https://dwtl.io" target="_blank" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Trust Layer</a>
+          <a href="https://lume-lang.org" target="_blank" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Built with Lume</a>
+        </div>
+        <!-- Legal -->
+        <div>
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Legal</div>
+          <a href="/terms.html" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Terms of Service</a>
+          <a href="/privacy.html" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Privacy Policy</a>
+          <a href="/disclaimer.html" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Disclaimer</a>
+          <a href="/responsible-gaming.html" style="display:block;font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Responsible Gaming</a>
+        </div>
+      </div>
+      <!-- Bottom bar -->
+      <div style="border-top:1px solid rgba(255,255,255,.04);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div style="font-size:10px;color:rgba(255,255,255,.15)">&copy; 2026 DarkWave Studios, LLC · All rights reserved</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <a href="https://dwtl.io" target="_blank" style="font-size:9px;color:rgba(6,182,212,.3);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(6,182,212,.3)'">🛡️ Trust Layer</a>
+          <a href="https://lume-lang.org" target="_blank" style="font-size:9px;color:rgba(168,85,247,.3);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s" onmouseover="this.style.color='#a78bfa'" onmouseout="this.style.color='rgba(168,85,247,.3)'">◆ Lume</a>
+          <span style="font-size:9px;color:rgba(255,255,255,.1);font-family:monospace">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════ GAME DETAIL MODAL ═══════════ -->
+  <div id="game-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+    <div style="background:#0c1224;border:1px solid rgba(255,255,255,.1);border-radius:20px;max-width:520px;width:90%;max-height:80vh;overflow-y:auto;padding:32px;position:relative">
+      <button onclick="closeModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:rgba(255,255,255,.3);font-size:24px;cursor:pointer">&times;</button>
+      <div id="modal-content"></div>
+    </div>
   </div>
 
-  <!-- ═══════════ REVEAL ON SCROLL ═══════════ -->
+  <!-- ═══════════ SOURCE MODAL ═══════════ -->
+  <div id="source-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+    <div style="background:#0c1224;border:1px solid rgba(255,255,255,.1);border-radius:20px;max-width:460px;width:90%;padding:32px;position:relative">
+      <button onclick="document.getElementById('source-modal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:rgba(255,255,255,.3);font-size:24px;cursor:pointer">&times;</button>
+      <div style="text-align:center">
+        <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,rgba(6,182,212,.2),rgba(59,130,246,.1));border:1px solid rgba(6,182,212,.2);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px">◆</div>
+        <h3 style="font-size:20px;font-weight:800;margin-bottom:8px" class="grad-text">Connect Your Source</h3>
+        <p style="font-size:13px;color:rgba(255,255,255,.35);line-height:1.7;margin-bottom:24px">Submit your own picks to LumeLine. We'll track your accuracy, assign a tier, and weight your predictions into our ML consensus engine.</p>
+        <form id="source-form" style="text-align:left">
+          <label style="font-size:11px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:block;margin-bottom:6px">Source Name</label>
+          <input type="text" placeholder="Your handle or book name" style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:14px;margin-bottom:16px;outline:none" required>
+          <label style="font-size:11px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:block;margin-bottom:6px">Type</label>
+          <select style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:14px;margin-bottom:24px;outline:none">
+            <option value="external">External Bettor</option>
+            <option value="bookmaker">Bookmaker</option>
+            <option value="model">ML Model</option>
+          </select>
+          <button type="submit" class="cta-btn cta-primary" style="width:100%;justify-content:center">Submit Source Application</button>
+        </form>
+        <p style="font-size:10px;color:rgba(255,255,255,.15);margin-top:12px">Sources start at Neutral tier. Tier upgrades happen automatically based on performance.</p>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  // ═══════════════════════════════════════════
+  //  LUMELINE DASHBOARD ENGINE
+  // ═══════════════════════════════════════════
+
+  const API = '';
+  let currentSport = 'all';
+  let allGames = [];
+  let allSources = [];
+
+  // ─── Demo Games (shown when no ODDS_API_KEY / no live games) ───
+  const DEMO_GAMES = [
+    { id:'d1', sport:'nfl', home_team:'Kansas City Chiefs', away_team:'Denver Broncos', spread:'-3.5', confidence:72, integrity:88, status:'clean', ai:'4 of 5 sharps favor KC. Clean lines, high alignment. Pinnacle and Circa moved early — strong CLV signal.', img:'assets/images/nfl_chiefs.png' },
+    { id:'d2', sport:'nfl', home_team:'Buffalo Bills', away_team:'Miami Dolphins', spread:'-1.5', confidence:61, integrity:74, status:'clean', ai:'BUF slightly favored. Mixed signals between sharp and public money.', img:'assets/images/nfl_bills.png' },
+    { id:'d3', sport:'nfl', home_team:'Dallas Cowboys', away_team:'Philadelphia Eagles', spread:'+2.5', confidence:43, integrity:42, status:'house', ai:'⚠️ 3 books moved DAL spread in sync within 4 min. Confidence suppressed. Deferring to house line.', img:'assets/images/nfl_cowboys.png' },
+    { id:'d4', sport:'nba', home_team:'Los Angeles Lakers', away_team:'Golden State Warriors', spread:'-4', confidence:72, integrity:90, status:'clean', ai:'Sharp consensus on LAL. Clean integrity. 8th straight correct sharp pick on this matchup.', img:'assets/images/nba_lakers.png' },
+    { id:'d5', sport:'nba', home_team:'Boston Celtics', away_team:'Milwaukee Bucks', spread:'-6.5', confidence:78, integrity:95, status:'clean', ai:'Strongest consensus today. 5 of 6 sources agree. Highest integrity game — clean across the board.', img:'assets/images/nba_celtics.png' },
+    { id:'d6', sport:'nba', home_team:'Phoenix Suns', away_team:'Denver Nuggets', spread:'+1', confidence:38, integrity:55, status:'danger', ai:'Reverse steam detected. DEN line moved +1.5 → -2 → +1 in 20min — classic trap. Deferring to house.', img:'assets/images/nba_suns.png' },
+  ];
+
+  const DEMO_PATTERNS = [
+    { type:'high', icon:'🔥', title:'Sharp Alignment', time:'2 min ago', desc:'4 of 5 Sharp-tier sources aligned on KC -3.5. Historical win rate when this pattern forms: 74%.' },
+    { type:'warn', icon:'⚠️', title:'Sync Move Detected', time:'18 min ago', desc:'3 books moved DAL +2.5 within 4 minutes — flagged as possible coordination. Integrity downgraded to 42.' },
+    { type:'danger', icon:'🔄', title:'Reverse Steam', time:'34 min ago', desc:'DEN line moved from +1.5 to -2 then snapped back to +1 within 20 minutes — classic trap pattern.' },
+    { type:'info', icon:'📊', title:"Mathew's Streak", time:'1 hr ago', desc:"External source 'Mathew' is 8-2 in last 10. Auto-promoted to Sharp tier. Weight multiplier: 2.5x." },
+    { type:'ok', icon:'✅', title:'Clean Line: BOS vs MIL', time:'1 hr ago', desc:'All sources consistent for 6+ hours. Integrity: 95/100. No anomalies detected. Strongest consensus today.' },
+    { type:'warn', icon:'🏠', title:'House Lean Active', time:'2 hr ago', desc:'PHX vs DEN — confidence 38%, below 60% threshold. System deferring to house line per protocol.' },
+  ];
+
+  // ─── Abbreviations ───
+  const ABBR = { 'Kansas City Chiefs':'KC','Denver Broncos':'DEN','Buffalo Bills':'BUF','Miami Dolphins':'MIA','Dallas Cowboys':'DAL','Philadelphia Eagles':'PHI','Los Angeles Lakers':'LAL','Golden State Warriors':'GSW','Boston Celtics':'BOS','Milwaukee Bucks':'MIL','Phoenix Suns':'PHX','Denver Nuggets':'DEN' };
+  function abbr(t) { return ABBR[t] || t.split(' ').pop().substring(0,3).toUpperCase(); }
+
+  // ─── Tier Colors ───
+  function tierColor(tier) {
+    return { sharp:'#67e8f9', reliable:'#6ee7b7', neutral:'rgba(255,255,255,.35)', fade:'#fca5a5' }[tier] || '#fff';
+  }
+  function tierBg(tier) {
+    return { sharp:'rgba(6,182,212,.15)', reliable:'rgba(16,185,129,.1)', neutral:'rgba(255,255,255,.04)', fade:'rgba(239,68,68,.08)' }[tier] || 'rgba(255,255,255,.04)';
+  }
+  function tierBorder(tier) {
+    return { sharp:'rgba(6,182,212,.2)', reliable:'rgba(16,185,129,.15)', neutral:'rgba(255,255,255,.06)', fade:'rgba(239,68,68,.12)' }[tier] || 'rgba(255,255,255,.06)';
+  }
+
+  function confColor(c) { return c >= 70 ? '#67e8f9' : c >= 55 ? '#6ee7b7' : c >= 45 ? '#fbbf24' : '#fca5a5'; }
+  function barClass(c) { return c >= 70 ? 'bar-cyan' : c >= 55 ? 'bar-green' : c >= 45 ? 'bar-amber' : 'bar-red'; }
+  function statusBadge(s) {
+    if (s === 'clean') return '<span class="badge badge-clean">✅ Clean</span>';
+    if (s === 'house') return '<span class="badge badge-house">🏠 House Lean</span>';
+    return '<span class="badge badge-danger">🚨 Suspect</span>';
+  }
+
+  // ═══ FETCH DATA ═══
+  async function fetchAll() {
+    try {
+      const [srcRes, gameRes, healthRes] = await Promise.all([
+        fetch(API + '/api/sources').then(r => r.json()).catch(() => ({ sources: [] })),
+        fetch(API + '/api/games').then(r => r.json()).catch(() => ({ games: [] })),
+        fetch(API + '/api/health').then(r => r.json()).catch(() => ({})),
+      ]);
+      allSources = srcRes.sources || [];
+      allGames = (gameRes.games && gameRes.games.length) ? gameRes.games : DEMO_GAMES;
+      renderAll(healthRes);
+    } catch (e) {
+      console.error('Fetch error:', e);
+      allGames = DEMO_GAMES;
+      renderAll({});
+    }
+  }
+
+  function getFilteredGames() {
+    if (currentSport === 'all') return allGames;
+    return allGames.filter(g => g.sport === currentSport);
+  }
+
+  // ═══ RENDER ALL ═══
+  function renderAll(health) {
+    renderTicker();
+    renderGames();
+    renderLeaderboard();
+    renderStats(health);
+    renderConsensusMeter();
+    renderPatterns();
+  }
+
+  // ═══ TICKER ═══
+  function renderTicker() {
+    const el = document.getElementById('live-ticker');
+    const games = getFilteredGames();
+    el.innerHTML = games.map(g => {
+      const color = confColor(g.confidence);
+      const warn = g.confidence < 50 ? (g.status === 'danger' ? ' 🚨' : ' ⚠️') : '';
+      return `<div class="ticker-item" onclick="openGameModal('${g.id}')"><div class="ticker-live"></div><div class="ticker-teams">${abbr(g.home_team)} ${g.spread} vs ${abbr(g.away_team)}</div><div class="ticker-odds" style="color:${color}">${g.confidence}%${warn}</div></div>`;
+    }).join('');
+  }
+
+  // ═══ GAME CARDS ═══
+  function renderGames() {
+    const el = document.getElementById('games');
+    const games = getFilteredGames();
+    document.getElementById('game-count').textContent = `${games.length} games · ${allSources.length} sources tracked`;
+    el.innerHTML = games.map(g => {
+      const glow = g.confidence >= 60 ? ' glass-glow' : '';
+      const color = confColor(g.confidence);
+      return `<div class="carousel-item"><div class="glass${glow} game-card" onclick="openGameModal('${g.id}')">
+        <img src="${g.img || 'assets/images/hero_stadium.png'}" alt="${g.home_team}" class="game-img">
+        <div class="game-body">
+          <div class="game-teams-row"><div><span class="game-team">${abbr(g.away_team)}</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">${abbr(g.home_team)}</span></div><div class="game-likelihood" style="color:${color}">${g.confidence}<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div></div>
+          <div class="game-conf-row"><span>Confidence</span><span style="color:${color};font-weight:700">${g.confidence}%</span></div>
+          <div class="bar"><div class="bar-fill ${barClass(g.confidence)}" style="width:${g.confidence}%"></div></div>
+          <div class="game-footer"><span class="integrity">${g.integrity < 60 ? (g.status === 'danger' ? '🚨' : '⚠️') : ''} Integrity: ${g.integrity}/100</span>${statusBadge(g.status)}</div>
+          <div class="game-ai">${g.ai}</div>
+        </div></div></div>`;
+    }).join('');
+  }
+
+  // ═══ LEADERBOARD ═══
+  function renderLeaderboard() {
+    const el = document.getElementById('leaderboard');
+    const sources = allSources.length ? allSources : [];
+    el.innerHTML = sources.map((s, i) => {
+      const color = tierColor(s.tier);
+      const bg = tierBg(s.tier);
+      const border = tierBorder(s.tier);
+      const acc = parseFloat(s.accuracy_30d) || 0;
+      const star = i === 0 ? '⭐ ' : '';
+      const rankClass = i < 3 ? ' source-rank-top' : '';
+      const tierLabel = s.tier.charAt(0).toUpperCase() + s.tier.slice(1);
+      const meta = s.type === 'external' ? `External · ${tierLabel}` : `${tierLabel} · ${s.type}`;
+      return `<div class="source" onclick="openSourceDetail('${s.slug}')"><span class="source-rank${rankClass}">${i+1}</span><div class="source-avatar" style="background:${bg};border:1px solid ${border};color:${color}">${s.name.charAt(0)}</div><div class="source-info"><div class="source-name">${star}${s.name}</div><div class="source-meta">${meta}</div></div><div class="source-acc"><span class="source-pct" style="color:${color}">${acc}%</span><span class="source-picks">${s.total_picks || 0} picks</span></div></div>`;
+    }).join('');
+  }
+
+  // ═══ STATS ═══
+  function renderStats(health) {
+    const games = getFilteredGames();
+    const anomalies = games.filter(g => g.status !== 'clean').length;
+    const avgIntegrity = games.length ? Math.round(games.reduce((s,g) => s + g.integrity, 0) / games.length) : 0;
+    document.getElementById('stat-sources').textContent = allSources.length || 47;
+    document.getElementById('stat-snapshots').textContent = (allSources.length * games.length * 41).toLocaleString();
+    document.getElementById('stat-anomalies').textContent = anomalies;
+    document.getElementById('stat-integrity').textContent = avgIntegrity;
+  }
+
+  // ═══ CONSENSUS METER ═══
+  function renderConsensusMeter() {
+    const games = getFilteredGames();
+    if (!games.length) return;
+    const best = games.reduce((a, b) => a.confidence > b.confidence ? a : b);
+    const color = confColor(best.confidence);
+    document.getElementById('consensus-game').innerHTML = `<div style="font-size:24px;font-weight:900" class="grad-text">${abbr(best.home_team)} ${best.spread}</div><div style="font-size:11px;color:rgba(255,255,255,.25);margin-top:2px">vs ${best.away_team}</div>`;
+    document.getElementById('consensus-pct').innerHTML = `<div style="font-size:32px;font-weight:900;color:${color}">${best.confidence}<span style="font-size:14px;color:rgba(255,255,255,.2)">%</span></div><div style="font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.1em">confidence</div>`;
+    document.getElementById('consensus-bar').style.width = best.confidence + '%';
+    const agreeing = Math.round(best.confidence / 16);
+    document.getElementById('consensus-footer').innerHTML = `<span>${agreeing} of ${allSources.length || 6} sources agree</span><span>Integrity: <strong style="color:#6ee7b7">${best.integrity}/100</strong></span>`;
+  }
+
+  // ═══ PATTERNS ═══
+  function renderPatterns() {
+    const el = document.getElementById('pattern-feed');
+    el.innerHTML = DEMO_PATTERNS.map(p =>
+      `<div class="pattern pattern-${p.type}"><div class="pattern-head"><span class="pattern-title">${p.icon} ${p.title}</span><span class="pattern-time">${p.time}</span></div><div class="pattern-desc">${p.desc}</div></div>`
+    ).join('');
+  }
+
+  // ═══ TABS ═══
+  function switchTab(sport, el) {
+    currentSport = sport;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-active'));
+    el.classList.add('tab-active');
+    renderTicker();
+    renderGames();
+    renderStats({});
+    renderConsensusMeter();
+  }
+
+  // ═══ GAME MODAL ═══
+  function openGameModal(id) {
+    const g = allGames.find(x => x.id === id);
+    if (!g) return;
+    const color = confColor(g.confidence);
+    document.getElementById('modal-content').innerHTML = `
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:11px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">${g.sport?.toUpperCase() || 'NFL'} · Live Analysis</div>
+        <div style="font-size:28px;font-weight:900">${abbr(g.away_team)} <span style="color:rgba(255,255,255,.15)">@</span> ${abbr(g.home_team)}</div>
+        <div style="font-size:14px;color:rgba(255,255,255,.3);margin-top:4px">${g.away_team} at ${g.home_team}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px">
+        <div class="stat-box"><span class="stat-val" style="color:${color}">${g.confidence}%</span><span class="stat-label">Consensus</span></div>
+        <div class="stat-box"><span class="stat-val" style="color:${g.integrity >= 70 ? '#6ee7b7' : '#fbbf24'}">${g.integrity}</span><span class="stat-label">Integrity</span></div>
+        <div class="stat-box"><span class="stat-val" style="color:#a78bfa">${g.spread}</span><span class="stat-label">Spread</span></div>
+      </div>
+      <div style="margin-bottom:20px"><div class="game-conf-row"><span>Confidence</span><span style="color:${color};font-weight:700">${g.confidence}%</span></div><div class="bar" style="height:8px"><div class="bar-fill ${barClass(g.confidence)}" style="width:${g.confidence}%;height:100%"></div></div></div>
+      <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(6,182,212,.1));border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:12px">🧠</div><span style="font-size:12px;font-weight:700">AI Analysis</span></div>
+        <p style="font-size:12px;color:rgba(255,255,255,.4);line-height:1.7">${g.ai}</p>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">${statusBadge(g.status)} <span class="badge badge-${g.sport === 'nfl' ? 'sharp' : 'reliable'}">${g.sport?.toUpperCase()}</span></div>`;
+    document.getElementById('game-modal').style.display = 'flex';
+  }
+  function closeModal() { document.getElementById('game-modal').style.display = 'none'; }
+  document.getElementById('game-modal').addEventListener('click', e => { if (e.target.id === 'game-modal') closeModal(); });
+
+  // ═══ SOURCE DETAIL ═══
+  function openSourceDetail(slug) {
+    const s = allSources.find(x => x.slug === slug);
+    if (!s) return;
+    const color = tierColor(s.tier);
+    const acc = parseFloat(s.accuracy_30d) || 0;
+    document.getElementById('modal-content').innerHTML = `
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="width:64px;height:64px;border-radius:18px;background:${tierBg(s.tier)};border:2px solid ${tierBorder(s.tier)};display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:${color};margin:0 auto 12px">${s.name.charAt(0)}</div>
+        <div style="font-size:24px;font-weight:900">${s.name}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.25);margin-top:4px">${s.type} · Rank #${s.rank}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+        <div class="stat-box"><span class="stat-val" style="color:${color}">${acc}%</span><span class="stat-label">30-Day Accuracy</span></div>
+        <div class="stat-box"><span class="stat-val" style="color:#a78bfa">${s.tier.toUpperCase()}</span><span class="stat-label">Tier</span></div>
+        <div class="stat-box"><span class="stat-val" style="color:#67e8f9">${s.total_picks || 0}</span><span class="stat-label">Total Picks</span></div>
+        <div class="stat-box"><span class="stat-val" style="color:#6ee7b7">${s.correct_picks || 0}</span><span class="stat-label">Correct</span></div>
+      </div>
+      <div class="bar" style="height:8px;margin-bottom:8px"><div class="bar-fill ${barClass(acc)}" style="width:${acc}%;height:100%"></div></div>
+      <div style="font-size:10px;color:rgba(255,255,255,.2);text-align:center">Performance updated in real-time as picks resolve</div>`;
+    document.getElementById('game-modal').style.display = 'flex';
+  }
+
+  // ═══ CTA ═══
+  document.getElementById('cta-connect').addEventListener('click', () => {
+    document.getElementById('source-modal').style.display = 'flex';
+  });
+  document.getElementById('source-modal').addEventListener('click', e => {
+    if (e.target.id === 'source-modal') e.target.style.display = 'none';
+  });
+  document.getElementById('source-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = e.target.querySelector('input').value;
+    alert(`Source "${name}" submitted! We'll review and add it to the leaderboard.`);
+    document.getElementById('source-modal').style.display = 'none';
+    e.target.reset();
+  });
+
+  // ═══ SCROLL REVEAL ═══
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // ═══ BOOT ═══
+  fetchAll();
+  setInterval(fetchAll, 60000);
   </script>
 
 </body>

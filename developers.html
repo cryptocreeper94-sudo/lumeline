@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developers — LumeLine API</title>
+  <meta name="description" content="LumeLine API documentation and developer dashboard. Build on top of odds intelligence.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:#030712;color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}.content{max-width:1000px;margin:0 auto;padding:60px 24px}.content h1{font-size:2.5rem;font-weight:900;letter-spacing:-.04em;margin-bottom:8px;background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.sub{font-size:14px;color:rgba(255,255,255,.25);margin-bottom:48px}.content h2{font-size:1.3rem;font-weight:800;color:#67e8f9;margin:40px 0 16px;letter-spacing:-.01em}.content p{font-size:13px;color:rgba(255,255,255,.4);line-height:1.8;margin-bottom:14px}.glass{background:rgba(12,18,36,.6);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;margin:16px 0}.endpoint{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.03);transition:background .2s;cursor:pointer}.endpoint:hover{background:rgba(6,182,212,.03)}.endpoint:last-child{border-bottom:none}.method{font-size:10px;font-weight:800;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.06em;min-width:48px;text-align:center}.method-get{background:rgba(16,185,129,.12);color:#6ee7b7;border:1px solid rgba(16,185,129,.2)}.method-post{background:rgba(59,130,246,.12);color:#93c5fd;border:1px solid rgba(59,130,246,.2)}.path{font-family:'SF Mono','Fira Code',monospace;font-size:13px;font-weight:600;color:rgba(255,255,255,.6)}.endpoint .desc{font-size:11px;color:rgba(255,255,255,.2);margin-left:auto}.code-block{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:20px 24px;margin:16px 0;overflow-x:auto}.code-block pre{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:rgba(255,255,255,.45);line-height:1.8;white-space:pre}.code-key{color:#67e8f9}.code-str{color:#6ee7b7}.code-num{color:#fbbf24}.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.status-box{padding:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;text-align:center}.status-box .val{font-size:20px;font-weight:900;display:block;margin-bottom:4px}.status-box .label{font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.1em;font-weight:600}</style>
+</head><body>
+  <div class="content">
+    <h1>🔧 Developer Dashboard</h1>
+    <p class="sub">Build on LumeLine's odds intelligence API · 14 endpoints · No API key required for public data</p>
+
+    <!-- Live Status -->
+    <div class="status-grid" id="api-status">
+      <div class="status-box"><span class="val" style="color:#6ee7b7" id="dev-status">●</span><span class="label">API Status</span></div>
+      <div class="status-box"><span class="val" style="color:#67e8f9" id="dev-version">—</span><span class="label">Version</span></div>
+      <div class="status-box"><span class="val" style="color:#a78bfa" id="dev-uptime">—</span><span class="label">Uptime</span></div>
+    </div>
+
+    <h2>Base URL</h2>
+    <div class="code-block"><pre>https://lumeline.bet/api</pre></div>
+
+    <h2>Public Endpoints</h2>
+    <p>No authentication required. Rate limited to 100 requests/minute.</p>
+
+    <div class="glass">
+      <div class="endpoint"><span class="method method-get">GET</span><span class="path">/api/health</span><span class="desc">System health, version, uptime</span></div>
+      <div class="endpoint"><span class="method method-get">GET</span><span class="path">/api/sources</span><span class="desc">All sources with accuracy & tier</span></div>
+      <div class="endpoint"><span class="method method-get">GET</span><span class="path">/api/sources/:slug</span><span class="desc">Single source detail</span></div>
+      <div class="endpoint"><span class="method method-get">GET</span><span class="path">/api/games</span><span class="desc">Active games with consensus</span></div>
+      <div class="endpoint"><span class="method method-get">GET</span><span class="path">/api/games?sport=nfl</span><span class="desc">Filter by sport</span></div>
+      <div class="endpoint"><span class="method method-get">GET</span><span class="path">/api/games/:id</span><span class="desc">Game detail + snapshots + anomalies</span></div>
+      <div class="endpoint"><span class="method method-get">GET</span><span class="path">/api/consensus</span><span class="desc">All active consensus predictions</span></div>
+      <div class="endpoint"><span class="method method-get">GET</span><span class="path">/api/anomalies</span><span class="desc">Recent anomaly detections</span></div>
+    </div>
+
+    <h2>Authenticated Endpoints</h2>
+    <p>Requires JWT token in Authorization header. Obtained via login flow.</p>
+
+    <div class="glass">
+      <div class="endpoint"><span class="method method-post">POST</span><span class="path">/api/auth/signup</span><span class="desc">Create account (phone or email OTP)</span></div>
+      <div class="endpoint"><span class="method method-post">POST</span><span class="path">/api/auth/verify</span><span class="desc">Verify OTP code</span></div>
+      <div class="endpoint"><span class="method method-post">POST</span><span class="path">/api/auth/login</span><span class="desc">Login (sends OTP)</span></div>
+      <div class="endpoint"><span class="method method-get">GET</span><span class="path">/api/auth/me</span><span class="desc">Current user profile</span></div>
+      <div class="endpoint"><span class="method method-post">POST</span><span class="path">/api/picks</span><span class="desc">Submit a pick</span></div>
+      <div class="endpoint"><span class="method method-post">POST</span><span class="path">/api/pipeline</span><span class="desc">Trigger ingestion pipeline</span></div>
+    </div>
+
+    <h2>Example: Fetch Sources</h2>
+    <div class="code-block"><pre><span class="code-key">fetch</span>(<span class="code-str">'https://lumeline.bet/api/sources'</span>)
+  .<span class="code-key">then</span>(r => r.<span class="code-key">json</span>())
+  .<span class="code-key">then</span>(data => {
+    console.<span class="code-key">log</span>(data.sources);  <span style="color:rgba(255,255,255,.15)">// 11 sources with accuracy & tier</span>
+    console.<span class="code-key">log</span>(data.count);    <span style="color:rgba(255,255,255,.15)">// 11</span>
+  });</pre></div>
+
+    <h2>Example Response</h2>
+    <div class="code-block"><pre>{
+  <span class="code-key">"sources"</span>: [
+    {
+      <span class="code-key">"name"</span>: <span class="code-str">"Mathew"</span>,
+      <span class="code-key">"slug"</span>: <span class="code-str">"mathew"</span>,
+      <span class="code-key">"type"</span>: <span class="code-str">"external"</span>,
+      <span class="code-key">"tier"</span>: <span class="code-str">"sharp"</span>,
+      <span class="code-key">"accuracy_30d"</span>: <span class="code-num">71.00</span>,
+      <span class="code-key">"rank"</span>: <span class="code-num">1</span>
+    }
+  ],
+  <span class="code-key">"count"</span>: <span class="code-num">11</span>
+}</pre></div>
+
+    <h2>Data Model</h2>
+    <p>LumeLine uses PostgreSQL on Neon Serverless with the following core tables:</p>
+    <div class="glass">
+      <div class="endpoint"><span class="method method-get" style="background:rgba(168,85,247,.12);color:#c4b5fd;border-color:rgba(168,85,247,.2)">TBL</span><span class="path">sources</span><span class="desc">11 bookmakers + external bettors</span></div>
+      <div class="endpoint"><span class="method method-get" style="background:rgba(168,85,247,.12);color:#c4b5fd;border-color:rgba(168,85,247,.2)">TBL</span><span class="path">games</span><span class="desc">Active and historical games</span></div>
+      <div class="endpoint"><span class="method method-get" style="background:rgba(168,85,247,.12);color:#c4b5fd;border-color:rgba(168,85,247,.2)">TBL</span><span class="path">odds_snapshots</span><span class="desc">Line movements per source per game</span></div>
+      <div class="endpoint"><span class="method method-get" style="background:rgba(168,85,247,.12);color:#c4b5fd;border-color:rgba(168,85,247,.2)">TBL</span><span class="path">anomalies</span><span class="desc">Detected anomalies with severity</span></div>
+      <div class="endpoint"><span class="method method-get" style="background:rgba(168,85,247,.12);color:#c4b5fd;border-color:rgba(168,85,247,.2)">TBL</span><span class="path">consensus</span><span class="desc">ML predictions with confidence</span></div>
+      <div class="endpoint"><span class="method method-get" style="background:rgba(168,85,247,.12);color:#c4b5fd;border-color:rgba(168,85,247,.2)">TBL</span><span class="path">picks</span><span class="desc">External source picks</span></div>
+      <div class="endpoint"><span class="method method-get" style="background:rgba(168,85,247,.12);color:#c4b5fd;border-color:rgba(168,85,247,.2)">TBL</span><span class="path">ingestion_log</span><span class="desc">Pipeline run history</span></div>
+    </div>
+
+    <h2>Built with Lume</h2>
+    <p>LumeLine is built 100% using the <a href="https://lume-lang.org" style="color:#a78bfa;text-decoration:none">Lume programming language</a>. The entire backend — ingestion, scoring, anomaly detection, consensus engine, notifications — is written in Lume, compiled to Node.js, and served via Express.</p>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    // Live API status
+    fetch('/api/health').then(r=>r.json()).then(d=>{
+      document.getElementById('dev-status').textContent = '● ' + d.status;
+      document.getElementById('dev-version').textContent = d.version;
+      const hrs = Math.floor(d.uptime/3600);
+      const mins = Math.floor((d.uptime%3600)/60);
+      document.getElementById('dev-uptime').textContent = hrs+'h '+mins+'m';
+    }).catch(()=>{
+      document.getElementById('dev-status').textContent = '○ offline';
+      document.getElementById('dev-status').style.color = '#ef4444';
+    });
+  </script>
+</body></html>

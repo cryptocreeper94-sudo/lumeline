@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roadmap — LumeLine</title>
+  <meta name="description" content="LumeLine product roadmap. See what's next for the odds intelligence platform.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;background:#030712;color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}.content{max-width:900px;margin:0 auto;padding:60px 24px}.content h1{font-size:2.5rem;font-weight:900;letter-spacing:-.04em;margin-bottom:8px;background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.sub{font-size:14px;color:rgba(255,255,255,.25);margin-bottom:48px}.phase{position:relative;padding-left:40px;margin-bottom:40px}.phase::before{content:'';position:absolute;left:12px;top:8px;bottom:-24px;width:2px;background:rgba(255,255,255,.04)}.phase:last-child::before{display:none}.dot{position:absolute;left:4px;top:6px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}.dot-done{background:rgba(16,185,129,.15);border:2px solid rgba(16,185,129,.4);color:#6ee7b7}.dot-wip{background:rgba(6,182,212,.15);border:2px solid rgba(6,182,212,.4);color:#67e8f9;animation:pulse 2s infinite}.dot-next{background:rgba(168,85,247,.1);border:2px solid rgba(168,85,247,.3);color:#a78bfa}.dot-future{background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.08);color:rgba(255,255,255,.2)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}.phase h3{font-size:16px;font-weight:800;margin-bottom:4px}.phase .status{font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:10px}.status-done{color:#6ee7b7}.status-wip{color:#67e8f9}.status-next{color:#a78bfa}.status-future{color:rgba(255,255,255,.2)}.phase p{font-size:13px;color:rgba(255,255,255,.35);line-height:1.7;margin-bottom:8px}.phase ul{padding-left:16px;margin-bottom:8px}.phase li{font-size:12px;color:rgba(255,255,255,.3);line-height:1.8}.feat-tag{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:9px;font-weight:700;margin-right:4px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}.feat-done{background:rgba(16,185,129,.08);color:#6ee7b7;border:1px solid rgba(16,185,129,.15)}.feat-wip{background:rgba(6,182,212,.08);color:#67e8f9;border:1px solid rgba(6,182,212,.15)}.feat-planned{background:rgba(168,85,247,.08);color:#a78bfa;border:1px solid rgba(168,85,247,.15)}</style>
+</head><body>
+  <div class="content">
+    <h1>Product Roadmap</h1>
+    <p class="sub">Where LumeLine is headed — built 100% with Lume</p>
+
+    <div class="phase">
+      <div class="dot dot-done">✓</div>
+      <h3>v0.1.0 — Foundation</h3>
+      <div class="status status-done">✅ Complete — March 2026</div>
+      <ul>
+        <li>Core odds intelligence platform deployed to lumeline.bet</li>
+        <li>11 sources seeded with accuracy data (Pinnacle, Circa, BetMGM, DraftKings, FanDuel, plus 5 more)</li>
+        <li>4 anomaly detection algorithms (sync moves, reverse steam, house divergence, late flips)</li>
+        <li>ML consensus prediction engine with confidence scoring</li>
+        <li>Integrity scoring system (0–100 per game)</li>
+        <li>Twilio SMS alert infrastructure</li>
+        <li>PostgreSQL data layer on Neon with 7 tables, 2 views, 12 indexes</li>
+        <li>14 REST API endpoints</li>
+        <li>Premium glassmorphic dashboard with real-time rendering</li>
+      </ul>
+      <div><span class="feat-tag feat-done">API</span><span class="feat-tag feat-done">Dashboard</span><span class="feat-tag feat-done">Anomaly Detection</span><span class="feat-tag feat-done">SMS Alerts</span></div>
+    </div>
+
+    <div class="phase">
+      <div class="dot dot-wip">●</div>
+      <h3>v0.2.0 — User Accounts & Interactivity</h3>
+      <div class="status status-wip">🔧 In Progress — Q2 2026</div>
+      <ul>
+        <li>User registration via Twilio SMS OTP and Resend email OTP</li>
+        <li>WebAuthn biometric authentication (fingerprint/Face ID)</li>
+        <li>Personal dashboard with time-based greeting and pick tracking</li>
+        <li>User pick submission and accuracy tracking</li>
+        <li>Interactive sport filtering (NFL/NBA/All Sports tabs)</li>
+        <li>Game detail modals with full analysis</li>
+        <li>Source detail modals with tier statistics</li>
+        <li>Developer API dashboard</li>
+        <li>Legal infrastructure (Terms, Privacy, Disclaimer, Responsible Gaming)</li>
+        <li>Live Odds API integration (The Odds API)</li>
+      </ul>
+      <div><span class="feat-tag feat-wip">Auth</span><span class="feat-tag feat-wip">Biometrics</span><span class="feat-tag feat-wip">User Dashboard</span><span class="feat-tag feat-wip">Live Odds</span></div>
+    </div>
+
+    <div class="phase">
+      <div class="dot dot-next">○</div>
+      <h3>v0.3.0 — Pro Features & Real-Time</h3>
+      <div class="status status-next">📋 Planned — Q3 2026</div>
+      <ul>
+        <li>WebSocket real-time odds streaming</li>
+        <li>Historical line movement charts</li>
+        <li>Advanced anomaly timeline visualization</li>
+        <li>User leaderboard rankings</li>
+        <li>Pro subscription tier ($9.99/mo)</li>
+        <li>Stripe payment integration</li>
+        <li>Enhanced AI analysis with GPT-4 reasoning</li>
+        <li>More sports: MLB, NHL, MLS, UFC</li>
+        <li>Push notifications (PWA)</li>
+      </ul>
+      <div><span class="feat-tag feat-planned">WebSocket</span><span class="feat-tag feat-planned">Charts</span><span class="feat-tag feat-planned">Pro Tier</span><span class="feat-tag feat-planned">More Sports</span></div>
+    </div>
+
+    <div class="phase">
+      <div class="dot dot-future">·</div>
+      <h3>v1.0.0 — Platform</h3>
+      <div class="status status-future">🔮 Future — Q4 2026</div>
+      <ul>
+        <li>Public API with rate-limited free tier and paid plans</li>
+        <li>Community source submissions and verification</li>
+        <li>Trust Layer SSO deep integration</li>
+        <li>Signal Chat bot for odds queries</li>
+        <li>Mobile-native PWA experience</li>
+        <li>White-label consensus engine for B2B</li>
+        <li>International odds market coverage</li>
+        <li>Affiliate and referral program</li>
+      </ul>
+      <div><span class="feat-tag feat-planned">Public API</span><span class="feat-tag feat-planned">Community</span><span class="feat-tag feat-planned">B2B</span><span class="feat-tag feat-planned">International</span></div>
+    </div>
+  </div>
+  <script src="shared.js"></script>
+</body></html>
