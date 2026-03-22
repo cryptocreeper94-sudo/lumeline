@@ -2,7 +2,7 @@ services:
   - type: web
     name: lumeline
     runtime: node
-    buildCommand: npm install
+    buildCommand: npm install && npm run db:init
     startCommand: npm start
     envVars:
       - key: NODE_ENV

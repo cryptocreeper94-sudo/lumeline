@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server/server.js",
     "dev": "node --watch server/server.js",
-    "db:init": "psql $DATABASE_URL -f db/schema.sql",
+    "db:init": "node db/init.js",
     "ingest": "node -e \"import('./server/ingestion.js').then(m => m.runIngestion())\""
   },
   "dependencies": {
