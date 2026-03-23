@@ -5,10 +5,10 @@ import db from './db.js';
 const API_KEY = process.env.ODDS_API_KEY;
 const API_BASE = process.env.ODDS_API_BASE || 'https://api.the-odds-api.com/v4';
 
-// BETA MODE — Late March 2026 (Core sports only)
-// Core: NBA + NHL + NCAAB → 3 × 48 = 144 req/day
+// BETA MODE — Core sports only, max frequency
+// Core: NBA + NHL + NCAAB → 3 × 144 = 432 req/day (every 10 min)
+// + Outcome eval: 36 req/day = 468 total (under 500 free tier)
 // Secondary: disabled (coming soon)
-// Total: ~144 req/day | 500 free tier
 const CORE_SPORTS = (process.env.CORE_SPORTS || 'basketball_nba,icehockey_nhl,basketball_ncaab').split(',');
 const SECONDARY_SPORTS = (process.env.SECONDARY_SPORTS || '').split(',').filter(s => s);
 const ALL_SPORTS = [...CORE_SPORTS, ...SECONDARY_SPORTS];

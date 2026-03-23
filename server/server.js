@@ -592,14 +592,14 @@ app.post('/api/partner/payout', async (req, res) => {
 // ═══════════════════════════════════════════
 //  SCHEDULED INGESTION (Tiered)
 // ═══════════════════════════════════════════
-// BETA: Core sports only (NBA, NHL, NCAAB) — 3 × 48 = 144 req/day
-// Secondary: disabled (more sports coming soon)
-const CORE_INTERVAL = 30 * 60 * 1000;      // 30 minutes
+// BETA: Core sports only (NBA, NHL, NCAAB)
+// Core: 3 sports × 144 = 432 req/day + outcomes 36 = 468/day (under 500 free tier)
+const CORE_INTERVAL = 10 * 60 * 1000;      // 10 minutes — max frequency for free tier
 const SECONDARY_INTERVAL = 60 * 60 * 1000; // 60 minutes (inactive)
 
 function startScheduler() {
-  console.log('⏰ Scheduler [BETA — Core Sports Only]:');
-  console.log('   NBA, NHL, NCAAB → every 30 min (~144 req/day)');
+  console.log('⏰ Scheduler [BETA — Max Frequency]:');
+  console.log('   NBA, NHL, NCAAB → every 10 min (~468 req/day)');
   console.log('   Secondary → disabled (coming soon)');
   console.log('   Outcome evaluation → every 2 hours');
 
