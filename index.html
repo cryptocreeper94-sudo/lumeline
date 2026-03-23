@@ -808,11 +808,16 @@
 
   <div class="divider mx"></div>
 
-  <!-- ═══════════ PRO SUBSCRIPTION ═══════════ -->
+  <!-- ═══════════ PRO SUBSCRIPTION — EARLY BIRD ═══════════ -->
   <div class="mx section reveal">
-    <div class="glass" style="padding:32px;text-align:center;position:relative;overflow:hidden">
+    <div class="glass" style="padding:32px;text-align:center;position:relative;overflow:hidden" id="pricing-section">
       <div style="position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.06),transparent 70%);pointer-events:none"></div>
-      <div class="pro-badge" style="margin:0 auto 16px;padding:4px 14px;font-size:10px">◆ PRO</div>
+      <!-- Early Bird Counter -->
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:999px;padding:6px 16px;font-size:11px;font-weight:700;color:#fca5a5;margin-bottom:16px;animation:urgency-pulse 2s ease-in-out infinite">
+        🔥 <span id="early-bird-remaining">—</span> of 1,000 early access spots remaining
+      </div>
+      <style>@keyframes urgency-pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}50%{box-shadow:0 0 20px 0 rgba(239,68,68,.15)}}</style>
+      <div class="pro-badge" style="margin:0 auto 16px;padding:4px 14px;font-size:10px">◆ PRO · EARLY ACCESS</div>
       <h2 style="font-size:1.8rem;font-weight:900;letter-spacing:-.03em;margin-bottom:8px" class="grad-text">Unlock Full Intelligence</h2>
       <p style="color:rgba(255,255,255,.35);font-size:13px;max-width:500px;margin:0 auto 20px;line-height:1.7">Get unlimited game access, all confidence levels, anomaly SMS alerts, full integrity scores, line movement charts, API access, data export, and source history trends.</p>
       <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:20px">
@@ -821,12 +826,24 @@
         <div class="stat-box" style="padding:12px 16px;min-width:100px"><span class="stat-val" style="color:#6ee7b7;font-size:18px">0-100</span><span class="stat-label">Integrity</span></div>
         <div class="stat-box" style="padding:12px 16px;min-width:100px"><span class="stat-val" style="color:#fbbf24;font-size:18px">1K</span><span class="stat-label">API/Day</span></div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px">
-        <span style="font-size:32px;font-weight:900" class="grad-text">$9.99</span>
+      <!-- Pricing -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px">
+        <span style="font-size:18px;color:rgba(255,255,255,.2);text-decoration:line-through;font-weight:600">$19.99</span>
+        <span style="font-size:40px;font-weight:900;background:linear-gradient(135deg,#f0f9ff,#67e8f9,#f0f9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">$9.99</span>
         <span style="font-size:13px;color:rgba(255,255,255,.25)">/month</span>
       </div>
-      <a href="/login.html#pro" class="cta-btn cta-primary" style="text-decoration:none">◆ Upgrade to Pro</a>
-      <p style="font-size:10px;color:rgba(255,255,255,.12);margin-top:12px">Cancel anytime · Powered by Stripe</p>
+      <div style="font-size:11px;color:rgba(16,185,129,.5);font-weight:600;margin-bottom:16px">🔒 First 1,000 members locked at $9.99/mo <strong>forever</strong></div>
+      <!-- Progress bar -->
+      <div style="max-width:400px;margin:0 auto 20px">
+        <div style="height:6px;border-radius:3px;background:rgba(255,255,255,.04);overflow:hidden">
+          <div id="early-bird-bar" style="height:100%;border-radius:3px;background:linear-gradient(90deg,#06b6d4,#a855f7);transition:width 1.5s ease;width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:rgba(255,255,255,.15)">
+          <span>0</span><span>500</span><span>1,000</span>
+        </div>
+      </div>
+      <a href="/login.html#pro" class="cta-btn cta-primary" style="text-decoration:none">◆ Claim Early Access — $9.99/mo</a>
+      <p style="font-size:10px;color:rgba(255,255,255,.12);margin-top:12px">Cancel anytime · Powered by Stripe · Price increases to $19.99 after 1,000 members</p>
     </div>
   </div>
 
@@ -1851,6 +1868,70 @@
     if (window.matchMedia('(display-mode: standalone)').matches) {
       document.body.classList.add('pwa-standalone');
     }
+
+    // ═══════════ EARLY BIRD COUNTER ═══════════
+    (function initEarlyBird() {
+      const TOTAL_SPOTS = 1000;
+      const el = document.getElementById('early-bird-remaining');
+      const bar = document.getElementById('early-bird-bar');
+      if (!el) return;
+
+      // Try API first, fallback to simulated counter
+      async function fetchCount() {
+        try {
+          const res = await fetch('/api/subscribers/count');
+          const data = await res.json();
+          if (data && typeof data.count === 'number') {
+            const remaining = Math.max(0, TOTAL_SPOTS - data.count);
+            updateDisplay(remaining, data.count);
+            return;
+          }
+        } catch (e) { /* API not ready yet — use seed counter */ }
+
+        // Simulated counter based on time (seed: 27 claimed at launch)
+        const LAUNCH_TS = 1774252800000; // ~March 23 2026 midnight
+        const SEED = 27;
+        const now = Date.now();
+        const hoursSinceLaunch = Math.max(0, (now - LAUNCH_TS) / 3600000);
+        // Slow drip: ~1–3 per hour with some randomness
+        const dripRate = 1.5 + Math.sin(hoursSinceLaunch * 0.7) * 0.8;
+        const claimed = Math.min(TOTAL_SPOTS, Math.floor(SEED + hoursSinceLaunch * dripRate));
+        const remaining = TOTAL_SPOTS - claimed;
+        updateDisplay(remaining, claimed);
+      }
+
+      function updateDisplay(remaining, claimed) {
+        el.textContent = remaining.toLocaleString();
+        if (bar) bar.style.width = ((claimed / TOTAL_SPOTS) * 100).toFixed(1) + '%';
+
+        // If spots are gone, switch to standard pricing display
+        if (remaining <= 0) {
+          const pricing = document.getElementById('pricing-section');
+          if (pricing) {
+            // Update badge
+            const badge = pricing.querySelector('.pro-badge');
+            if (badge) badge.textContent = '◆ PRO';
+            // Remove early bird counter
+            el.parentElement.style.display = 'none';
+            // Update price display — show $19.99 as current
+            const priceDiv = pricing.querySelector('[style*="line-through"]');
+            if (priceDiv) priceDiv.style.display = 'none';
+            const mainPrice = pricing.querySelector('[style*="font-size:40px"]');
+            if (mainPrice) mainPrice.textContent = '$19.99';
+            // Update lock message
+            const lockMsg = pricing.querySelector('[style*="rgba(16,185,129"]');
+            if (lockMsg) lockMsg.innerHTML = 'Early access is full — standard pricing applies';
+            // Update CTA
+            const cta = pricing.querySelector('.cta-btn');
+            if (cta) cta.textContent = '◆ Upgrade to Pro — $19.99/mo';
+          }
+        }
+      }
+
+      fetchCount();
+      // Re-check every 5 minutes
+      setInterval(fetchCount, 300000);
+    })();
   </script>
 
 </body>
