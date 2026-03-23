@@ -1240,10 +1240,70 @@
     }
   }
 
-  // ═══ Sport image mapping (for live API games that don't have img field) ═══
+  // ═══ Team image mapping (team-specific → sport fallback → generic) ═══
+  const TEAM_IMAGES = {
+    // ─── NBA (30 teams) ───
+    'Boston Celtics':'assets/images/celtics_basketball.png',
+    'Los Angeles Lakers':'assets/images/lakers_basketball.png',
+    'Phoenix Suns':'assets/images/suns_basketball.png',
+    'Golden State Warriors':'assets/images/warriors_basketball.png',
+    'Milwaukee Bucks':'assets/images/bucks_basketball.png',
+    'Denver Nuggets':'assets/images/nuggets_basketball.png',
+    'Philadelphia 76ers':'assets/images/sixers_basketball.png',
+    'Miami Heat':'assets/images/heat_basketball.png',
+    'Dallas Mavericks':'assets/images/mavericks_basketball.png',
+    'New York Knicks':'assets/images/knicks_basketball.png',
+    'LA Clippers':'assets/images/clippers_basketball.png',
+    'Chicago Bulls':'assets/images/bulls_basketball.png',
+    'Cleveland Cavaliers':'assets/images/cavaliers_basketball.png',
+    'Oklahoma City Thunder':'assets/images/thunder_basketball.png',
+    'Atlanta Hawks':'assets/images/hawks_basketball.png',
+    'Minnesota Timberwolves':'assets/images/timberwolves_basketball.png',
+    'Indiana Pacers':'assets/images/pacers_basketball.png',
+    'Brooklyn Nets':'assets/images/nets_basketball.png',
+    'Toronto Raptors':'assets/images/raptors_basketball.png',
+    'New Orleans Pelicans':'assets/images/pelicans_basketball.png',
+    'Memphis Grizzlies':'assets/images/grizzlies_basketball.png',
+    'Sacramento Kings':'assets/images/kings_basketball.png',
+    'Portland Trail Blazers':'assets/images/blazers_basketball.png',
+    'Orlando Magic':'assets/images/magic_basketball.png',
+    'Washington Wizards':'assets/images/wizards_basketball.png',
+    'Charlotte Hornets':'assets/images/hornets_basketball.png',
+    'Detroit Pistons':'assets/images/pistons_basketball.png',
+    'Houston Rockets':'assets/images/rockets_basketball.png',
+    'San Antonio Spurs':'assets/images/spurs_basketball.png',
+    'Utah Jazz':'assets/images/jazz_basketball.png',
+    // ─── NCAAB March Madness (16 teams) ───
+    'Duke Blue Devils':'assets/images/duke_basketball.png',
+    'North Carolina Tar Heels':'assets/images/unc_basketball.png',
+    'Kansas Jayhawks':'assets/images/kansas_basketball.png',
+    'UConn Huskies':'assets/images/uconn_basketball.png',
+    'Purdue Boilermakers':'assets/images/purdue_basketball.png',
+    'Houston Cougars':'assets/images/houston_basketball.png',
+    'Kentucky Wildcats':'assets/images/kentucky_basketball.png',
+    'Auburn Tigers':'assets/images/auburn_basketball.png',
+    'Tennessee Volunteers':'assets/images/tennessee_basketball.png',
+    'Gonzaga Bulldogs':'assets/images/gonzaga_basketball.png',
+    'Arizona Wildcats':'assets/images/arizona_basketball.png',
+    'Iowa State Cyclones':'assets/images/iowastate_basketball.png',
+    'Michigan State Spartans':'assets/images/michiganstate_basketball.png',
+    'Marquette Golden Eagles':'assets/images/marquette_basketball.png',
+    'Baylor Bears':'assets/images/baylor_basketball.png',
+    'Alabama Crimson Tide':'assets/images/alabama_basketball.png',
+    // ─── NHL (3 teams — more coming) ───
+    'Boston Bruins':'assets/images/bruins_hockey.png',
+    'Edmonton Oilers':'assets/images/oilers_hockey.png',
+    'Colorado Avalanche':'assets/images/avalanche_hockey.png',
+    // ─── EPL / La Liga (3 teams — more coming) ───
+    'Manchester City':'assets/images/mancity_football.png',
+    'Arsenal':'assets/images/arsenal_football.png',
+    'Real Madrid':'assets/images/realmadrid_football.png',
+  };
+
+  // Sport-level fallback (used when no team-specific image exists)
   const SPORT_IMAGES = {
     'NFL':'assets/images/hero_football.png', 'NCAAF':'assets/images/hero_football.png',
-    'NBA':'assets/images/nba_lakers.png', 'NCAAB':'assets/images/nba_celtics.png', 'WNBA':'assets/images/nba_lakers.png',
+    'NBA':'assets/images/hero_basketball.png', 'NCAAB':'assets/images/hero_basketball.png', 'WNBA':'assets/images/hero_basketball.png',
     'MLB':'assets/images/hero_stadium.png',
     'NHL':'assets/images/hero_aerial.png',
     'EPL':'assets/images/hero_stadium.png', 'La Liga':'assets/images/hero_stadium.png', 'MLS':'assets/images/hero_stadium.png',
@@ -1260,7 +1320,8 @@
   function normalizeGame(g) {
     // If it already has .ai field, it's a DEMO game — return as-is
     if (g.ai) return g;
-    // Live API game from v_active_games
+    // Live API game from v_active_games — cascade: team → sport → generic
+    const teamImg = TEAM_IMAGES[g.home_team] || TEAM_IMAGES[g.away_team];
     return {
       ...g,
       sport: (g.sport || '').toLowerCase(),
@@ -1269,7 +1330,7 @@
       spread: g.spread || (g.line ? String(g.line) : 'PK'),
       status: g.house_lean ? 'house' : ((g.integrity || 100) < 60 ? 'danger' : 'clean'),
       ai: g.reasoning || `Live data from ${g.sources_agree || 0} agreeing sources. Confidence: ${g.confidence || 0}%.`,
-      img: SPORT_IMAGES[(g.sport || '')] || 'assets/images/hero_stadium.png',
+      img: teamImg || SPORT_IMAGES[(g.sport || '')] || 'assets/images/hero_stadium.png',
     };
   }
 
