@@ -266,6 +266,164 @@
     .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
+    /* ═══════════════════════════════════════════════════════ */
+    /* ═══ LARGE SCREEN / 4K / 8K RESPONSIVE STYLES       ═══ */
+    /* ═══════════════════════════════════════════════════════ */
+
+    /* Wide Desktop: 1600px+ */
+    @media (min-width: 1600px) {
+      .mx { max-width: 1520px; padding: 0 40px; }
+      .hero { height: 720px; }
+      .hero h1 { font-size: 3.8rem; }
+      .hero p { font-size: 1.2rem; max-width: 640px; }
+      .grid3 { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+      .feat-grid { gap: 20px; }
+      .feat { height: 300px; }
+      .feat h3 { font-size: 18px; }
+      .stat-val { font-size: 28px; }
+      .cta-section h2 { font-size: 2.6rem; }
+      .review-card { flex: 0 0 340px; padding: 24px; }
+      .review-name { font-size: 14px; }
+      .review-text { font-size: 13px; }
+      .section-title { font-size: 1.5rem; }
+      .orb-1 { width: 1100px; height: 1100px; }
+      .orb-2 { width: 900px; height: 900px; }
+      .chat-panel { width: 400px; max-height: 560px; }
+    }
+
+    /* QHD / Ultrawide: 2000px+ */
+    @media (min-width: 2000px) {
+      .mx { max-width: 1800px; padding: 0 60px; }
+      body { font-size: 17px; }
+      .hero { height: 840px; }
+      .hero h1 { font-size: 4.5rem; }
+      .hero p { font-size: 1.35rem; max-width: 720px; }
+      .hero-content { bottom: 100px; }
+      nav { padding: 16px 0; }
+      nav .logo { font-size: 22px; }
+      .grid3 { gap: 24px; }
+      .feat-grid { grid-template-columns: repeat(4, 1fr); gap: 24px; }
+      .feat { height: 340px; }
+      .feat h3 { font-size: 20px; }
+      .feat p { font-size: 14px; }
+      .feat-icon { width: 52px; height: 52px; font-size: 24px; }
+      .stat-val { font-size: 32px; }
+      .stat-label { font-size: 11px; }
+      .stat-grid { gap: 16px; }
+      .cta-section h2 { font-size: 3rem; }
+      .cta-section p { font-size: 15px; max-width: 600px; }
+      .cta-btn { padding: 18px 44px; font-size: 16px; border-radius: 16px; }
+      .review-card { flex: 0 0 380px; padding: 28px; }
+      .review-name { font-size: 15px; }
+      .review-text { font-size: 14px; }
+      .review-avatar { width: 44px; height: 44px; font-size: 16px; }
+      .section-title { font-size: 1.7rem; }
+      .footer p { font-size: 13px; }
+      .orb-1 { width: 1400px; height: 1400px; }
+      .orb-2 { width: 1100px; height: 1100px; }
+      .orb-3 { width: 800px; height: 800px; }
+      .glass { border-radius: 20px; }
+      .chat-fab { width: 64px; height: 64px; font-size: 26px; bottom: 32px; right: 32px; }
+      .chat-panel { width: 440px; max-height: 600px; bottom: 110px; right: 32px; border-radius: 24px; }
+      .weather-tag { font-size: 11px; padding: 4px 14px; }
+      .rate-btn { font-size: 11px; padding: 6px 14px; }
+      .pro-badge { font-size: 10px; padding: 3px 12px; }
+      .lead-form input { padding: 16px 22px; font-size: 15px; }
+      .lead-form button { padding: 16px 32px; font-size: 16px; }
+    }
+
+    /* 4K Ready: 2560px+ */
+    @media (min-width: 2560px) {
+      .mx { max-width: 2200px; padding: 0 80px; }
+      body { font-size: 19px; }
+      .hero { height: 960px; }
+      .hero h1 { font-size: 5.5rem; letter-spacing: -0.04em; }
+      .hero p { font-size: 1.5rem; max-width: 800px; }
+      .hero-content { bottom: 120px; }
+      nav .logo { font-size: 26px; }
+      .grid3 { grid-template-columns: repeat(4, 1fr); gap: 28px; }
+      .feat-grid { grid-template-columns: repeat(4, 1fr); gap: 28px; }
+      .feat { height: 380px; }
+      .feat h3 { font-size: 22px; }
+      .feat p { font-size: 15px; }
+      .feat-body { padding: 32px; height: 180px; }
+      .feat-icon { width: 56px; height: 56px; font-size: 26px; border-radius: 18px; }
+      .stat-val { font-size: 38px; }
+      .stat-label { font-size: 12px; }
+      .stat-box { padding: 24px; border-radius: 18px; }
+      .stat-grid { gap: 20px; }
+      .cta-section h2 { font-size: 3.5rem; }
+      .cta-section p { font-size: 17px; max-width: 700px; }
+      .cta-btn { padding: 20px 52px; font-size: 18px; }
+      .review-card { flex: 0 0 420px; padding: 32px; border-radius: 20px; }
+      .review-name { font-size: 16px; }
+      .review-text { font-size: 15px; }
+      .review-avatar { width: 48px; height: 48px; font-size: 18px; border-radius: 14px; }
+      .section-title { font-size: 2rem; }
+      .footer { padding: 60px 0 80px; }
+      .footer p { font-size: 14px; }
+      .glass { border-radius: 22px; }
+      .chat-fab { width: 72px; height: 72px; font-size: 30px; bottom: 40px; right: 40px; }
+      .chat-panel { width: 500px; max-height: 680px; bottom: 130px; right: 40px; }
+      .orb-1 { width: 1800px; height: 1800px; opacity: 0.04; }
+      .orb-2 { width: 1400px; height: 1400px; opacity: 0.035; }
+      .orb-3 { width: 1000px; height: 1000px; opacity: 0.04; }
+    }
+
+    /* True 4K/8K: 3840px+ */
+    @media (min-width: 3840px) {
+      .mx { max-width: 3200px; padding: 0 120px; }
+      body { font-size: 22px; }
+      .hero { height: 1200px; }
+      .hero h1 { font-size: 7rem; }
+      .hero p { font-size: 1.8rem; max-width: 1000px; }
+      .hero-content { bottom: 160px; }
+      nav { padding: 24px 0; }
+      nav .logo { font-size: 32px; }
+      .grid3 { grid-template-columns: repeat(5, 1fr); gap: 36px; }
+      .feat-grid { grid-template-columns: repeat(5, 1fr); gap: 36px; }
+      .feat { height: 480px; }
+      .feat h3 { font-size: 28px; }
+      .feat p { font-size: 18px; }
+      .feat-body { padding: 40px; height: 220px; }
+      .feat-icon { width: 68px; height: 68px; font-size: 32px; border-radius: 22px; margin-bottom: 16px; }
+      .stat-val { font-size: 48px; }
+      .stat-label { font-size: 14px; }
+      .stat-box { padding: 32px; border-radius: 22px; }
+      .stat-grid { gap: 28px; grid-template-columns: repeat(4, 1fr); }
+      .cta-section { padding: 100px 0; }
+      .cta-section h2 { font-size: 4.5rem; }
+      .cta-section p { font-size: 20px; max-width: 900px; }
+      .cta-btn { padding: 24px 64px; font-size: 22px; border-radius: 20px; }
+      .review-card { flex: 0 0 520px; padding: 40px; border-radius: 24px; }
+      .review-name { font-size: 19px; }
+      .review-text { font-size: 17px; line-height: 1.7; }
+      .review-avatar { width: 56px; height: 56px; font-size: 22px; border-radius: 16px; }
+      .review-head { gap: 16px; margin-bottom: 16px; }
+      .section-title { font-size: 2.5rem; }
+      .footer { padding: 80px 0 120px; }
+      .footer p { font-size: 16px; }
+      .glass { border-radius: 28px; }
+      .glass-glow { box-shadow: 0 0 80px rgba(6,182,212,0.12), 0 12px 48px rgba(0,0,0,0.35); }
+      .chat-fab { width: 88px; height: 88px; font-size: 36px; bottom: 48px; right: 48px; box-shadow: 0 6px 36px rgba(6,182,212,.35); }
+      .chat-panel { width: 600px; max-height: 800px; bottom: 160px; right: 48px; border-radius: 28px; }
+      .chat-header h4 { font-size: 18px; }
+      .chat-input input { font-size: 16px; }
+      .weather-tag { font-size: 13px; padding: 6px 18px; border-radius: 12px; }
+      .rate-btn { font-size: 13px; padding: 8px 18px; border-radius: 12px; }
+      .pro-badge { font-size: 12px; padding: 4px 16px; border-radius: 8px; }
+      .pro-overlay h4 { font-size: 20px; }
+      .pro-overlay p { font-size: 15px; }
+      .pro-upgrade { padding: 12px 28px; font-size: 15px; }
+      .lead-form { gap: 16px; }
+      .lead-form input { padding: 20px 28px; font-size: 18px; border-radius: 18px; }
+      .lead-form button { padding: 20px 40px; font-size: 18px; border-radius: 18px; }
+      .orb-1 { width: 2400px; height: 2400px; opacity: 0.04; filter: blur(200px); }
+      .orb-2 { width: 1800px; height: 1800px; opacity: 0.04; filter: blur(200px); }
+      .orb-3 { width: 1400px; height: 1400px; opacity: 0.04; filter: blur(200px); }
+      .stars { font-size: 16px; }
+    }
+
     /* ═══════════════════════════════════════════════ */
     /* ═══ COMPREHENSIVE MOBILE RESPONSIVE STYLES ═══ */
     /* ═══════════════════════════════════════════════ */
