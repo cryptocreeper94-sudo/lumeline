@@ -553,6 +553,48 @@
       .source { flex-wrap: wrap; }
       .source-acc { margin-left: auto; }
     }
+
+    /* ═══ LIVE TICKER ═══ */
+    .ticker-wrap { width:100%;overflow:hidden;background:rgba(0,0,0,.5);border-bottom:1px solid rgba(255,255,255,.04);backdrop-filter:blur(12px);position:relative;z-index:10 }
+    .ticker-track { display:flex;gap:0;animation:tickerScroll 40s linear infinite;width:max-content }
+    .ticker-track:hover { animation-play-state:paused }
+    @keyframes tickerScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .ticker-item { display:flex;align-items:center;gap:8px;padding:10px 24px;white-space:nowrap;border-right:1px solid rgba(255,255,255,.04);font-size:12px;color:rgba(255,255,255,.5) }
+    .ticker-sport { font-size:9px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:4px;text-transform:uppercase }
+    .ticker-sport.nba { background:rgba(29,66,138,.3);color:#6699ff }
+    .ticker-sport.nhl { background:rgba(0,0,0,.4);color:#9ca3af }
+    .ticker-sport.ncaab { background:rgba(59,130,246,.2);color:#60a5fa }
+    .ticker-sport.mlb { background:rgba(0,45,98,.3);color:#60a5fa }
+    .ticker-sport.epl { background:rgba(55,0,60,.3);color:#c084fc }
+    .ticker-sport.nfl { background:rgba(1,51,105,.3);color:#3b82f6 }
+    .ticker-teams { font-weight:700;color:rgba(255,255,255,.7) }
+    .ticker-score { font-weight:900;color:#67e8f9;font-size:13px }
+    .ticker-time { font-size:10px;color:rgba(255,255,255,.25) }
+    .ticker-live { display:inline-flex;align-items:center;gap:4px }
+    .ticker-live::before { content:'';width:5px;height:5px;border-radius:50%;background:#ef4444;animation:pulse 1.5s infinite }
+
+    /* ═══ NEWS CAROUSEL ═══ */
+    .news-carousel { position:relative;overflow:hidden }
+    .news-track { display:flex;transition:transform .4s cubic-bezier(.25,.46,.45,.94) }
+    .news-slide { min-width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:0 4px;box-sizing:border-box }
+    .news-card { background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;transition:border-color .3s,transform .3s }
+    .news-card:hover { border-color:rgba(103,232,249,.15);transform:translateY(-2px) }
+    .news-card-img { width:100%;height:140px;object-fit:cover;border-bottom:1px solid rgba(255,255,255,.04) }
+    .news-card-body { padding:16px }
+    .news-card-tag { font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#67e8f9;margin-bottom:6px }
+    .news-card-title { font-size:14px;font-weight:800;color:rgba(255,255,255,.85);line-height:1.3;margin-bottom:6px }
+    .news-card-desc { font-size:11px;color:rgba(255,255,255,.35);line-height:1.5 }
+    .news-card-time { font-size:10px;color:rgba(255,255,255,.2);margin-top:8px }
+    .news-nav { display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px }
+    .news-arrow { width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .3s,border-color .3s;color:rgba(255,255,255,.4);font-size:14px }
+    .news-arrow:hover { background:rgba(103,232,249,.08);border-color:rgba(103,232,249,.2);color:#67e8f9 }
+    .news-dots { display:flex;gap:6px;align-items:center }
+    .news-dot { width:8px;height:8px;border-radius:50%;background:rgba(103,232,249,.15);cursor:pointer;transition:background .3s,transform .3s }
+    .news-dot.active { background:#67e8f9;transform:scale(1.3);box-shadow:0 0 8px rgba(103,232,249,.4) }
+    @media(max-width:600px){
+      .news-slide { grid-template-columns:1fr }
+      .news-card-img { height:120px }
+    }
   </style>
 </head>
 <body>
@@ -588,6 +630,11 @@
       <div class="hero-dot" onclick="goSlide(3)"></div>
     </div>
   </section>
+
+  <!-- ═══════════ LIVE TICKER ═══════════ -->
+  <div class="ticker-wrap" id="live-ticker">
+    <div class="ticker-track" id="ticker-track"><!-- Rendered by JS --></div>
+  </div>
 
   <!-- ═══════════ BETA NOTICE ═══════════ -->
   <div class="mx" style="margin-top:12px;margin-bottom:12px">
@@ -816,6 +863,27 @@
       <div class="section-sub" id="review-count"></div>
     </div>
     <div class="reviews-row" id="source-reviews"><!-- Rendered by JS --></div>
+  </div>
+
+  <div class="divider mx"></div>
+
+  <!-- ═══════════ SPORTS NEWS CAROUSEL ═══════════ -->
+  <div class="mx section reveal">
+    <div class="section-head">
+      <div>
+        <div class="section-title grad-text">📰 Sports Intelligence</div>
+        <div class="section-sub" style="margin-top:4px">Curated insights across today's biggest matchups</div>
+      </div>
+      <div class="section-sub" id="news-update-time" style="text-align:right;font-size:10px;color:rgba(255,255,255,.2)">Updated just now</div>
+    </div>
+    <div class="news-carousel" id="news-carousel">
+      <div class="news-track" id="news-track"><!-- Rendered by JS --></div>
+    </div>
+    <div class="news-nav">
+      <div class="news-arrow" id="news-prev" onclick="moveNews(-1)">◀</div>
+      <div class="news-dots" id="news-dots"><!-- Rendered by JS --></div>
+      <div class="news-arrow" id="news-next" onclick="moveNews(1)">▶</div>
+    </div>
   </div>
 
   <div class="divider mx"></div>
@@ -1401,6 +1469,8 @@
     renderPatterns();
     renderSourceReviews();
     renderAccuracy();
+    renderTicker();
+    renderNews();
     updateLastUpdated();
   }
 
@@ -1596,6 +1666,108 @@
       </div>`;
     }).join('');
   }
+
+  // ═══ LIVE TICKER ═══
+  const TICKER_GAMES = [
+    { sport:'NBA', away:'MIL', home:'BOS', score:'98 - 104', status:'LIVE', quarter:'Q3 4:22' },
+    { sport:'NBA', away:'GSW', home:'LAL', score:'', status:'7:30 PM ET', quarter:'' },
+    { sport:'NBA', away:'DEN', home:'PHX', score:'', status:'9:00 PM ET', quarter:'' },
+    { sport:'NHL', away:'OTT', home:'NYR', score:'2 - 1', status:'LIVE', quarter:'2nd 11:45' },
+    { sport:'NCAAB', away:'UNC', home:'DUKE', score:'34 - 38', status:'LIVE', quarter:'1st Half' },
+    { sport:'NCAAB', away:'KU', home:'ARIZ', score:'', status:'6:00 PM ET', quarter:'' },
+    { sport:'NHL', away:'TOR', home:'BOS', score:'', status:'Tomorrow 7PM', quarter:'' },
+    { sport:'EPL', away:'LIV', home:'MCI', score:'1 - 1', status:'LIVE', quarter:"62'" },
+    { sport:'NHL', away:'SEA', home:'FLA', score:'', status:'Tomorrow 4PM', quarter:'' },
+    { sport:'NBA', away:'CLE', home:'OKC', score:'', status:'8:00 PM ET', quarter:'' },
+    { sport:'NCAAB', away:'PURDUE', home:'TENN', score:'', status:'5:15 PM ET', quarter:'' },
+    { sport:'NHL', away:'CHI', home:'NYI', score:'', status:'Tomorrow 4PM', quarter:'' },
+  ];
+
+  function renderTicker() {
+    const el = document.getElementById('ticker-track');
+    if (!el) return;
+    const items = TICKER_GAMES.map(g => {
+      const isLive = g.status === 'LIVE';
+      const sportClass = g.sport.toLowerCase();
+      return `<div class="ticker-item">
+        <span class="ticker-sport ${sportClass}">${g.sport}</span>
+        <span class="ticker-teams">${g.away} @ ${g.home}</span>
+        ${g.score ? `<span class="ticker-score">${g.score}</span>` : ''}
+        ${isLive ? `<span class="ticker-live ticker-time">${g.quarter}</span>` : `<span class="ticker-time">${g.status}</span>`}
+      </div>`;
+    }).join('');
+    // Duplicate for seamless infinite scroll
+    el.innerHTML = items + items;
+  }
+
+  // ═══ NEWS CAROUSEL ═══
+  const NEWS_ITEMS = [
+    { tag:'NBA', title:'Celtics Extend Home Win Streak to 12', desc:'Boston dominated Milwaukee 118-104 behind a 34-point performance. The Celtics now hold the best home record in the league.', img:'assets/images/celtics_basketball.png', time:'2 hrs ago' },
+    { tag:'March Madness', title:'Duke Advances to Elite Eight', desc:'The Blue Devils survived a scare from Iowa State, winning 74-71 on a last-second layup. Duke faces UConn next.', img:'assets/images/duke_basketball.png', time:'3 hrs ago' },
+    { tag:'NHL', title:'Rangers Win OT Thriller Over Senators', desc:'New York rallied from 2 goals down in the third period. Artemi Panarin scored the OT winner at Madison Square Garden.', img:'assets/images/rangers_hockey.png', time:'1 hr ago' },
+    { tag:'EPL', title:'Man City and Liverpool Draw 1-1 in Title Race Clash', desc:'A Haaland penalty was cancelled out by a Salah free kick in a tense Etihad encounter. Arsenal now leads the table.', img:'assets/images/mancity_football.png', time:'4 hrs ago' },
+    { tag:'NCAAB', title:'Auburn Upsets Houston in Sweet 16', desc:'The Tigers used a dominant second-half run to stun the Cougars 78-65. Auburn advances to face Tennessee.', img:'assets/images/auburn_basketball.png', time:'5 hrs ago' },
+    { tag:'NHL', title:'Maple Leafs Prep for Bruins Showdown', desc:"Tomorrow's matchup features the East's top two teams. Toronto has won 4 straight while Boston is 8-1 at home this month.", img:'assets/images/mapleleafs_hockey.png', time:'30 min ago' },
+    { tag:'NBA', title:'Thunder Rise to 2nd Seed After Win Streak', desc:'OKC has won 9 straight games, climbing past Denver for the 2 seed. SGA averaging 34 PPG during the streak.', img:'assets/images/thunder_basketball.png', time:'6 hrs ago' },
+    { tag:'La Liga', title:"El Clásico Preview: Real Madrid Favorites at Home", desc:"Mbappé leads Madrid into Sunday's showdown with Barcelona. Real are unbeaten in 14 at the Bernabéu.", img:'assets/images/realmadrid_football.png', time:'1 hr ago' },
+  ];
+
+  let newsSlide = 0;
+  function renderNews() {
+    const track = document.getElementById('news-track');
+    const dotsEl = document.getElementById('news-dots');
+    if (!track || !dotsEl) return;
+    const isMobile = window.innerWidth <= 600;
+    const perSlide = isMobile ? 1 : 2;
+    // Ensure even distribution — pad to even number if needed
+    const items = [...NEWS_ITEMS];
+    while (items.length % perSlide !== 0) items.push(items[items.length - 1]);
+    const totalSlides = Math.ceil(items.length / perSlide);
+    let slides = '';
+    for (let i = 0; i < totalSlides; i++) {
+      slides += '<div class="news-slide">';
+      for (let j = 0; j < perSlide; j++) {
+        const n = items[i * perSlide + j];
+        if (!n) continue;
+        slides += `<div class="news-card">
+          <img class="news-card-img" src="${n.img}" alt="${n.title}" loading="lazy">
+          <div class="news-card-body">
+            <div class="news-card-tag">${n.tag}</div>
+            <div class="news-card-title">${n.title}</div>
+            <div class="news-card-desc">${n.desc}</div>
+            <div class="news-card-time">${n.time}</div>
+          </div>
+        </div>`;
+      }
+      slides += '</div>';
+    }
+    track.innerHTML = slides;
+    // Dots
+    dotsEl.innerHTML = Array.from({length:totalSlides}, (_,i) =>
+      `<div class="news-dot${i===0?' active':''}" onclick="goNews(${i})"></div>`
+    ).join('');
+    newsSlide = 0;
+  }
+  function moveNews(dir) {
+    const track = document.getElementById('news-track');
+    const dots = document.querySelectorAll('.news-dot');
+    const total = dots.length;
+    if (!total) return;
+    newsSlide = (newsSlide + dir + total) % total;
+    track.style.transform = `translateX(-${newsSlide * 100}%)`;
+    dots.forEach((d,i) => d.classList.toggle('active', i === newsSlide));
+  }
+  function goNews(idx) {
+    const track = document.getElementById('news-track');
+    const dots = document.querySelectorAll('.news-dot');
+    newsSlide = idx;
+    track.style.transform = `translateX(-${newsSlide * 100}%)`;
+    dots.forEach((d,i) => d.classList.toggle('active', i === newsSlide));
+  }
+  // Auto-advance news carousel every 5 seconds
+  setInterval(() => moveNews(1), 5000);
+  // Re-render on resize (mobile/desktop switch)
+  window.addEventListener('resize', () => { clearTimeout(window._newsResize); window._newsResize = setTimeout(renderNews, 300); });
 
   // ═══ RATE GAME ═══
   function rateGame(gameId) {
