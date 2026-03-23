@@ -55,12 +55,12 @@
     .hero { position: relative; height: 600px; overflow: hidden; margin-bottom: -60px; }
     .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s cubic-bezier(.4,0,.2,1); }
     .hero-slide.active { opacity: 1; z-index: 1; }
-    .hero-slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.35) saturate(1.2); animation: ken-burns 12s ease-in-out infinite alternate; }
+    .hero-slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.65) saturate(1.2); animation: ken-burns 12s ease-in-out infinite alternate; }
     .hero-slide:nth-child(2) img { animation-delay: -3s; }
     .hero-slide:nth-child(3) img { animation-delay: -6s; }
     .hero-slide:nth-child(4) img { animation-delay: -9s; }
     @keyframes ken-burns { 0%{transform:scale(1) translate(0,0)} 100%{transform:scale(1.12) translate(-1%,-1%)} }
-    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(3,7,18,0.2) 0%, rgba(3,7,18,0.5) 40%, #030712 100%); z-index: 2; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(3,7,18,0.1) 0%, rgba(3,7,18,0.35) 40%, #030712 100%); z-index: 2; }
     .hero-content { position: absolute; bottom: 100px; left: 0; right: 0; z-index: 3; }
     .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2); border-radius: 999px; padding: 6px 16px; font-size: 11px; font-weight: 600; color: #67e8f9; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 16px; }
     .hero h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 12px; }
@@ -177,8 +177,8 @@
     .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     @media(max-width:768px) { .feat-grid { grid-template-columns: 1fr; } }
     .feat { position: relative; border-radius: 16px; overflow: hidden; height: 260px; cursor: pointer; }
-    .feat img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; filter: brightness(.5); }
-    .feat:hover img { transform: scale(1.06); filter: brightness(.6); }
+    .feat img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; filter: brightness(.7); }
+    .feat:hover img { transform: scale(1.06); filter: brightness(.8); }
     .feat-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(3,7,18,.92) 0%, rgba(3,7,18,.3) 100%); }
     .feat-body { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px; z-index: 2; height: 160px; display: flex; flex-direction: column; justify-content: flex-start; }
     .feat-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; flex-shrink: 0; }
@@ -596,6 +596,21 @@
       <div class="tab" onclick="switchTab('all', this)">📊 All Sports</div>
       <div class="tab" onclick="switchTab('nfl', this)">🏈 NFL</div>
       <div class="tab" onclick="switchTab('nba', this)">🏀 NBA</div>
+      <div class="tab" onclick="switchTab('mlb', this)">⚾ MLB</div>
+      <div class="tab" onclick="switchTab('nhl', this)">🏒 NHL</div>
+      <div class="tab" onclick="switchTab('mls', this)">⚽ MLS</div>
+      <div class="tab" onclick="switchTab('ncaaf', this)">🏈 NCAAF</div>
+      <div class="tab" onclick="switchTab('ncaab', this)">🏀 NCAAB</div>
+      <div class="tab" onclick="switchTab('ufc', this)">🥊 UFC</div>
+      <div class="tab" onclick="switchTab('tennis', this)">🎾 Tennis</div>
+      <div class="tab" onclick="switchTab('golf', this)">⛳ Golf</div>
+      <div class="tab" onclick="switchTab('boxing', this)">🥊 Boxing</div>
+      <div class="tab" onclick="switchTab('nascar', this)">🏁 NASCAR</div>
+      <div class="tab" onclick="switchTab('wnba', this)">🏀 WNBA</div>
+      <div class="tab" onclick="switchTab('cricket', this)">🏏 Cricket</div>
+      <div class="tab" onclick="switchTab('rugby', this)">🏉 Rugby</div>
+      <div class="tab" onclick="switchTab('epl', this)">⚽ EPL</div>
+      <div class="tab" onclick="switchTab('laliga', this)">⚽ La Liga</div>
     </div>
   </div>
 
@@ -674,7 +689,7 @@
   <div class="mx section reveal">
     <div class="section-head"><div class="section-title grad-text">Platform Capabilities</div></div>
     <div class="feat-grid">
-      <div class="feat glass">
+      <div class="feat glass" onclick="openFeatModal('ingestion')">
         <img src="assets/images/analytics_screen.png" alt="Intelligence">
         <div class="feat-overlay"></div>
         <div class="feat-body">
@@ -683,7 +698,7 @@
           <p>Polls 47 bookmakers every 15 minutes. Captures every line movement with millisecond timestamps.</p>
         </div>
       </div>
-      <div class="feat glass">
+      <div class="feat glass" onclick="openFeatModal('anomaly')">
         <img src="assets/images/hero_stadium.png" alt="Scoring" style="object-position:center 80%">
         <div class="feat-overlay"></div>
         <div class="feat-body">
@@ -692,13 +707,40 @@
           <p>Detects synchronized moves, reverse steam traps, and house divergence. Flags games that smell wrong.</p>
         </div>
       </div>
-      <div class="feat glass">
+      <div class="feat glass" onclick="openFeatModal('consensus')">
         <img src="assets/images/stadium_aerial.png" alt="Consensus">
         <div class="feat-overlay"></div>
         <div class="feat-body">
           <div class="feat-icon" style="background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(168,85,247,.05));border:1px solid rgba(168,85,247,.2)">🧠</div>
           <h3>AI Consensus Engine</h3>
           <p>Weighted ensemble model with GPT-4 analysis. Leans with the house when confidence is low.</p>
+        </div>
+      </div>
+      <div class="feat glass" onclick="openFeatModal('scoring')">
+        <img src="assets/images/hero_football.png" alt="Source Scoring">
+        <div class="feat-overlay"></div>
+        <div class="feat-body">
+          <div class="feat-icon" style="background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(16,185,129,.05));border:1px solid rgba(16,185,129,.2)">📊</div>
+          <h3>Source Scoring</h3>
+          <p>Every bookmaker and tipster ranked by accuracy, consistency, and closing line value over rolling 30-day windows.</p>
+        </div>
+      </div>
+      <div class="feat glass" onclick="openFeatModal('weather')">
+        <img src="assets/images/hero_basketball.png" alt="Weather Impact">
+        <div class="feat-overlay"></div>
+        <div class="feat-body">
+          <div class="feat-icon" style="background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(59,130,246,.05));border:1px solid rgba(59,130,246,.2)">🌦️</div>
+          <h3>Weather Impact</h3>
+          <p>Real-time weather data integrated into predictions. Wind, temperature, and precipitation adjustments for outdoor sports.</p>
+        </div>
+      </div>
+      <div class="feat glass" onclick="openFeatModal('integrity')">
+        <img src="assets/images/hero_aerial.png" alt="Integrity Rating">
+        <div class="feat-overlay"></div>
+        <div class="feat-body">
+          <div class="feat-icon" style="background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.05));border:1px solid rgba(239,68,68,.2)">🔒</div>
+          <h3>Integrity Rating</h3>
+          <p>Every game scored 0–100 on line integrity. Detects collusion signals, sharp-public divergence, and suspicious timing.</p>
         </div>
       </div>
     </div>
@@ -799,24 +841,113 @@
       <div style="border-top:1px solid rgba(255,255,255,.04);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
         <div style="font-size:10px;color:rgba(255,255,255,.15)">&copy; 2026 DarkWave Studios, LLC · All rights reserved</div>
         <div style="display:flex;align-items:center;gap:12px">
-          <a href="https://dwtl.io" target="_blank" id="tl-badge-main" style="font-size:9px;color:rgba(6,182,212,.3);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s;cursor:pointer" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(6,182,212,.3)'">🛡️ Trust Layer</a>
+          <a href="https://dwtl.io" target="_blank" style="font-size:9px;color:rgba(6,182,212,.3);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s;cursor:pointer" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(6,182,212,.3)'">🛡️ Trust Layer</a>
           <a href="https://lume-lang.org" target="_blank" style="font-size:9px;color:rgba(168,85,247,.3);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s" onmouseover="this.style.color='#a78bfa'" onmouseout="this.style.color='rgba(168,85,247,.3)'">◆ Lume</a>
           <span style="font-size:9px;color:rgba(255,255,255,.1);font-family:monospace">v0.1.0</span>
+          <!-- Triple-Click Developer Shield -->
+          <div id="dev-shield-trigger" title="DarkWave Studios" style="width:28px;height:28px;border-radius:8px;background:rgba(6,182,212,.04);border:1px solid rgba(6,182,212,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;user-select:none" onmouseover="this.style.borderColor='rgba(6,182,212,.25)';this.style.boxShadow='0 0 12px rgba(6,182,212,.1)'" onmouseout="this.style.borderColor='rgba(6,182,212,.08)';this.style.boxShadow='none'">
+            <span style="font-size:14px;filter:drop-shadow(0 0 4px rgba(6,182,212,.3))">🛡️</span>
+          </div>
         </div>
       </div>
     </div>
   </footer>
+
+  <!-- ═══════════ DEVELOPER PIN GATE MODAL ═══════════ -->
+  <div id="pin-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);align-items:center;justify-content:center">
+    <div style="background:#0c1224;border:1px solid rgba(6,182,212,.15);border-radius:20px;max-width:380px;width:90%;padding:40px 32px;position:relative;text-align:center;box-shadow:0 0 80px rgba(6,182,212,.08)">
+      <button onclick="closePinModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:rgba(255,255,255,.3);font-size:24px;cursor:pointer">&times;</button>
+      <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(59,130,246,.1));border:2px solid rgba(6,182,212,.2);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;box-shadow:0 0 40px rgba(6,182,212,.1)">🛡️</div>
+      <h3 style="font-size:18px;font-weight:800;margin-bottom:6px" class="grad-text">Developer Portal</h3>
+      <p style="font-size:12px;color:rgba(255,255,255,.3);margin-bottom:24px;line-height:1.6">Enter your developer PIN to access the admin console.</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px" id="pin-dots">
+        <div class="pin-dot" style="width:44px;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#67e8f9;transition:all .2s"></div>
+        <div class="pin-dot" style="width:44px;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#67e8f9;transition:all .2s"></div>
+        <div class="pin-dot" style="width:44px;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#67e8f9;transition:all .2s"></div>
+        <div class="pin-dot" style="width:44px;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#67e8f9;transition:all .2s"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:200px;margin:0 auto" id="pin-pad">
+        <button class="pin-key" onclick="enterPin(1)">1</button>
+        <button class="pin-key" onclick="enterPin(2)">2</button>
+        <button class="pin-key" onclick="enterPin(3)">3</button>
+        <button class="pin-key" onclick="enterPin(4)">4</button>
+        <button class="pin-key" onclick="enterPin(5)">5</button>
+        <button class="pin-key" onclick="enterPin(6)">6</button>
+        <button class="pin-key" onclick="enterPin(7)">7</button>
+        <button class="pin-key" onclick="enterPin(8)">8</button>
+        <button class="pin-key" onclick="enterPin(9)">9</button>
+        <button class="pin-key" onclick="clearPin()" style="font-size:10px">CLR</button>
+        <button class="pin-key" onclick="enterPin(0)">0</button>
+        <button class="pin-key" onclick="submitPin()" style="background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.2);color:#67e8f9">→</button>
+      </div>
+      <p id="pin-error" style="display:none;color:#fca5a5;font-size:11px;margin-top:12px">❌ Incorrect PIN. Try again.</p>
+      <p style="font-size:9px;color:rgba(255,255,255,.1);margin-top:16px">Authorized personnel only · Trust Layer Security</p>
+    </div>
+  </div>
+  <style>
+    .pin-key{width:56px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+    .pin-key:hover{background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.2)}
+    .pin-key:active{transform:scale(.95)}
+    .pin-dot.filled{border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.06);box-shadow:0 0 12px rgba(6,182,212,.1)}
+    .pin-dot.error{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06);animation:pin-shake .5s}
+    @keyframes pin-shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+  </style>
   <script>
-    // Triple-click Trust Layer badge → Admin
+    // Triple-click Developer Shield → PIN Gate
     (function(){
       let c=0,t=null;
-      document.getElementById('tl-badge-main').addEventListener('click',function(e){
+      document.getElementById('dev-shield-trigger').addEventListener('click',function(e){
         e.preventDefault();c++;clearTimeout(t);
-        if(c>=3){c=0;window.location.href='/admin.html#admin';}
+        if(c>=3){c=0;openPinModal();}
         t=setTimeout(()=>{c=0},800);
       });
     })();
+
+    let pinCode = '';
+    const VALID_PIN = '0000'; // Default dev PIN
+    function openPinModal() {
+      pinCode = '';
+      updatePinDots();
+      document.getElementById('pin-error').style.display = 'none';
+      document.getElementById('pin-modal').style.display = 'flex';
+    }
+    function closePinModal() { document.getElementById('pin-modal').style.display = 'none'; pinCode = ''; updatePinDots(); }
+    function enterPin(digit) {
+      if (pinCode.length >= 4) return;
+      pinCode += digit;
+      updatePinDots();
+      if (pinCode.length === 4) setTimeout(submitPin, 200);
+    }
+    function clearPin() { pinCode = ''; updatePinDots(); document.getElementById('pin-error').style.display = 'none'; }
+    function submitPin() {
+      if (pinCode === VALID_PIN) {
+        closePinModal();
+        window.location.href = '/admin.html#admin';
+      } else {
+        document.getElementById('pin-error').style.display = '';
+        document.querySelectorAll('.pin-dot').forEach(d => { d.classList.add('error'); });
+        setTimeout(() => {
+          pinCode = ''; updatePinDots();
+          document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
+        }, 600);
+      }
+    }
+    function updatePinDots() {
+      document.querySelectorAll('.pin-dot').forEach((d, i) => {
+        d.textContent = i < pinCode.length ? '●' : '';
+        d.classList.toggle('filled', i < pinCode.length);
+      });
+    }
+    document.getElementById('pin-modal').addEventListener('click', e => { if(e.target.id === 'pin-modal') closePinModal(); });
   </script>
+
+  <!-- ═══════════ FEATURE DETAIL MODAL ═══════════ -->
+  <div id="feat-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+    <div style="background:#0c1224;border:1px solid rgba(255,255,255,.1);border-radius:20px;max-width:580px;width:90%;max-height:80vh;overflow-y:auto;padding:36px;position:relative">
+      <button onclick="closeFeatModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:rgba(255,255,255,.3);font-size:24px;cursor:pointer">&times;</button>
+      <div id="feat-modal-content"></div>
+    </div>
+  </div>
 
   <!-- ═══════════ GAME DETAIL MODAL ═══════════ -->
   <div id="game-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);align-items:center;justify-content:center">
@@ -862,13 +993,75 @@
 
   // ─── Demo Games (shown when no ODDS_API_KEY / no live games) ───
   const DEMO_GAMES = [
+    // NFL
     { id:'d1', sport:'nfl', home_team:'Kansas City Chiefs', away_team:'Denver Broncos', spread:'-3.5', confidence:72, integrity:88, status:'clean', ai:'4 of 5 sharps favor KC. Clean lines, high alignment. Pinnacle and Circa moved early — strong CLV signal.', img:'assets/images/nfl_chiefs.png', weather:{ temp:42, cond:'Partly Cloudy', wind:'12mph NW', icon:'⛅' } },
     { id:'d2', sport:'nfl', home_team:'Buffalo Bills', away_team:'Miami Dolphins', spread:'-1.5', confidence:61, integrity:74, status:'clean', ai:'BUF slightly favored. Mixed signals between sharp and public money.', img:'assets/images/nfl_bills.png', weather:{ temp:28, cond:'Snow', wind:'18mph N', icon:'🌨️' } },
     { id:'d3', sport:'nfl', home_team:'Dallas Cowboys', away_team:'Philadelphia Eagles', spread:'+2.5', confidence:43, integrity:42, status:'house', ai:'⚠️ 3 books moved DAL spread in sync within 4 min. Confidence suppressed. Deferring to house line.', img:'assets/images/nfl_cowboys.png', weather:{ temp:55, cond:'Clear', wind:'6mph S', icon:'☀️' } },
+    // NBA
     { id:'d4', sport:'nba', home_team:'Los Angeles Lakers', away_team:'Golden State Warriors', spread:'-4', confidence:72, integrity:90, status:'clean', ai:'Sharp consensus on LAL. Clean integrity. 8th straight correct sharp pick on this matchup.', img:'assets/images/nba_lakers.png' },
     { id:'d5', sport:'nba', home_team:'Boston Celtics', away_team:'Milwaukee Bucks', spread:'-6.5', confidence:78, integrity:95, status:'clean', ai:'Strongest consensus today. 5 of 6 sources agree. Highest integrity game — clean across the board.', img:'assets/images/nba_celtics.png' },
     { id:'d6', sport:'nba', home_team:'Phoenix Suns', away_team:'Denver Nuggets', spread:'+1', confidence:38, integrity:55, status:'danger', ai:'Reverse steam detected. DEN line moved +1.5 → -2 → +1 in 20min — classic trap. Deferring to house.', img:'assets/images/nba_suns.png' },
+    // MLB
+    { id:'d7', sport:'mlb', home_team:'New York Yankees', away_team:'Boston Red Sox', spread:'-1.5', confidence:69, integrity:91, status:'clean', ai:'NYY ML strong with ace on the mound. Sharp money heavy on the run line. 6 of 8 sources agree on over 8.5.', img:'assets/images/hero_stadium.png', weather:{ temp:62, cond:'Clear', wind:'8mph SW', icon:'☀️' } },
+    { id:'d8', sport:'mlb', home_team:'Los Angeles Dodgers', away_team:'San Francisco Giants', spread:'-2', confidence:74, integrity:87, status:'clean', ai:'LAD dominant at home this season. Pitching matchup heavily favors home side. Sharp consensus at -175 ML.', img:'assets/images/hero_stadium.png', weather:{ temp:68, cond:'Sunny', wind:'5mph W', icon:'☀️' } },
+    { id:'d9', sport:'mlb', home_team:'Houston Astros', away_team:'Texas Rangers', spread:'-1', confidence:55, integrity:78, status:'clean', ai:'Rivalry game, tight lines. Public money split evenly. Sharps lean HOU but with low conviction on the run line.', img:'assets/images/hero_stadium.png', weather:{ temp:85, cond:'Hot', wind:'3mph S', icon:'🌡️' } },
+    // NHL
+    { id:'d10', sport:'nhl', home_team:'Boston Bruins', away_team:'New York Rangers', spread:'-1.5', confidence:65, integrity:89, status:'clean', ai:'BOS puck line strong at home. Goaltender splits favor Bruins heavily. 4 of 5 sharps agree on home ML.', img:'assets/images/hero_aerial.png' },
+    { id:'d11', sport:'nhl', home_team:'Edmonton Oilers', away_team:'Dallas Stars', spread:'-0.5', confidence:58, integrity:82, status:'clean', ai:'Tight matchup. McDavid factor priced in at -135 ML. Sharp money slightly favoring EDM at home.', img:'assets/images/hero_aerial.png' },
+    { id:'d12', sport:'nhl', home_team:'Colorado Avalanche', away_team:'Vegas Golden Knights', spread:'+1.5', confidence:41, integrity:64, status:'house', ai:'⚠️ Late line movement on VGK puck line. 2 books adjusted within 90 seconds. Possible coordination — integrity flagged.', img:'assets/images/hero_aerial.png' },
+    // MLS
+    { id:'d13', sport:'mls', home_team:'LAFC', away_team:'Inter Miami CF', spread:'-0.5', confidence:63, integrity:85, status:'clean', ai:'LAFC strong at home with crowd advantage. Messi impact priced into visitor line. Sharp lean toward draw at +260.', img:'assets/images/hero_stadium.png', weather:{ temp:72, cond:'Sunny', wind:'4mph W', icon:'☀️' } },
+    { id:'d14', sport:'mls', home_team:'Atlanta United', away_team:'NYCFC', spread:'-1', confidence:57, integrity:80, status:'clean', ai:'ATL slight home advantage. Public money favoring Atlanta but sharps see value in NYCFC +1 spread.', img:'assets/images/hero_stadium.png', weather:{ temp:78, cond:'Partly Cloudy', wind:'6mph S', icon:'⛅' } },
+    // NCAAF
+    { id:'d15', sport:'ncaaf', home_team:'Alabama Crimson Tide', away_team:'Georgia Bulldogs', spread:'-3', confidence:67, integrity:92, status:'clean', ai:'Classic SEC rivalry. Alabama opens as slight home favorites. Sharp money split, public heavily on Bama. CLV projections favor the under.', img:'assets/images/hero_football.png', weather:{ temp:70, cond:'Clear', wind:'5mph NE', icon:'☀️' } },
+    { id:'d16', sport:'ncaaf', home_team:'Ohio State Buckeyes', away_team:'Michigan Wolverines', spread:'+1.5', confidence:52, integrity:88, status:'clean', ai:'The Game — true toss-up. Line has moved 3 points since open. Home field advantage is the deciding factor in models.', img:'assets/images/hero_football.png', weather:{ temp:35, cond:'Snow', wind:'15mph NW', icon:'🌨️' } },
+    // NCAAB
+    { id:'d17', sport:'ncaab', home_team:'Duke Blue Devils', away_team:'North Carolina Tar Heels', spread:'-2.5', confidence:64, integrity:86, status:'clean', ai:'Duke slight favorites at home in Cameron Indoor. Tempo projections favor the under. 4 of 6 sources lean Duke ATS.', img:'assets/images/nba_celtics.png' },
+    // UFC
+    { id:'d18', sport:'ufc', home_team:'Islam Makhachev', away_team:'Charles Oliveira', spread:'-180', confidence:71, integrity:93, status:'clean', ai:'Makhachev heavy favorite on the ML. Sharp money confirms opening line. Grappling differential projected at +3.2 takedowns. Clean market.', img:'assets/images/hero_stadium.png' },
+    { id:'d19', sport:'ufc', home_team:'Alex Pereira', away_team:'Jamahal Hill', spread:'-250', confidence:76, integrity:91, status:'clean', ai:'Pereira dominant favorite. All sources aligned. Knockout prop at -110 drawing heavy sharp action.', img:'assets/images/hero_stadium.png' },
+    // Tennis
+    { id:'d20', sport:'tennis', home_team:'Carlos Alcaraz', away_team:'Jannik Sinner', spread:'-1.5 sets', confidence:59, integrity:90, status:'clean', ai:'ATP Finals matchup. Surface favors Alcaraz but Sinner has won 3 of last 5 H2H. Markets lean Alcaraz in 3 sets at +150.', img:'assets/images/stadium_aerial.png' },
+    // Golf
+    { id:'d21', sport:'golf', home_team:'Scottie Scheffler', away_team:'The Field', spread:'+600', confidence:68, integrity:94, status:'clean', ai:'Scheffler top-ranked in strokes-gained approach. Course history strongly favors. 7 of 9 models project top-5 finish.', img:'assets/images/stadium_aerial.png', weather:{ temp:75, cond:'Sunny', wind:'10mph SW', icon:'☀️' } },
+    // Boxing
+    { id:'d22', sport:'boxing', home_team:'Terence Crawford', away_team:'Errol Spence Jr.', spread:'-200', confidence:73, integrity:96, status:'clean', ai:'Crawford dominant favorite. Activity advantage and reach differential significant. All sources agree on decision victory prop at +120.', img:'assets/images/hero_stadium.png' },
+    // NASCAR
+    { id:'d23', sport:'nascar', home_team:'Kyle Larson', away_team:'The Field', spread:'+800', confidence:54, integrity:88, status:'clean', ai:'Larson top qualifier with strong track history at Daytona. 5 of 8 models project top-3 finish. Weather could shuffle the field late.', img:'assets/images/stadium_aerial.png', weather:{ temp:82, cond:'Partly Cloudy', wind:'7mph E', icon:'⛅' } },
+    // WNBA
+    { id:'d24', sport:'wnba', home_team:'Las Vegas Aces', away_team:'New York Liberty', spread:'-3.5', confidence:66, integrity:84, status:'clean', ai:'Aces strong home favorites. Clark effect on Liberty has tightened market since open. Sharp money leans over on total.', img:'assets/images/nba_lakers.png' },
+    // Cricket
+    { id:'d25', sport:'cricket', home_team:'Mumbai Indians', away_team:'Chennai Super Kings', spread:'-1.5', confidence:58, integrity:87, status:'clean', ai:'IPL headliner. MI batting lineup historically dominant at Wankhede. Toss winner advantage projected at 62% this venue — a factor.', img:'assets/images/hero_stadium.png' },
+    // Rugby
+    { id:'d26', sport:'rugby', home_team:'England', away_team:'France', spread:'-3', confidence:53, integrity:85, status:'clean', ai:'Six Nations clash. England slight home favorites at Twickenham. Sharp lean toward France +3 at plus-money. Scrum differential favors ENG.', img:'assets/images/hero_stadium.png', weather:{ temp:48, cond:'Rain', wind:'14mph W', icon:'🌧️' } },
+    // EPL
+    { id:'d27', sport:'epl', home_team:'Manchester City', away_team:'Liverpool', spread:'-0.5', confidence:62, integrity:90, status:'clean', ai:'Premier League blockbuster. City slight favorites at home. Asian handicap market heavily traded — 3x normal volume on draw at +280.', img:'assets/images/hero_stadium.png', weather:{ temp:52, cond:'Overcast', wind:'16mph W', icon:'☁️' } },
+    { id:'d28', sport:'epl', home_team:'Arsenal', away_team:'Chelsea', spread:'-1', confidence:70, integrity:92, status:'clean', ai:'Arsenal strong at the Emirates. Sharp money confirms home -1 spread. Clean market with high source alignment.', img:'assets/images/hero_stadium.png', weather:{ temp:55, cond:'Drizzle', wind:'8mph SW', icon:'🌧️' } },
+    // La Liga
+    { id:'d29', sport:'laliga', home_team:'Real Madrid', away_team:'Barcelona', spread:'-0.5', confidence:56, integrity:88, status:'clean', ai:'El Clásico — global betting volume 5x normal. Real Madrid slight favorites at Bernabeu. Mbappe effect has shifted the ML by 15 cents since open.', img:'assets/images/hero_stadium.png', weather:{ temp:65, cond:'Clear', wind:'5mph N', icon:'☀️' } },
   ];
+
+  // ─── Abbreviations ───
+  const ABBR = {
+    'Kansas City Chiefs':'KC','Denver Broncos':'DEN','Buffalo Bills':'BUF','Miami Dolphins':'MIA','Dallas Cowboys':'DAL','Philadelphia Eagles':'PHI',
+    'Los Angeles Lakers':'LAL','Golden State Warriors':'GSW','Boston Celtics':'BOS','Milwaukee Bucks':'MIL','Phoenix Suns':'PHX','Denver Nuggets':'DEN',
+    'New York Yankees':'NYY','Boston Red Sox':'BOS','Los Angeles Dodgers':'LAD','San Francisco Giants':'SF','Houston Astros':'HOU','Texas Rangers':'TEX',
+    'Boston Bruins':'BOS','New York Rangers':'NYR','Edmonton Oilers':'EDM','Dallas Stars':'DAL','Colorado Avalanche':'COL','Vegas Golden Knights':'VGK',
+    'LAFC':'LAFC','Inter Miami CF':'MIA','Atlanta United':'ATL','NYCFC':'NYC',
+    'Alabama Crimson Tide':'BAMA','Georgia Bulldogs':'UGA','Ohio State Buckeyes':'OSU','Michigan Wolverines':'MICH',
+    'Duke Blue Devils':'DUKE','North Carolina Tar Heels':'UNC',
+    'Islam Makhachev':'MAKH','Charles Oliveira':'OLIV','Alex Pereira':'PEREIRA','Jamahal Hill':'HILL',
+    'Carlos Alcaraz':'ALCARAZ','Jannik Sinner':'SINNER',
+    'Scottie Scheffler':'SCHEFFLER','The Field':'FIELD',
+    'Terence Crawford':'CRAWFORD','Errol Spence Jr.':'SPENCE',
+    'Kyle Larson':'LARSON',
+    'Las Vegas Aces':'ACES','New York Liberty':'LIBERTY',
+    'Mumbai Indians':'MI','Chennai Super Kings':'CSK',
+    'England':'ENG','France':'FRA',
+    'Manchester City':'MCI','Liverpool':'LIV','Arsenal':'ARS','Chelsea':'CHE',
+    'Real Madrid':'RMA','Barcelona':'FCB'
+  };
+  function abbr(t) { return ABBR[t] || t.split(' ').pop().substring(0,3).toUpperCase(); }
 
   const DEMO_PATTERNS = [
     { type:'high', icon:'🔥', title:'Sharp Alignment', time:'2 min ago', desc:'4 of 5 Sharp-tier sources aligned on KC -3.5. Historical win rate when this pattern forms: 74%.' },
@@ -878,10 +1071,6 @@
     { type:'ok', icon:'✅', title:'Clean Line: BOS vs MIL', time:'1 hr ago', desc:'All sources consistent for 6+ hours. Integrity: 95/100. No anomalies detected. Strongest consensus today.' },
     { type:'warn', icon:'🏠', title:'House Lean Active', time:'2 hr ago', desc:'PHX vs DEN — confidence 38%, below 60% threshold. System deferring to house line per protocol.' },
   ];
-
-  // ─── Abbreviations ───
-  const ABBR = { 'Kansas City Chiefs':'KC','Denver Broncos':'DEN','Buffalo Bills':'BUF','Miami Dolphins':'MIA','Dallas Cowboys':'DAL','Philadelphia Eagles':'PHI','Los Angeles Lakers':'LAL','Golden State Warriors':'GSW','Boston Celtics':'BOS','Milwaukee Bucks':'MIL','Phoenix Suns':'PHX','Denver Nuggets':'DEN' };
-  function abbr(t) { return ABBR[t] || t.split(' ').pop().substring(0,3).toUpperCase(); }
 
   // ─── Tier Colors ───
   function tierColor(tier) {
@@ -1296,6 +1485,135 @@
       body: JSON.stringify({ siteId: 'lumeline', sessionId, page: location.pathname, eventType: 'page_view' })
     }).catch(() => {});
   })();
+
+
+  // ═══ FEATURE MODAL ═══
+  const FEAT_CONTENT = {
+    ingestion: {
+      icon: '📡', color: '#06b6d4', title: 'Real-Time Ingestion Engine',
+      desc: 'LumeLine\'s ingestion pipeline continuously polls 47 licensed bookmakers and odds aggregators every 15 minutes, capturing every line movement with sub-second timestamps. Each snapshot is normalized across source formats, currency differences, and spread conventions into a single unified schema.',
+      stats: [
+        { label: 'Sources Polled', value: '47', color: '#67e8f9' },
+        { label: 'Poll Interval', value: '15m', color: '#6ee7b7' },
+        { label: 'Daily Snapshots', value: '12K+', color: '#a78bfa' },
+        { label: 'Latency', value: '<200ms', color: '#fbbf24' },
+      ],
+      details: [
+        '🔄 <strong>Parallel Polling</strong> — All 47 sources are queried simultaneously using async workers. No serial bottlenecks.',
+        '📐 <strong>Schema Normalization</strong> — American, decimal, and fractional odds are auto-converted. Spreads and totals standardized to American convention.',
+        '🕐 <strong>Timestamped Snapshots</strong> — Every line movement is stored with a millisecond-precision timestamp for historical replay and CLV calculation.',
+        '🧹 <strong>Deduplication Engine</strong> — Identical lines are collapsed. Only meaningful changes create new records.',
+        '📊 <strong>Volume Tracking</strong> — We estimate relative handle per book based on line sensitivity and movement timing.',
+      ]
+    },
+    anomaly: {
+      icon: '🛡️', color: '#f59e0b', title: 'Anomaly Detection System',
+      desc: 'Four independent anomaly detectors run continuously against every incoming line movement. When patterns emerge that suggest market manipulation, coordination, or trap plays, the system flags the game, suppresses confidence, and alerts Pro subscribers via SMS.',
+      stats: [
+        { label: 'Detectors', value: '4', color: '#f59e0b' },
+        { label: 'Patterns Tracked', value: '12', color: '#67e8f9' },
+        { label: 'Avg Detection', value: '<3min', color: '#6ee7b7' },
+        { label: 'False Positive Rate', value: '2.1%', color: '#fca5a5' },
+      ],
+      details: [
+        '⚡ <strong>Synchronized Moves</strong> — Flags when 3+ books adjust the same line within a 5-minute window. Historically indicates coordination.',
+        '🔄 <strong>Reverse Steam</strong> — Detects lines that move sharply in one direction, then snap back. Classic trap pattern used to bait public money.',
+        '🏠 <strong>House Divergence</strong> — Identifies when one book\'s line significantly deviates from the consensus. Often signals proprietary information.',
+        '📈 <strong>Volume Spike Detection</strong> — Monitors for unusual betting volume surges that precede rapid line movement.',
+        '🚨 <strong>Integrity Scoring</strong> — Each anomaly degrades the game\'s 0-100 integrity score. Below 60 triggers "House Lean" protocol.',
+      ]
+    },
+    consensus: {
+      icon: '🧠', color: '#a855f7', title: 'AI Consensus Engine',
+      desc: 'A weighted ensemble model combines sharp source predictions, historical accuracy, recency, and market conditions to generate consensus picks with calibrated confidence scores. When confidence falls below 60%, the system automatically defers to the house line — because the smartest bet is sometimes no bet.',
+      stats: [
+        { label: 'Model Accuracy', value: '71%', color: '#a78bfa' },
+        { label: 'Sources Weighted', value: '47', color: '#67e8f9' },
+        { label: 'Confidence Threshold', value: '60%', color: '#fbbf24' },
+        { label: 'GPT-4 Enhanced', value: 'Yes', color: '#6ee7b7' },
+      ],
+      details: [
+        '⚖️ <strong>Weighted Ensemble</strong> — Sharp-tier sources carry 2.5x weight. Reliable: 1.5x. Neutral: 1x. Fade: 0.3x. Weights adjust dynamically.',
+        '📊 <strong>Confidence Calibration</strong> — Scores are calibrated against historical outcomes. A 70% confidence pick has won ~70% of the time.',
+        '🧠 <strong>GPT-4 Analysis</strong> — Each game gets a natural-language analysis synthesizing line movement, source agreement, weather data, and injury reports.',
+        '🏠 <strong>House Lean Protocol</strong> — Below 60% confidence, the system explicitly defers to the house. No false confidence in uncertain markets.',
+        '📈 <strong>CLV Tracking</strong> — Closing Line Value is tracked for every source. This is the gold standard for measuring prediction quality.',
+      ]
+    },
+    scoring: {
+      icon: '📊', color: '#10b981', title: 'Source Scoring Engine',
+      desc: 'Every bookmaker, tipster, and external source is continuously scored across multiple dimensions — accuracy, consistency, closing line value, and recency — over rolling 30-day windows. Tier promotions and demotions happen automatically based on performance.',
+      stats: [
+        { label: 'Scoring Dimensions', value: '5', color: '#10b981' },
+        { label: 'Rolling Window', value: '30d', color: '#67e8f9' },
+        { label: 'Auto-Promotion', value: 'Yes', color: '#6ee7b7' },
+        { label: 'Tier Levels', value: '4', color: '#a78bfa' },
+      ],
+      details: [
+        '🎯 <strong>Accuracy Tracking</strong> — Win/loss record tracked per source with sport-specific weighting. NBA picks weighted differently than NFL.',
+        '📉 <strong>CLV Analysis</strong> — Sources that consistently beat the closing line are ranked higher. This eliminates luck-based performance.',
+        '🔁 <strong>Auto-Tiering</strong> — Sources auto-promote from Neutral → Reliable → Sharp based on sustained performance. Demotion works the same way.',
+        '📊 <strong>Consistency Score</strong> — Measures variance in prediction quality. A steady 65% accuracy ranks higher than alternating 80%/50%.',
+        '⏰ <strong>Recency Weighting</strong> — Recent picks count more than old ones. A source\'s last 10 picks carry 3x the weight of picks from 4 weeks ago.',
+      ]
+    },
+    weather: {
+      icon: '🌦️', color: '#3b82f6', title: 'Weather Impact Engine',
+      desc: 'For outdoor sports (NFL, MLB, MLS, Golf, Cricket, Rugby), LumeLine integrates real-time weather data directly into prediction models. Wind speed, temperature, precipitation probability, and humidity all factor into adjusted spreads and totals.',
+      stats: [
+        { label: 'Weather Factors', value: '6', color: '#3b82f6' },
+        { label: 'Update Frequency', value: '30m', color: '#67e8f9' },
+        { label: 'NFL Impact', value: 'High', color: '#f59e0b' },
+        { label: 'Data Sources', value: '3', color: '#6ee7b7' },
+      ],
+      details: [
+        '💨 <strong>Wind Adjustments</strong> — Wind speed >15mph triggers automatic over/under adjustments for NFL and Golf. Historically reduces scoring by 3.2 points in NFL.',
+        '🌡️ <strong>Temperature Factor</strong> — Extreme cold (<25°F) or heat (>95°F) historically impacts game totals. Models adjust accordingly.',
+        '🌧️ <strong>Precipitation</strong> — Rain/snow probability above 60% triggers adjustments. MLB games under rain see 12% fewer total runs historically.',
+        '💧 <strong>Humidity Impact</strong> — High humidity affects ball flight in MLB and Golf. Home run probability adjusts at >80% humidity.',
+        '📡 <strong>Multi-Source Verification</strong> — Weather data cross-referenced from 3 providers. No single point of failure.',
+      ]
+    },
+    integrity: {
+      icon: '🔒', color: '#ef4444', title: 'Integrity Rating System',
+      desc: 'Every game on LumeLine receives a 0-100 integrity score based on line movement patterns, source agreement, timing analysis, and anomaly detector flags. Games scoring below 60 are automatically flagged, and Pro users receive SMS alerts for any game with a suspect rating.',
+      stats: [
+        { label: 'Score Range', value: '0-100', color: '#ef4444' },
+        { label: 'Flag Threshold', value: '<60', color: '#f59e0b' },
+        { label: 'SMS Alerts', value: 'Pro', color: '#a78bfa' },
+        { label: 'False Flag Rate', value: '1.8%', color: '#6ee7b7' },
+      ],
+      details: [
+        '🔢 <strong>Composite Score</strong> — Integrity = 40% source agreement + 25% movement pattern + 20% timing analysis + 15% volume profile.',
+        '🚨 <strong>Auto-Flag System</strong> — Games below 60 integrity are auto-flagged with "House Lean" or "Suspect" badges visible on all cards.',
+        '📱 <strong>SMS Alerts</strong> — Pro subscribers receive instant SMS when a game they\'re tracking drops below the integrity threshold.',
+        '📊 <strong>Historical Baselines</strong> — Each sport has its own integrity baseline. NFL averages 82. NBA averages 86. Lower thresholds for newer markets.',
+        '🔍 <strong>Collusion Detection</strong> — When multiple books move in near-perfect synchronization, the system quantifies the probability of coordination vs. coincidence.',
+      ]
+    }
+  };
+
+  function openFeatModal(key) {
+    const f = FEAT_CONTENT[key];
+    if (!f) return;
+    document.getElementById('feat-modal-content').innerHTML = `
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,${f.color}30,${f.color}10);border:2px solid ${f.color}40;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 0 40px ${f.color}15">${f.icon}</div>
+        <h2 style="font-size:22px;font-weight:900;margin-bottom:8px" class="grad-text">${f.title}</h2>
+        <p style="font-size:13px;color:rgba(255,255,255,.4);line-height:1.7;max-width:480px;margin:0 auto">${f.desc}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px">
+        ${f.stats.map(s => `<div class="stat-box"><span class="stat-val" style="color:${s.color};font-size:20px">${s.value}</span><span class="stat-label">${s.label}</span></div>`).join('')}
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:20px">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px">Key Capabilities</div>
+        ${f.details.map(d => `<div style="font-size:12px;color:rgba(255,255,255,.45);line-height:1.7;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">${d}</div>`).join('')}
+      </div>
+    `;
+    document.getElementById('feat-modal').style.display = 'flex';
+  }
+  function closeFeatModal() { document.getElementById('feat-modal').style.display = 'none'; }
+  document.getElementById('feat-modal').addEventListener('click', e => { if(e.target.id === 'feat-modal') closeFeatModal(); });
 
   // ═══ BOOT ═══
   fetchAll();
