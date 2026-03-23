@@ -2062,8 +2062,8 @@
       msgs.scrollTop = msgs.scrollHeight;
       agentHistory.push({ role: 'assistant', content: reply });
 
-      // If voice mode, speak the reply
-      if (voiceActive) speakReply(reply);
+      // If voice mode, speak the reply (awaited so mic pauses until done)
+      if (voiceActive) await speakReply(reply);
     } catch (err) {
       document.getElementById(typingId)?.remove();
       msgs.innerHTML += `<div class="agent-msg bot"><div class="agent-bubble">Oops, something went wrong. Try again!</div></div>`;
@@ -2072,10 +2072,13 @@
   }
 
   // ─── Voice Mode ───
+  let voicePaused = false; // true while AI is speaking
+
   function toggleVoice() {
     voiceActive = !voiceActive;
     const btn = document.getElementById('agent-voice-btn');
     btn.classList.toggle('active', voiceActive);
+    if (!agentOpen && voiceActive) toggleAgent(); // auto-open panel
 
     if (voiceActive) {
       startListening();
@@ -2085,6 +2088,8 @@
   }
 
   function startListening() {
+    if (!voiceActive || voicePaused) return;
+
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       alert('Voice mode requires Chrome or Edge browser.');
       voiceActive = false;
@@ -2094,44 +2099,66 @@
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.lang = 'en-US';
 
+    let finalTranscript = '';
+    let silenceTimer = null;
+    const PAUSE_MS = 1500; // 1.5 seconds of silence = send
+
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      sendAgentMsg(transcript);
-      // Restart listening after response (with delay for TTS)
-      setTimeout(() => { if (voiceActive) startListening(); }, 3000);
+      let interim = '';
+      finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+
+      // Reset silence timer on every speech input
+      if (silenceTimer) clearTimeout(silenceTimer);
+
+      if (finalTranscript.trim()) {
+        // User finished a phrase — wait PAUSE_MS for more, then send
+        silenceTimer = setTimeout(async () => {
+          if (!voiceActive) return;
+          stopListening();
+          voicePaused = true;
+          await sendAgentMsg(finalTranscript.trim());
+          voicePaused = false;
+          // Resume listening after TTS completes
+          if (voiceActive) setTimeout(() => startListening(), 500);
+        }, PAUSE_MS);
+      }
     };
 
     recognition.onerror = (event) => {
       console.log('Speech recognition error:', event.error);
-      if (event.error !== 'no-speech' && voiceActive) {
-        setTimeout(() => startListening(), 1000);
+      if (event.error === 'no-speech' && voiceActive) {
+        // No speech detected — restart silently
+        setTimeout(() => { if (voiceActive && !voicePaused) startListening(); }, 1000);
+      } else if (event.error === 'aborted') {
+        // Intentional stop — do nothing
+      } else if (voiceActive) {
+        setTimeout(() => { if (voiceActive && !voicePaused) startListening(); }, 1000);
       }
     };
 
     recognition.onend = () => {
-      // Auto-restart if voice is still active and no result was captured
-      if (voiceActive && !recognition._gotResult) {
-        setTimeout(() => startListening(), 500);
+      // Auto-restart if still in voice mode and not paused for AI response
+      if (voiceActive && !voicePaused) {
+        setTimeout(() => startListening(), 300);
       }
-    };
-
-    recognition._gotResult = false;
-    recognition.onresult = (event) => {
-      recognition._gotResult = true;
-      const transcript = event.results[0][0].transcript;
-      sendAgentMsg(transcript);
-      setTimeout(() => { if (voiceActive) startListening(); }, 4000);
     };
 
     try { recognition.start(); } catch(e) {}
   }
 
   function stopListening() {
-    if (recognition) { try { recognition.abort(); } catch(e) {} recognition = null; }
+    if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
   }
 
   async function speakReply(text) {
@@ -2143,20 +2170,29 @@
       });
       if (!res.ok) {
         // Fallback to browser TTS
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.1;
-        speechSynthesis.speak(utterance);
-        return;
+        return new Promise(resolve => {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 1.1;
+          utterance.onend = resolve;
+          speechSynthesis.speak(utterance);
+        });
       }
       const audioBlob = await res.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
-      audio.play();
+      return new Promise(resolve => {
+        audio.onended = resolve;
+        audio.onerror = resolve;
+        audio.play();
+      });
     } catch (err) {
       // Fallback to browser TTS
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.1;
-      speechSynthesis.speak(utterance);
+      return new Promise(resolve => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.1;
+        utterance.onend = resolve;
+        speechSynthesis.speak(utterance);
+      });
     }
   }
 
