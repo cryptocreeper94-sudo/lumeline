@@ -609,7 +609,7 @@
   <!-- ═══════════ HERO SLIDESHOW ═══════════ -->
   <section class="hero" id="hero">
     <div class="hero-slide active" data-badge="Live Intelligence" data-title="See the line.<br>Read the game." data-desc="LumeLine tracks 47 oddsmakers in real-time, scores their accuracy, detects line manipulation, and generates ML-powered consensus predictions.">
-      <img src="assets/images/hero_football.png" alt="NFL Football">
+      <img src="assets/images/hero_basketball.png" alt="NBA Basketball">
     </div>
     <div class="hero-slide" data-badge="Anomaly Detection" data-title="The house always knows.<br>Now you will too." data-desc="4 anomaly detectors scan every line movement. Synchronized moves, reverse steam traps, and house divergence — flagged instantly.">
       <img src="assets/images/hero_basketball.png" alt="NBA Basketball">
@@ -877,7 +877,7 @@
         </div>
       </div>
       <div class="feat glass" onclick="openFeatModal('scoring')">
-        <img src="assets/images/hero_football.png" alt="Source Scoring">
+        <img src="assets/images/hero_basketball.png" alt="Source Scoring">
         <div class="feat-overlay"></div>
         <div class="feat-body">
           <div class="feat-icon" style="background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(16,185,129,.05));border:1px solid rgba(16,185,129,.2)">📊</div>
@@ -1229,14 +1229,7 @@
     // Rugby
     { id:'d26', sport:'rugby', home_team:'England', away_team:'France', spread:'-3', confidence:53, integrity:85, status:'clean', ai:'Six Nations clash. England slight home favorites at Twickenham. Sharp lean toward France +3 at plus-money. Scrum differential favors ENG.', img:'assets/images/hero_stadium.png', weather:{ temp:48, cond:'Rain', wind:'14mph W', icon:'🌧️' } },
     // OFF-SEASON — NFL (ends Feb)
-    { id:'d1', sport:'nfl', home_team:'Kansas City Chiefs', away_team:'Denver Broncos', spread:'-3.5', confidence:72, integrity:88, status:'clean', ai:'4 of 5 sharps favor KC. Clean lines, high alignment. Pinnacle and Circa moved early — strong CLV signal.', img:'assets/images/nfl_chiefs.png', weather:{ temp:42, cond:'Partly Cloudy', wind:'12mph NW', icon:'⛅' } },
-    { id:'d2', sport:'nfl', home_team:'Buffalo Bills', away_team:'Miami Dolphins', spread:'-1.5', confidence:61, integrity:74, status:'clean', ai:'BUF slightly favored. Mixed signals between sharp and public money.', img:'assets/images/nfl_bills.png', weather:{ temp:28, cond:'Snow', wind:'18mph N', icon:'🌨️' } },
-    { id:'d3', sport:'nfl', home_team:'Dallas Cowboys', away_team:'Philadelphia Eagles', spread:'+2.5', confidence:43, integrity:42, status:'house', ai:'⚠️ 3 books moved DAL spread in sync within 4 min. Confidence suppressed. Deferring to house line.', img:'assets/images/nfl_cowboys.png', weather:{ temp:55, cond:'Clear', wind:'6mph S', icon:'☀️' } },
-    // OFF-SEASON — NCAAF (ends Jan)
-    { id:'d15', sport:'ncaaf', home_team:'Alabama Crimson Tide', away_team:'Georgia Bulldogs', spread:'-3', confidence:67, integrity:92, status:'clean', ai:'Classic SEC rivalry. Alabama opens as slight home favorites. Sharp money split, public heavily on Bama. CLV projections favor the under.', img:'assets/images/hero_football.png', weather:{ temp:70, cond:'Clear', wind:'5mph NE', icon:'☀️' } },
-    { id:'d16', sport:'ncaaf', home_team:'Ohio State Buckeyes', away_team:'Michigan Wolverines', spread:'+1.5', confidence:52, integrity:88, status:'clean', ai:'The Game — true toss-up. Line has moved 3 points since open. Home field advantage is the deciding factor in models.', img:'assets/images/hero_football.png', weather:{ temp:35, cond:'Snow', wind:'15mph NW', icon:'🌨️' } },
-    // OFF-SEASON — WNBA (starts May)
-    { id:'d24', sport:'wnba', home_team:'Las Vegas Aces', away_team:'New York Liberty', spread:'-3.5', confidence:66, integrity:84, status:'clean', ai:'Aces strong home favorites. Clark effect on Liberty has tightened market since open. Sharp money leans over on total.', img:'assets/images/nba_lakers.png' },
+    // OFF-SEASON games removed — only in-season sports shown by default
   ];
 
   // ─── Abbreviations ───
@@ -1391,10 +1384,10 @@
 
   // Sport-level fallback (used when no team-specific image exists)
   const SPORT_IMAGES = {
-    'NFL':'assets/images/hero_football.png', 'NCAAF':'assets/images/hero_football.png',
+    'NFL':'assets/images/hero_basketball.png', 'NCAAF':'assets/images/hero_basketball.png',
     'NBA':'assets/images/hero_basketball.png', 'NCAAB':'assets/images/hero_basketball.png', 'WNBA':'assets/images/hero_basketball.png',
     'MLB':'assets/images/hero_stadium.png',
-    'NHL':'assets/images/hero_aerial.png',
+    'NHL':'assets/images/bruins_hockey.png',
     'EPL':'assets/images/hero_stadium.png', 'La Liga':'assets/images/hero_stadium.png', 'MLS':'assets/images/hero_stadium.png',
     'UFC':'assets/images/hero_stadium.png',
     'Tennis':'assets/images/stadium_aerial.png',
