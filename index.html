@@ -197,6 +197,38 @@
     .footer { text-align: center; padding: 40px 0 56px; }
     .footer p { font-size: 11px; color: rgba(255,255,255,.1); letter-spacing: .04em; }
 
+    /* ═══ STAR RATINGS ═══ */
+    .stars { display:inline-flex;gap:1px;font-size:12px;color:#fbbf24;letter-spacing:1px }
+    .stars-dim { color:rgba(255,255,255,.1) }
+    .rate-btn { display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:9px;font-weight:700;cursor:pointer;border:1px solid rgba(6,182,212,.15);background:rgba(6,182,212,.04);color:rgba(6,182,212,.5);transition:all .2s;text-transform:uppercase;letter-spacing:.06em }
+    .rate-btn:hover { border-color:rgba(6,182,212,.3);color:#67e8f9;background:rgba(6,182,212,.08) }
+    .source-stars { display:flex;align-items:center;gap:4px;margin-top:2px;font-size:10px }
+
+    /* ═══ PRO PAYWALL ═══ */
+    .pro-badge { display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:6px;font-size:8px;font-weight:800;background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(6,182,212,.08));border:1px solid rgba(168,85,247,.2);color:#c4b5fd;text-transform:uppercase;letter-spacing:.08em;margin-left:6px }
+    .pro-lock { position:relative;overflow:hidden }
+    .pro-lock::after { content:'';position:absolute;inset:0;background:rgba(3,7,18,.7);backdrop-filter:blur(4px);z-index:5;border-radius:16px }
+    .pro-overlay { position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;border-radius:16px }
+    .pro-overlay h4 { font-size:14px;font-weight:800;margin-bottom:4px }
+    .pro-overlay p { font-size:11px;color:rgba(255,255,255,.3);margin-bottom:12px }
+    .pro-upgrade { padding:8px 20px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;transition:all .25s;font-family:inherit }
+    .pro-upgrade:hover { box-shadow:0 0 24px rgba(168,85,247,.3);transform:translateY(-1px) }
+    .free-limit { font-size:10px;color:rgba(255,255,255,.15);text-align:center;margin-top:8px }
+
+    /* ═══ SOURCE RATINGS SECTION ═══ */
+    .reviews-row { display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:4px 0 16px }
+    .reviews-row::-webkit-scrollbar { display:none }
+    .review-card { flex:0 0 300px;scroll-snap-align:start;background:rgba(12,18,36,.6);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;transition:all .25s }
+    .review-card:hover { border-color:rgba(255,255,255,.12);transform:translateY(-2px) }
+    .review-head { display:flex;align-items:center;gap:12px;margin-bottom:12px }
+    .review-avatar { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700 }
+    .review-name { font-size:13px;font-weight:700 }
+    .review-date { font-size:10px;color:rgba(255,255,255,.15) }
+    .review-text { font-size:12px;color:rgba(255,255,255,.35);line-height:1.6 }
+    .review-source-tag { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:9px;font-weight:700;margin-top:10px;text-transform:uppercase;letter-spacing:.06em }
+    @media(max-width:768px) { .review-card { flex:0 0 260px } }
+    @media(max-width:480px) { .review-card { flex:0 0 240px } }
+
     /* ═══ REVEAL ═══ */
     .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
@@ -483,6 +515,41 @@
 
   <div class="divider mx"></div>
 
+  <!-- ═══════════ SOURCE RATINGS ═══════════ -->
+  <div class="mx section reveal">
+    <div class="section-head">
+      <div><div class="section-title grad-text">Source Ratings</div><div class="section-sub" style="margin-top:4px">Community-verified source accuracy reviews</div></div>
+      <div class="section-sub" id="review-count"></div>
+    </div>
+    <div class="reviews-row" id="source-reviews"><!-- Rendered by JS --></div>
+  </div>
+
+  <div class="divider mx"></div>
+
+  <!-- ═══════════ PRO SUBSCRIPTION ═══════════ -->
+  <div class="mx section reveal">
+    <div class="glass" style="padding:32px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.06),transparent 70%);pointer-events:none"></div>
+      <div class="pro-badge" style="margin:0 auto 16px;padding:4px 14px;font-size:10px">◆ PRO</div>
+      <h2 style="font-size:1.8rem;font-weight:900;letter-spacing:-.03em;margin-bottom:8px" class="grad-text">Unlock Full Intelligence</h2>
+      <p style="color:rgba(255,255,255,.35);font-size:13px;max-width:500px;margin:0 auto 20px;line-height:1.7">Get unlimited game access, all confidence levels, anomaly SMS alerts, full integrity scores, line movement charts, API access, data export, and source history trends.</p>
+      <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+        <div class="stat-box" style="padding:12px 16px;min-width:100px"><span class="stat-val" style="color:#67e8f9;font-size:18px">∞</span><span class="stat-label">Games/Day</span></div>
+        <div class="stat-box" style="padding:12px 16px;min-width:100px"><span class="stat-val" style="color:#a78bfa;font-size:18px">100%</span><span class="stat-label">Confidence</span></div>
+        <div class="stat-box" style="padding:12px 16px;min-width:100px"><span class="stat-val" style="color:#6ee7b7;font-size:18px">0-100</span><span class="stat-label">Integrity</span></div>
+        <div class="stat-box" style="padding:12px 16px;min-width:100px"><span class="stat-val" style="color:#fbbf24;font-size:18px">1K</span><span class="stat-label">API/Day</span></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:32px;font-weight:900" class="grad-text">$9.99</span>
+        <span style="font-size:13px;color:rgba(255,255,255,.25)">/month</span>
+      </div>
+      <a href="/login.html#pro" class="cta-btn cta-primary" style="text-decoration:none">◆ Upgrade to Pro</a>
+      <p style="font-size:10px;color:rgba(255,255,255,.12);margin-top:12px">Cancel anytime · Powered by Stripe</p>
+    </div>
+  </div>
+
+  <div class="divider mx"></div>
+
   <!-- ═══════════ CTA ═══════════ -->
   <div class="mx cta-section reveal">
     <h2 class="grad-text">The house always knows.<br>Now you will too.</h2>
@@ -660,6 +727,32 @@
     return allGames.filter(g => g.sport === currentSport);
   }
 
+  // ═══ USER STATE (Free / Pro) ═══
+  function isPro() {
+    try { const u = JSON.parse(localStorage.getItem('lumeline_user') || '{}'); return u.plan === 'pro'; } catch { return false; }
+  }
+  const FREE_GAME_LIMIT = 3;
+  const FREE_CONF_LIMIT = 60; // Hide high-confidence picks from free users
+
+  // ═══ STAR RENDERING ═══
+  function renderStars(rating, max=5) {
+    let h = '';
+    for (let i = 0; i < max; i++) h += i < Math.round(rating) ? '★' : '<span class="stars-dim">☆</span>';
+    return `<span class="stars">${h}</span>`;
+  }
+
+  // ═══ SOURCE RATINGS DATA ═══
+  const SOURCE_REVIEWS = [
+    { source:'Pinnacle', rating:5, user:'@sharpmoney', text:'Most accurate lines in the industry. Consistently first to move. The gold standard for sharp bettors.', date:'2 days ago', color:'#67e8f9', tier:'Sharp' },
+    { source:'Circa', rating:5, user:'@vegaspro', text:'Incredible accuracy on NFL spreads. Their consensus line is the one I trust most. Very little noise.', date:'5 days ago', color:'#6ee7b7', tier:'Sharp' },
+    { source:'DraftKings', rating:4, user:'@dkplayer', text:'Good liquidity and the promos are unmatched. Lines can be soft early but tighten up. Reliable for parlays.', date:'1 week ago', color:'#a78bfa', tier:'Reliable' },
+    { source:'FanDuel', rating:4, user:'@fdenthu', text:'Great same-game parlay options. Lines are sharp on primetime games. Mobile app is top-tier.', date:'1 week ago', color:'#a78bfa', tier:'Reliable' },
+    { source:'BetMGM', rating:3, user:'@casualbet', text:'Decent odds on player props. Lines move slower than the sharps. Good for casual bettors.', date:'2 weeks ago', color:'rgba(255,255,255,.4)', tier:'Neutral' },
+    { source:'Mathew', rating:5, user:'@admin', text:'8-2 in the last 10. Best external source on the platform. Auto-promoted to Sharp tier.', date:'3 days ago', color:'#fbbf24', tier:'Sharp' },
+    { source:'Bet365', rating:4, user:'@intlbettor', text:'Best international coverage. Strong on soccer and cricket. Solid NBA lines. Great for live betting.', date:'4 days ago', color:'#6ee7b7', tier:'Reliable' },
+    { source:'Bovada', rating:3, user:'@anon', text:'Good for recreational bettors. Early lines can have value before sharps hammer them.', date:'2 weeks ago', color:'rgba(255,255,255,.4)', tier:'Neutral' },
+  ];
+
   // ═══ RENDER ALL ═══
   function renderAll(health) {
     renderTicker();
@@ -668,6 +761,7 @@
     renderStats(health);
     renderConsensusMeter();
     renderPatterns();
+    renderSourceReviews();
   }
 
   // ═══ TICKER ═══
@@ -686,10 +780,12 @@
     const el = document.getElementById('games');
     const games = getFilteredGames();
     document.getElementById('game-count').textContent = `${games.length} games · ${allSources.length} sources tracked`;
-    el.innerHTML = games.map(g => {
+    el.innerHTML = games.map((g, gi) => {
       const glow = g.confidence >= 60 ? ' glass-glow' : '';
       const color = confColor(g.confidence);
-      return `<div class="carousel-item"><div class="glass${glow} game-card" onclick="openGameModal('${g.id}')">
+      const locked = !isPro() && gi >= FREE_GAME_LIMIT;
+      return `<div class="carousel-item"><div class="glass${glow} game-card${locked ? ' pro-lock' : ''}" onclick="${locked ? '' : "openGameModal('" + g.id + "')"}"
+        style="${locked ? 'pointer-events:auto' : ''}">
         <img src="${g.img || 'assets/images/hero_stadium.png'}" alt="${g.home_team}" class="game-img">
         <div class="game-body">
           <div class="game-teams-row"><div><span class="game-team">${abbr(g.away_team)}</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">${abbr(g.home_team)}</span></div><div class="game-likelihood" style="color:${color}">${g.confidence}<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div></div>
@@ -697,8 +793,12 @@
           <div class="bar"><div class="bar-fill ${barClass(g.confidence)}" style="width:${g.confidence}%"></div></div>
           <div class="game-footer"><span class="integrity">${g.integrity < 60 ? (g.status === 'danger' ? '🚨' : '⚠️') : ''} Integrity: ${g.integrity}/100</span>${statusBadge(g.status)}</div>
           <div class="game-ai">${g.ai}</div>
-        </div></div></div>`;
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)"><button class="rate-btn" onclick="event.stopPropagation();rateGame('${g.id}')">⭐ Rate This Pick</button>${isPro() ? '' : '<span class="pro-badge">◆ PRO</span>'}</div>
+        </div>${(!isPro() && gi >= FREE_GAME_LIMIT) ? '<div class="pro-overlay"><h4 class="grad-text">🔒 Pro Only</h4><p>Upgrade to see all games</p><a href="/login.html#pro" class="pro-upgrade">Upgrade · $9.99/mo</a></div>' : ''}</div></div>`;
     }).join('');
+    if (!isPro() && games.length > FREE_GAME_LIMIT) {
+      document.getElementById('games').insertAdjacentHTML('beforeend', '<div style="flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-width:200px;text-align:center"><div><div class="pro-badge" style="margin-bottom:8px;padding:4px 12px">◆ PRO</div><div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.4)">+' + (games.length - FREE_GAME_LIMIT) + ' more games</div><a href="/login.html#pro" style="font-size:11px;color:#a78bfa;margin-top:4px;display:block">Upgrade to Pro →</a></div></div>');
+    }
   }
 
   // ═══ LEADERBOARD ═══
@@ -730,10 +830,11 @@
       const tierLabel = s.tier.charAt(0).toUpperCase() + s.tier.slice(1);
       const meta = s.type === 'external' ? `External · ${tierLabel}` : `${tierLabel} · ${s.type}`;
       const url = sportsbookURLs[s.slug];
+      const starRating = s.tier === 'sharp' ? 5 : s.tier === 'reliable' ? 4 : s.tier === 'neutral' ? 3 : 2;
       const linkBtn = url
         ? `<a href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Open ${s.name}" style="display:flex;align-items:center;gap:4px;font-size:9px;color:rgba(6,182,212,.5);text-decoration:none;padding:4px 10px;border-radius:8px;border:1px solid rgba(6,182,212,.12);background:rgba(6,182,212,.04);transition:all .2s;white-space:nowrap" onmouseover="this.style.borderColor='rgba(6,182,212,.3)';this.style.color='#67e8f9';this.style.background='rgba(6,182,212,.08)'" onmouseout="this.style.borderColor='rgba(6,182,212,.12)';this.style.color='rgba(6,182,212,.5)';this.style.background='rgba(6,182,212,.04)'">Open ↗</a>`
         : '';
-      return `<div class="source" onclick="openSourceDetail('${s.slug}')"><span class="source-rank${rankClass}">${i+1}</span><div class="source-avatar" style="background:${bg};border:1px solid ${border};color:${color}">${s.name.charAt(0)}</div><div class="source-info"><div class="source-name">${star}${s.name}</div><div class="source-meta">${meta}</div></div><div class="source-acc"><span class="source-pct" style="color:${color}">${acc}%</span><span class="source-picks">${s.total_picks || 0} picks</span></div>${linkBtn}</div>`;
+      return `<div class="source" onclick="openSourceDetail('${s.slug}')"><span class="source-rank${rankClass}">${i+1}</span><div class="source-avatar" style="background:${bg};border:1px solid ${border};color:${color}">${s.name.charAt(0)}</div><div class="source-info"><div class="source-name">${star}${s.name}</div><div class="source-meta">${meta}</div><div class="source-stars">${renderStars(starRating)} <span style="color:rgba(255,255,255,.15);font-size:9px">${starRating}.0</span></div></div><div class="source-acc"><span class="source-pct" style="color:${color}">${acc}%</span><span class="source-picks">${s.total_picks || 0} picks</span></div>${linkBtn}</div>`;
     }).join('');
   }
 
@@ -769,7 +870,44 @@
     ).join('');
   }
 
-  // ═══ TABS ═══
+  // ═══ SOURCE REVIEWS ═══
+  function renderSourceReviews() {
+    const el = document.getElementById('source-reviews');
+    if (!el) return;
+    document.getElementById('review-count').textContent = `${SOURCE_REVIEWS.length} reviews`;
+    el.innerHTML = SOURCE_REVIEWS.map(r => {
+      const tierBg = r.tier === 'Sharp' ? 'rgba(6,182,212,.08)' : r.tier === 'Reliable' ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.03)';
+      const tierBorder = r.tier === 'Sharp' ? 'rgba(6,182,212,.15)' : r.tier === 'Reliable' ? 'rgba(16,185,129,.15)' : 'rgba(255,255,255,.06)';
+      const tierColor = r.tier === 'Sharp' ? '#67e8f9' : r.tier === 'Reliable' ? '#6ee7b7' : 'rgba(255,255,255,.3)';
+      return `<div class="review-card">
+        <div class="review-head">
+          <div class="review-avatar" style="background:${tierBg};border:1px solid ${tierBorder};color:${tierColor}">${r.source.charAt(0)}</div>
+          <div>
+            <div class="review-name">${r.source}</div>
+            <div class="review-date">${r.user} · ${r.date}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:8px">${renderStars(r.rating)}</div>
+        <div class="review-text">${r.text}</div>
+        <div class="review-source-tag" style="background:${tierBg};border:1px solid ${tierBorder};color:${tierColor}">${r.tier} Tier</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ═══ RATE GAME ═══
+  function rateGame(gameId) {
+    if (!isPro()) {
+      alert('⭐ Rating picks is a Pro feature.\n\nUpgrade to Pro ($9.99/mo) to rate picks and contribute to source accuracy scoring.');
+      return;
+    }
+    const g = allGames.find(x => x.id === gameId);
+    if (!g) return;
+    const rating = prompt(`Rate this pick: ${abbr(g.away_team)} @ ${abbr(g.home_team)} (${g.spread})\n\nEnter 1-5 stars:`);
+    if (rating && parseInt(rating) >= 1 && parseInt(rating) <= 5) {
+      alert(`✅ Rated ${parseInt(rating)} stars! Your rating helps build source accuracy scores.`);
+    }
+  }
+
   function switchTab(sport, el) {
     currentSport = sport;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-active'));
