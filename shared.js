@@ -137,7 +137,7 @@ function injectShell() {
   let shellPin = '';
   function updShellDots(){pinMod.querySelectorAll('.pds').forEach((d,i)=>{d.textContent=i<shellPin.length?'●':'';d.style.borderColor=i<shellPin.length?'rgba(6,182,212,.3)':'rgba(255,255,255,.1)';d.style.background=i<shellPin.length?'rgba(6,182,212,.06)':'rgba(255,255,255,.03)';});}
   function checkShellPin(){
-    if(shellPin==='0000'){pinMod.style.display='none';shellPin='';updShellDots();window.location.href='/admin.html#admin';}
+    if(shellPin==='0424'){pinMod.style.display='none';shellPin='';updShellDots();window.location.href='/admin.html#admin';}
     else{pinMod.querySelector('.pin-error-shell').style.display='';pinMod.querySelectorAll('.pds').forEach(d=>{d.style.borderColor='rgba(239,68,68,.4)';d.style.background='rgba(239,68,68,.06)';});
     setTimeout(()=>{shellPin='';updShellDots();},600);}
   }

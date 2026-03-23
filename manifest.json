@@ -1,0 +1,55 @@
+{
+  "name": "LumeLine — Odds Intelligence",
+  "short_name": "LumeLine",
+  "description": "AI-powered sports odds intelligence platform. Real-time consensus picks, anomaly detection, and integrity scoring across 16+ sports.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#030712",
+  "background_color": "#030712",
+  "categories": ["sports", "entertainment", "finance"],
+  "dir": "ltr",
+  "lang": "en-US",
+  "scope": "/",
+  "id": "/",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/images/hero_stadium.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "LumeLine Dashboard — Live odds intelligence"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/dashboard.html",
+      "icons": [{ "src": "/assets/icons/icon-512.png", "sizes": "512x512" }]
+    },
+    {
+      "name": "Pro Access",
+      "url": "/pro.html",
+      "icons": [{ "src": "/assets/icons/icon-512.png", "sizes": "512x512" }]
+    }
+  ],
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 480
+  }
+}

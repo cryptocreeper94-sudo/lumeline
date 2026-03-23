@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import db from './db.js';
-import { runIngestion } from './ingestion.js';
+import { runIngestion, runSecondaryIngestion, runFullIngestion } from './ingestion.js';
 import { scoreAllSources, assignTier } from './scoring.js';
 import { scanGame } from './anomaly.js';
 import { generateConsensus, generateAllConsensus } from './consensus.js';
@@ -20,6 +20,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..')));
+
+// Serve .well-known for TWA Digital Asset Links
+app.use('/.well-known', express.static(path.join(__dirname, '..', '.well-known')));
 
 // Auth routes
 app.use('/api/auth', authRouter);
@@ -156,9 +159,17 @@ app.get('/api/widget', async (req, res) => {
 // ═══════════════════════════════════════════
 app.post('/api/ingest', async (req, res) => {
   try {
-    console.log('🔄 Manual ingestion triggered...');
-    const result = await runIngestion();
-    res.json({ status: 'complete', ...result });
+    const mode = req.body?.mode || 'core';
+    console.log(`🔄 Manual ingestion triggered (${mode})...`);
+    let result;
+    if (mode === 'full') {
+      result = await runFullIngestion();
+    } else if (mode === 'secondary') {
+      result = await runSecondaryIngestion();
+    } else {
+      result = await runIngestion();
+    }
+    res.json({ status: 'complete', mode, ...result });
   } catch (err) {
     console.error('POST /api/ingest error:', err);
     res.status(500).json({ error: 'Ingestion failed', message: err.message });
@@ -518,19 +529,36 @@ app.post('/api/partner/payout', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════
-//  SCHEDULED INGESTION
+//  SCHEDULED INGESTION (Tiered)
 // ═══════════════════════════════════════════
-const INTERVAL = (parseInt(process.env.INGESTION_INTERVAL_MINUTES) || 15) * 60 * 1000;
+// Core sports (NFL, NBA, MLB, NHL): every 30 min = 192 req/day
+// Secondary sports: every 60 min = ~288 req/day
+// Total: ~480 req/day (under 500 free tier)
+const CORE_INTERVAL = 30 * 60 * 1000;      // 30 minutes
+const SECONDARY_INTERVAL = 60 * 60 * 1000; // 60 minutes
 
 function startScheduler() {
-  console.log(`⏰ Scheduler: ingestion every ${INTERVAL / 60000} minutes`);
+  console.log('⏰ Tiered Scheduler:');
+  console.log('   Core sports → every 30 min');
+  console.log('   Secondary sports → every 60 min');
+
+  // Core sports scheduler
   setInterval(async () => {
     try {
       await runIngestion();
     } catch (err) {
-      console.error('Scheduled ingestion error:', err.message);
+      console.error('Scheduled core ingestion error:', err.message);
     }
-  }, INTERVAL);
+  }, CORE_INTERVAL);
+
+  // Secondary sports scheduler  
+  setInterval(async () => {
+    try {
+      await runSecondaryIngestion();
+    } catch (err) {
+      console.error('Scheduled secondary ingestion error:', err.message);
+    }
+  }, SECONDARY_INTERVAL);
 }
 
 // ═══════════════════════════════════════════
@@ -555,7 +583,11 @@ app.listen(PORT, () => {
   
   if (process.env.ODDS_API_KEY && process.env.ODDS_API_KEY !== 'your_key_here') {
     startScheduler();
-    runIngestion().catch(err => console.error('Initial ingestion error:', err.message));
+    // Initial boot: ingest core immediately, secondary after 5 sec
+    runIngestion().catch(err => console.error('Initial core ingestion error:', err.message));
+    setTimeout(() => {
+      runSecondaryIngestion().catch(err => console.error('Initial secondary ingestion error:', err.message));
+    }, 5000);
   } else {
     console.log('⚠️  No ODDS_API_KEY set — running in demo mode');
     console.log('   Set ODDS_API_KEY in .env to enable live data');
