@@ -19,12 +19,20 @@ async function initDb() {
   try {
     console.log('🔧 Initializing LumeLine database...');
     await pool.query(schema);
+    
+    // Run outcome tracking migration
+    const migrationPath = path.join(__dirname, 'migration_outcomes.sql');
+    if (fs.existsSync(migrationPath)) {
+      const migration = fs.readFileSync(migrationPath, 'utf8');
+      await pool.query(migration);
+      console.log('✅ Outcome tracking tables initialized');
+    }
     console.log('✅ Database initialized successfully');
 
     // Verify tables
     const { rows } = await pool.query(`
       SELECT tablename FROM pg_tables 
-      WHERE schemaname = 'public' AND tablename IN ('sources','games','odds_snapshots','anomalies','consensus','picks','ingestion_log')
+      WHERE schemaname = 'public' AND tablename IN ('sources','games','odds_snapshots','anomalies','consensus','picks','ingestion_log','game_outcomes','consensus_outcomes','accuracy_stats','source_outcomes')
       ORDER BY tablename
     `);
     console.log(`📊 Tables created: ${rows.map(r => r.tablename).join(', ')}`);

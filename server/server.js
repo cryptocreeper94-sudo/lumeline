@@ -11,6 +11,7 @@ import { scoreAllSources, assignTier } from './scoring.js';
 import { scanGame } from './anomaly.js';
 import { generateConsensus, generateAllConsensus } from './consensus.js';
 import { initTwilio, getTwilioStatus, sendConsensusAlert, sendAnomalyAlert, sendDailySummary } from './notifications.js';
+import { evaluateOutcomes } from './outcomes.js';
 import authRouter, { requireAuth } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -249,6 +250,66 @@ app.get('/api/consensus', async (req, res) => {
     res.json({ predictions: rows, count: rows.length });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch consensus' });
+  }
+});
+
+// ═══════════════════════════════════════════
+//  OUTCOME EVALUATION & ACCURACY
+// ═══════════════════════════════════════════
+app.post('/api/outcomes/evaluate', async (req, res) => {
+  try {
+    console.log('🏆 Manual outcome evaluation triggered...');
+    const result = await evaluateOutcomes();
+    res.json({ status: 'complete', ...result });
+  } catch (err) {
+    console.error('POST /api/outcomes/evaluate error:', err);
+    res.status(500).json({ error: 'Evaluation failed', message: err.message });
+  }
+});
+
+app.get('/api/accuracy', async (req, res) => {
+  try {
+    const { rows } = await db.query(`
+      SELECT * FROM accuracy_stats 
+      WHERE confidence_bucket IS NULL 
+      ORDER BY 
+        CASE window WHEN 'all' THEN 0 WHEN '7d' THEN 1 WHEN '30d' THEN 2 WHEN '90d' THEN 3 END,
+        sport NULLS FIRST
+    `);
+    
+    // Recent outcomes
+    const { rows: recent } = await db.query(`
+      SELECT co.*, g.home_team, g.away_team, g.sport, go.home_score, go.away_score
+      FROM consensus_outcomes co
+      JOIN games g ON g.id = co.game_id
+      LEFT JOIN game_outcomes go ON go.game_id = co.game_id
+      ORDER BY co.evaluated_at DESC LIMIT 20
+    `);
+    
+    res.json({ stats: rows, recent, count: rows.length });
+  } catch (err) {
+    console.error('GET /api/accuracy error:', err);
+    res.status(500).json({ error: 'Failed to fetch accuracy' });
+  }
+});
+
+app.get('/api/accuracy/:sport', async (req, res) => {
+  try {
+    const sport = req.params.sport.toUpperCase();
+    const { rows } = await db.query(
+      'SELECT * FROM accuracy_stats WHERE sport = $1 ORDER BY window', [sport]
+    );
+    const { rows: outcomes } = await db.query(`
+      SELECT co.*, g.home_team, g.away_team, go.home_score, go.away_score
+      FROM consensus_outcomes co
+      JOIN games g ON g.id = co.game_id
+      LEFT JOIN game_outcomes go ON go.game_id = co.game_id
+      WHERE co.sport = $1
+      ORDER BY co.evaluated_at DESC LIMIT 20
+    `, [sport]);
+    res.json({ stats: rows, outcomes, sport });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch sport accuracy' });
   }
 });
 
@@ -541,6 +602,7 @@ function startScheduler() {
   console.log('⏰ Tiered Scheduler:');
   console.log('   Core sports → every 30 min');
   console.log('   Secondary sports → every 60 min');
+  console.log('   Outcome evaluation → every 2 hours');
 
   // Core sports scheduler
   setInterval(async () => {
@@ -559,6 +621,15 @@ function startScheduler() {
       console.error('Scheduled secondary ingestion error:', err.message);
     }
   }, SECONDARY_INTERVAL);
+
+  // Outcome evaluation — every 2 hours
+  setInterval(async () => {
+    try {
+      await evaluateOutcomes();
+    } catch (err) {
+      console.error('Scheduled outcome evaluation error:', err.message);
+    }
+  }, 2 * 60 * 60 * 1000);
 }
 
 // ═══════════════════════════════════════════

@@ -697,6 +697,43 @@
 
   <div class="divider mx"></div>
 
+  <!-- ═══════════ ACCURACY TRACKER ═══════════ -->
+  <div class="mx section reveal">
+    <div class="section-head">
+      <div>
+        <div class="section-title grad-text">🏆 Prediction Accuracy</div>
+        <div class="section-sub" style="margin-top:4px">Verified results — updated every 2 hours</div>
+      </div>
+      <div class="section-sub" id="accuracy-summary" style="text-align:right;font-size:11px;color:rgba(255,255,255,.25)">Collecting data...</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px" id="accuracy-cards">
+      <div class="glass" style="padding:20px;text-align:center">
+        <div style="font-size:28px;font-weight:900;color:#67e8f9" id="acc-winrate">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:4px">Overall Win Rate</div>
+      </div>
+      <div class="glass" style="padding:20px;text-align:center">
+        <div style="font-size:28px;font-weight:900;color:#6ee7b7" id="acc-highconf">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:4px">High-Conf Win Rate</div>
+      </div>
+      <div class="glass" style="padding:20px;text-align:center">
+        <div style="font-size:28px;font-weight:900;color:#fbbf24" id="acc-total">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:4px">Games Evaluated</div>
+      </div>
+      <div class="glass" style="padding:20px;text-align:center">
+        <div style="font-size:28px;font-weight:900" id="acc-streak" style="color:#a78bfa">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:4px">Current Streak</div>
+      </div>
+    </div>
+    <div class="glass" style="padding:20px">
+      <div style="font-size:11px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;font-weight:600">Recent Results</div>
+      <div id="accuracy-feed" style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:12px;color:rgba(255,255,255,.2)">No evaluated games yet. Results will appear here as games complete.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider mx"></div>
+
   <!-- ═══════════ FEATURE ROW ═══════════ -->
   <div class="mx section reveal">
     <div class="section-head"><div class="section-title grad-text">Platform Capabilities</div></div>
@@ -1200,7 +1237,58 @@
     renderConsensusMeter();
     renderPatterns();
     renderSourceReviews();
+    renderAccuracy();
     updateLastUpdated();
+  }
+
+  // ═══ ACCURACY TRACKER ═══
+  async function renderAccuracy() {
+    try {
+      const res = await fetch(API + '/api/accuracy').then(r => r.json()).catch(() => null);
+      if (!res || !res.stats || !res.stats.length) return;
+
+      // Find the 'all' window global stats
+      const global = res.stats.find(s => !s.sport && s.window === 'all');
+      if (global) {
+        const wr = document.getElementById('acc-winrate');
+        const hc = document.getElementById('acc-highconf');
+        const tt = document.getElementById('acc-total');
+        const st = document.getElementById('acc-streak');
+        const sm = document.getElementById('accuracy-summary');
+
+        if (wr) wr.textContent = parseFloat(global.win_rate).toFixed(1) + '%';
+        if (hc) hc.textContent = parseFloat(global.high_conf_rate || 0).toFixed(1) + '%';
+        if (tt) tt.textContent = global.total_predictions;
+        if (st) {
+          const streak = global.current_streak || 0;
+          st.textContent = streak >= 0 ? streak + 'W' : Math.abs(streak) + 'L';
+          st.style.color = streak >= 0 ? '#6ee7b7' : '#fca5a5';
+        }
+        if (sm) sm.textContent = `${global.total_predictions} games · ${global.correct_predictions} correct`;
+      }
+
+      // Recent results feed
+      if (res.recent && res.recent.length) {
+        const feed = document.getElementById('accuracy-feed');
+        if (feed) {
+          feed.innerHTML = res.recent.slice(0, 8).map(r => {
+            const icon = r.outcome === 'WIN' ? '✅' : r.outcome === 'LOSS' ? '❌' : '➖';
+            const color = r.outcome === 'WIN' ? '#6ee7b7' : r.outcome === 'LOSS' ? '#fca5a5' : 'rgba(255,255,255,.3)';
+            const score = (r.home_score != null && r.away_score != null) ? ` · ${r.away_score}-${r.home_score}` : '';
+            return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.03)">
+              <span style="font-size:14px">${icon}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.6)">${abbr(r.away_team)} @ ${abbr(r.home_team)}${score}</div>
+                <div style="font-size:10px;color:rgba(255,255,255,.2)">${r.sport} · Predicted ${r.predicted_winner} at ${r.predicted_confidence}%</div>
+              </div>
+              <span style="font-size:11px;font-weight:700;color:${color};padding:2px 8px;border-radius:6px;background:${color}15">${r.outcome}</span>
+            </div>`;
+          }).join('');
+        }
+      }
+    } catch (e) {
+      // Accuracy data not yet available — no-op
+    }
   }
 
   function updateLastUpdated() {
