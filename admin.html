@@ -119,11 +119,11 @@
     <div class="gate-err" id="gate-err"></div>
   </div>
 
-  <!-- ═══ PASSWORD SETUP (Mathew first login) ═══ -->
+  <!-- ═══ PASSWORD SETUP (King Capper first login) ═══ -->
   <div id="pw-setup">
     <div class="logo grad-text" style="font-size:24px;margin-bottom:4px">LumeLine</div>
     <h2>Set Your Partner Password</h2>
-    <div class="sub" style="font-size:11px;color:rgba(255,255,255,.2)">Welcome, Mathew! Set a secure password to replace your temp credential.</div>
+    <div class="sub" style="font-size:11px;color:rgba(255,255,255,.2)">Welcome, King Capper! Set a secure password to replace your temp credential.</div>
     <div style="max-width:320px;margin:24px auto 0">
       <input type="password" id="pw-new" placeholder="New password" style="width:100%;padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-size:14px;outline:none;margin-bottom:8px" oninput="validatePw()">
       <input type="password" id="pw-confirm" placeholder="Confirm password" style="width:100%;padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-size:14px;outline:none;margin-bottom:12px" oninput="validatePw()">
@@ -246,7 +246,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════════ -->
-  <!-- ═══ PARTNER PANEL (Mathew) ═══ -->
+  <!-- ═══ PARTNER PANEL (King Capper) ═══ -->
   <!-- ═══════════════════════════════════════════ -->
   <div id="partner-panel">
     <div class="mx">
@@ -347,7 +347,7 @@
         </div>
         <div style="font-size:10px;color:rgba(255,255,255,.15);margin-bottom:20px">Your unique ID is your Trust Layer HAS number (assigned at registration) · <a href="https://trusthub.tlid.io" target="_blank" style="color:rgba(6,182,212,.4);text-decoration:none">Powered by TrustHub</a></div>
 
-        <!-- Mathew's Exclusive Rate -->
+        <!-- King Capper's Exclusive Rate -->
         <div style="background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(6,182,212,.06));border:1px solid rgba(168,85,247,.2);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
           <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:4px">⭐ Founding Partner Rate</div>
           <div style="font-size:48px;font-weight:900;background:linear-gradient(135deg,#c4b5fd,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1">40%</div>
@@ -415,6 +415,58 @@
           </a>
         </div>
       </div>
+
+      <!-- ═══ FEATURED SPOTLIGHT EDITOR ═══ -->
+      <div class="glass">
+        <div class="section-title">👑 Featured Spotlight</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.2);margin-bottom:16px">Edit your featured teaser on the landing page. Changes go live instantly.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="kc-editor-grid">
+          <!-- Editable Fields -->
+          <div>
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:.08em">TODAY'S PICK HEADLINE</label>
+            <input id="kc-ed-pick" type="text" value="KC Chiefs -3.5 vs LV Raiders" style="width:100%;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:13px;font-weight:600;outline:none;margin-bottom:10px;font-family:inherit">
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:.08em">ANALYSIS TEASER (visitors see a blurred preview)</label>
+            <textarea id="kc-ed-analysis" rows="3" style="width:100%;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:12px;outline:none;margin-bottom:10px;font-family:inherit;resize:vertical;line-height:1.6">Sharp money is hammering KC with 4 of 5 Sharp-tier sources aligned. Reverse steam trap detected on Raiders side. The line hasn't moved despite heavy public action on LV — classic value indicator...</textarea>
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:.08em">YOUR MESSAGE / BIO</label>
+            <textarea id="kc-ed-message" rows="3" style="width:100%;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:12px;outline:none;margin-bottom:10px;font-family:inherit;resize:vertical;line-height:1.6">I track every line movement, every sharp play, every anomaly. My subscribers get my full breakdown before the line moves. LumeLine gives you the data — I give you the edge. Let's build this network together. 👑</textarea>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+              <div>
+                <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">RECORD</label>
+                <input id="kc-ed-record" type="text" value="8-2" style="width:100%;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fbbf24;font-size:13px;font-weight:700;outline:none;text-align:center;font-family:inherit">
+              </div>
+              <div>
+                <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">WIN RATE</label>
+                <input id="kc-ed-winrate" type="text" value="71%" style="width:100%;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#6ee7b7;font-size:13px;font-weight:700;outline:none;text-align:center;font-family:inherit">
+              </div>
+              <div>
+                <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">STREAK</label>
+                <input id="kc-ed-streak" type="text" value="🔥 5" style="width:100%;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#67e8f9;font-size:13px;font-weight:700;outline:none;text-align:center;font-family:inherit">
+              </div>
+            </div>
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:.08em">SUBSCRIBE LINK (external URL or #pricing-section)</label>
+            <input id="kc-ed-link" type="text" value="#pricing-section" style="width:100%;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#67e8f9;font-size:12px;outline:none;margin-bottom:14px;font-family:inherit">
+            <div style="display:flex;gap:8px">
+              <button onclick="saveSpotlight()" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#06b6d4,#3b82f6);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .25s">💾 Save & Publish</button>
+              <button onclick="clearSpotlight()" style="padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.3);font-size:11px;cursor:pointer;font-family:inherit">Reset</button>
+            </div>
+            <div id="kc-save-status" style="font-size:10px;color:#6ee7b7;margin-top:6px;display:none">✅ Published — live on lumeline.bet!</div>
+          </div>
+          <!-- Live Preview -->
+          <div>
+            <div style="font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">PREVIEW (as visitors see it)</div>
+            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px;transform:scale(.92);transform-origin:top left">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#fbbf24,#f59e0b);display:flex;align-items:center;justify-content:center;font-size:16px">👑</div>
+                <div><div style="font-size:14px;font-weight:800">King Capper</div><div style="font-size:9px;color:rgba(255,255,255,.3)">Featured Partner</div></div>
+              </div>
+              <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:4px" id="kc-prev-pick">KC Chiefs -3.5 vs LV Raiders</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.2);line-height:1.5;max-height:40px;overflow:hidden;margin-bottom:8px" id="kc-prev-analysis">Sharp money is hammering KC...</div>
+              <div style="font-size:10px;color:rgba(251,191,36,.4);padding:4px 0">🔒 Subscribe for full analysis</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>@media(max-width:768px){.kc-editor-grid{grid-template-columns:1fr !important}}</style>
 
       <!-- View-Only Data -->
       <div class="two-col">
@@ -542,7 +594,7 @@
           <div class="glass" style="padding:14px">
             <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px">✏️ Details</div>
             <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">NAME</label>
-            <input id="card-name" type="text" value="Mathew Kemper" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
+            <input id="card-name" type="text" value="King Capper" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
             <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">TITLE</label>
             <input id="card-title" type="text" value="Partner · LumeLine" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
             <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">TAGLINE</label>
@@ -554,7 +606,7 @@
             <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">WEBSITE</label>
             <input id="card-website" type="text" value="lumeline.bet" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#67e8f9;font-size:12px;outline:none;margin-bottom:6px">
             <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">REFERRAL LINK</label>
-            <input id="card-ref" type="text" value="lumeline.bet/ref/mathew" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#67e8f9;font-size:12px;outline:none">
+            <input id="card-ref" type="text" value="lumeline.bet/ref/kingcapper" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#67e8f9;font-size:12px;outline:none">
           </div>
         </div>
         <div style="flex:1;min-width:300px;display:flex;align-items:flex-start;justify-content:center">
@@ -751,7 +803,7 @@
         renderAnalytics('pan-', 'p-spark-');
 
         // Affiliate data (mock until TrustHub API integrates)
-        const refHash = 'mathew-partner-' + Math.random().toString(36).slice(2, 10);
+        const refHash = 'kingcapper-' + Math.random().toString(36).slice(2, 10);
         document.getElementById('ref-link-input').value = `https://lumeline.bet/ref/${refHash}`;
 
         // Check bank account status
@@ -780,7 +832,7 @@
         const res = await fetch('/api/partner/connect', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ partner_name: 'Mathew Kemper' })
+          body: JSON.stringify({ partner_name: 'King Capper' })
         });
         const data = await res.json();
         if (data.url) window.location.href = data.url;
@@ -1224,5 +1276,66 @@
       if (line) ctx.fillText(line, x, y);
       return y + lineH;
     }
+
+    // ═══ FEATURED SPOTLIGHT ═══
+    function saveSpotlight() {
+      const data = {
+        pick: document.getElementById('kc-ed-pick')?.value || '',
+        analysis: document.getElementById('kc-ed-analysis')?.value || '',
+        message: document.getElementById('kc-ed-message')?.value || '',
+        record: document.getElementById('kc-ed-record')?.value || '',
+        winrate: document.getElementById('kc-ed-winrate')?.value || '',
+        streak: document.getElementById('kc-ed-streak')?.value || '',
+        link: document.getElementById('kc-ed-link')?.value || '#pricing-section',
+        updated: new Date().toISOString()
+      };
+      localStorage.setItem('kc_spotlight', JSON.stringify(data));
+      const status = document.getElementById('kc-save-status');
+      if (status) { status.style.display = 'block'; setTimeout(() => status.style.display = 'none', 3000); }
+      updateSpotlightPreview(data);
+    }
+
+    function clearSpotlight() {
+      localStorage.removeItem('kc_spotlight');
+      const defaults = { pick:'KC Chiefs -3.5 vs LV Raiders', analysis:'Sharp money is hammering KC with 4 of 5 Sharp-tier sources aligned. Reverse steam trap detected on Raiders side. The line hasn\'t moved despite heavy public action on LV — classic value indicator...', message:'I track every line movement, every sharp play, every anomaly. My subscribers get my full breakdown before the line moves. LumeLine gives you the data — I give you the edge. Let\'s build this network together. 👑', record:'8-2', winrate:'71%', streak:'🔥 5', link:'#pricing-section' };
+      Object.entries(defaults).forEach(([k,v]) => {
+        const el = document.getElementById('kc-ed-' + k);
+        if (el) el.value = v;
+      });
+      updateSpotlightPreview(defaults);
+    }
+
+    function loadSpotlight() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('kc_spotlight'));
+        if (saved) {
+          ['pick','analysis','message','record','winrate','streak','link'].forEach(k => {
+            const el = document.getElementById('kc-ed-' + k);
+            if (el && saved[k]) el.value = saved[k];
+          });
+          updateSpotlightPreview(saved);
+        }
+      } catch {}
+    }
+
+    function updateSpotlightPreview(data) {
+      const pp = document.getElementById('kc-prev-pick');
+      const pa = document.getElementById('kc-prev-analysis');
+      if (pp) pp.textContent = data.pick || '';
+      if (pa) pa.textContent = (data.analysis || '').slice(0, 80) + '...';
+    }
+
+    // Live preview on typing
+    ['kc-ed-pick','kc-ed-analysis','kc-ed-message','kc-ed-record','kc-ed-winrate','kc-ed-streak','kc-ed-link'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => {
+        updateSpotlightPreview({
+          pick: document.getElementById('kc-ed-pick')?.value,
+          analysis: document.getElementById('kc-ed-analysis')?.value
+        });
+      });
+    });
+
+    loadSpotlight();
   </script>
 </body></html>

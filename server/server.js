@@ -519,9 +519,9 @@ app.post('/api/partner/connect', async (req, res) => {
       country: 'US',
       email: partner_email || undefined,
       business_type: 'individual',
-      individual: { first_name: 'Mathew', last_name: 'Kemper' },
+      individual: { first_name: 'King', last_name: 'Capper' },
       capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
-      metadata: { partner: 'mathew_kemper', ecosystem: 'trust_layer', platform: 'orbit_staffing' }
+      metadata: { partner: 'king_capper', ecosystem: 'trust_layer', platform: 'orbit_staffing' }
     });
 
     partnerConnectId = account.id;
@@ -578,7 +578,7 @@ app.post('/api/partner/payout', async (req, res) => {
       currency: 'usd',
       destination: partnerConnectId,
       description: description || 'LumeLine Partner Payout — Orbit Staffing',
-      metadata: { partner: 'mathew_kemper', via: 'orbit_staffing' }
+      metadata: { partner: 'king_capper', via: 'orbit_staffing' }
     });
 
     console.log(`💰 Partner payout: $${(amount_cents / 100).toFixed(2)} → ${partnerConnectId}`);
