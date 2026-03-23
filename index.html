@@ -1402,8 +1402,25 @@
   function normalizeGame(g) {
     // If it already has .ai field, it's a DEMO game — return as-is
     if (g.ai) return g;
-    // Live API game from v_active_games — cascade: team → sport → generic
-    const teamImg = TEAM_IMAGES[g.home_team] || TEAM_IMAGES[g.away_team];
+
+    // Fuzzy team name lookup — handles partial names from APIs (e.g., "Celtics" matches "Boston Celtics")
+    function findTeamImage(name) {
+      if (!name) return null;
+      // Exact match first
+      if (TEAM_IMAGES[name]) return TEAM_IMAGES[name];
+      // Partial match — check if API name is contained in our key, or vice versa
+      const nameLower = name.toLowerCase();
+      for (const [key, img] of Object.entries(TEAM_IMAGES)) {
+        const keyLower = key.toLowerCase();
+        if (keyLower.includes(nameLower) || nameLower.includes(keyLower)) return img;
+      }
+      return null;
+    }
+
+    // Try home team first, then away team  
+    const teamImg = findTeamImage(g.home_team) || findTeamImage(g.away_team);
+    const sportKey = (g.sport || '').toUpperCase();
+
     return {
       ...g,
       sport: (g.sport || '').toLowerCase(),
@@ -1412,7 +1429,7 @@
       spread: g.spread || (g.line ? String(g.line) : 'PK'),
       status: g.house_lean ? 'house' : ((g.integrity || 100) < 60 ? 'danger' : 'clean'),
       ai: g.reasoning || `Live data from ${g.sources_agree || 0} agreeing sources. Confidence: ${g.confidence || 0}%.`,
-      img: teamImg || SPORT_IMAGES[(g.sport || '')] || 'assets/images/hero_stadium.png',
+      img: teamImg || SPORT_IMAGES[sportKey] || 'assets/images/hero_stadium.png',
     };
   }
 
