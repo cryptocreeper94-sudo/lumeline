@@ -215,6 +215,39 @@
     .pro-upgrade:hover { box-shadow:0 0 24px rgba(168,85,247,.3);transform:translateY(-1px) }
     .free-limit { font-size:10px;color:rgba(255,255,255,.15);text-align:center;margin-top:8px }
 
+    /* ═══ WEATHER BADGE ═══ */
+    .weather-tag { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;font-size:9px;font-weight:700;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.12);color:rgba(147,197,253,.7);margin-top:6px;letter-spacing:.02em }
+    .weather-tag .w-temp { color:#93c5fd;font-weight:800 }
+    .weather-icon { font-style:normal }
+
+    /* ═══ CHAT WIDGET ═══ */
+    .chat-fab { position:fixed;bottom:24px;right:24px;z-index:90;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#3b82f6);border:none;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 24px rgba(6,182,212,.3);transition:all .3s;display:flex;align-items:center;justify-content:center }
+    .chat-fab:hover { transform:scale(1.1);box-shadow:0 6px 32px rgba(6,182,212,.4) }
+    .chat-fab .chat-badge-count { position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:#ef4444;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #030712 }
+    .chat-panel { position:fixed;bottom:92px;right:24px;z-index:91;width:360px;max-height:480px;background:rgba(12,18,36,.95);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;display:none;flex-direction:column;box-shadow:0 16px 64px rgba(0,0,0,.5) }
+    .chat-panel.open { display:flex }
+    .chat-header { padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between }
+    .chat-header h4 { font-size:14px;font-weight:800 }
+    .chat-messages { flex:1;overflow-y:auto;padding:16px 20px;min-height:240px;max-height:320px }
+    .chat-msg { margin-bottom:12px;max-width:85% }
+    .chat-msg.bot { margin-right:auto }
+    .chat-msg.user { margin-left:auto;text-align:right }
+    .chat-bubble { padding:10px 14px;border-radius:14px;font-size:12px;line-height:1.6;color:rgba(255,255,255,.6) }
+    .chat-msg.bot .chat-bubble { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-bottom-left-radius:4px }
+    .chat-msg.user .chat-bubble { background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.15);border-bottom-right-radius:4px;color:#67e8f9 }
+    .chat-input-wrap { padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:8px }
+    .chat-input-wrap input { flex:1;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:12px;font-family:inherit;outline:none }
+    .chat-input-wrap input:focus { border-color:rgba(6,182,212,.3) }
+    .chat-input-wrap button { padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#06b6d4,#3b82f6);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit }
+    @media(max-width:480px) { .chat-panel { right:12px;left:12px;width:auto;bottom:80px } .chat-fab { bottom:16px;right:16px;width:48px;height:48px;font-size:18px } }
+
+    /* ═══ LEAD CAPTURE ═══ */
+    .lead-form { display:flex;gap:8px;justify-content:center;flex-wrap:wrap;max-width:480px;margin:0 auto }
+    .lead-form input { flex:1;min-width:200px;padding:14px 18px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:14px;font-family:inherit;outline:none;transition:border-color .25s }
+    .lead-form input:focus { border-color:rgba(6,182,212,.3) }
+    .lead-form button { padding:14px 28px;border-radius:14px;background:linear-gradient(135deg,#06b6d4,#3b82f6);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .25s }
+    .lead-form button:hover { box-shadow:0 0 30px rgba(6,182,212,.25) }
+
     /* ═══ SOURCE RATINGS SECTION ═══ */
     .reviews-row { display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:4px 0 16px }
     .reviews-row::-webkit-scrollbar { display:none }
@@ -550,11 +583,18 @@
 
   <div class="divider mx"></div>
 
-  <!-- ═══════════ CTA ═══════════ -->
+  <!-- ═══════════ CTA + LEAD CAPTURE ═══════════ -->
   <div class="mx cta-section reveal">
     <h2 class="grad-text">The house always knows.<br>Now you will too.</h2>
-    <p>LumeLine brings transparency to an opaque game. Built with Lume. Part of the Trust Layer ecosystem.</p>
-    <button class="cta-btn cta-primary" id="cta-connect">◆ Connect Your Source</button>
+    <p>LumeLine brings transparency to an opaque game. Get notified when high-confidence picks drop.</p>
+    <div class="lead-form" id="lead-form">
+      <input type="email" id="lead-email" placeholder="your@email.com" required>
+      <button onclick="submitLead()">🔔 Get Alerts</button>
+    </div>
+    <p id="lead-success" style="display:none;color:#6ee7b7;font-size:13px;margin-top:12px">✅ You're in! We'll notify you on high-confidence games.</p>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:16px">
+      <button class="cta-btn cta-primary" id="cta-connect">◆ Connect Your Source</button>
+    </div>
   </div>
 
   <!-- ═══════════ CANONICAL FOOTER ═══════════ -->
@@ -664,9 +704,9 @@
 
   // ─── Demo Games (shown when no ODDS_API_KEY / no live games) ───
   const DEMO_GAMES = [
-    { id:'d1', sport:'nfl', home_team:'Kansas City Chiefs', away_team:'Denver Broncos', spread:'-3.5', confidence:72, integrity:88, status:'clean', ai:'4 of 5 sharps favor KC. Clean lines, high alignment. Pinnacle and Circa moved early — strong CLV signal.', img:'assets/images/nfl_chiefs.png' },
-    { id:'d2', sport:'nfl', home_team:'Buffalo Bills', away_team:'Miami Dolphins', spread:'-1.5', confidence:61, integrity:74, status:'clean', ai:'BUF slightly favored. Mixed signals between sharp and public money.', img:'assets/images/nfl_bills.png' },
-    { id:'d3', sport:'nfl', home_team:'Dallas Cowboys', away_team:'Philadelphia Eagles', spread:'+2.5', confidence:43, integrity:42, status:'house', ai:'⚠️ 3 books moved DAL spread in sync within 4 min. Confidence suppressed. Deferring to house line.', img:'assets/images/nfl_cowboys.png' },
+    { id:'d1', sport:'nfl', home_team:'Kansas City Chiefs', away_team:'Denver Broncos', spread:'-3.5', confidence:72, integrity:88, status:'clean', ai:'4 of 5 sharps favor KC. Clean lines, high alignment. Pinnacle and Circa moved early — strong CLV signal.', img:'assets/images/nfl_chiefs.png', weather:{ temp:42, cond:'Partly Cloudy', wind:'12mph NW', icon:'⛅' } },
+    { id:'d2', sport:'nfl', home_team:'Buffalo Bills', away_team:'Miami Dolphins', spread:'-1.5', confidence:61, integrity:74, status:'clean', ai:'BUF slightly favored. Mixed signals between sharp and public money.', img:'assets/images/nfl_bills.png', weather:{ temp:28, cond:'Snow', wind:'18mph N', icon:'🌨️' } },
+    { id:'d3', sport:'nfl', home_team:'Dallas Cowboys', away_team:'Philadelphia Eagles', spread:'+2.5', confidence:43, integrity:42, status:'house', ai:'⚠️ 3 books moved DAL spread in sync within 4 min. Confidence suppressed. Deferring to house line.', img:'assets/images/nfl_cowboys.png', weather:{ temp:55, cond:'Clear', wind:'6mph S', icon:'☀️' } },
     { id:'d4', sport:'nba', home_team:'Los Angeles Lakers', away_team:'Golden State Warriors', spread:'-4', confidence:72, integrity:90, status:'clean', ai:'Sharp consensus on LAL. Clean integrity. 8th straight correct sharp pick on this matchup.', img:'assets/images/nba_lakers.png' },
     { id:'d5', sport:'nba', home_team:'Boston Celtics', away_team:'Milwaukee Bucks', spread:'-6.5', confidence:78, integrity:95, status:'clean', ai:'Strongest consensus today. 5 of 6 sources agree. Highest integrity game — clean across the board.', img:'assets/images/nba_celtics.png' },
     { id:'d6', sport:'nba', home_team:'Phoenix Suns', away_team:'Denver Nuggets', spread:'+1', confidence:38, integrity:55, status:'danger', ai:'Reverse steam detected. DEN line moved +1.5 → -2 → +1 in 20min — classic trap. Deferring to house.', img:'assets/images/nba_suns.png' },
@@ -793,6 +833,7 @@
           <div class="bar"><div class="bar-fill ${barClass(g.confidence)}" style="width:${g.confidence}%"></div></div>
           <div class="game-footer"><span class="integrity">${g.integrity < 60 ? (g.status === 'danger' ? '🚨' : '⚠️') : ''} Integrity: ${g.integrity}/100</span>${statusBadge(g.status)}</div>
           <div class="game-ai">${g.ai}</div>
+          ${g.weather ? `<div class="weather-tag"><i class="weather-icon">${g.weather.icon}</i> <span class="w-temp">${g.weather.temp}°F</span> ${g.weather.cond} · ${g.weather.wind}</div>` : ''}
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)"><button class="rate-btn" onclick="event.stopPropagation();rateGame('${g.id}')">⭐ Rate This Pick</button>${isPro() ? '' : '<span class="pro-badge">◆ PRO</span>'}</div>
         </div>${(!isPro() && gi >= FREE_GAME_LIMIT) ? '<div class="pro-overlay"><h4 class="grad-text">🔒 Pro Only</h4><p>Upgrade to see all games</p><a href="/login.html#pro" class="pro-upgrade">Upgrade · $9.99/mo</a></div>' : ''}</div></div>`;
     }).join('');
@@ -1044,10 +1085,83 @@
 
   let heroTimer = setInterval(nextSlide, 6000);
 
+  // ═══ LEAD CAPTURE ═══
+  function submitLead() {
+    const email = document.getElementById('lead-email').value;
+    if (!email || !email.includes('@')) return;
+    // Track lead
+    fetch('/api/widgets/leads/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ siteId: 'lumeline', email, name: email.split('@')[0], source: 'cta-alerts' })
+    }).catch(() => {});
+    document.getElementById('lead-form').style.display = 'none';
+    document.getElementById('lead-success').style.display = '';
+  }
+
+  // ═══ CHAT WIDGET ═══
+  let chatOpen = false;
+  function toggleChat() {
+    chatOpen = !chatOpen;
+    document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+  }
+  function sendChat() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const msgs = document.getElementById('chat-messages');
+    msgs.innerHTML += `<div class="chat-msg user"><div class="chat-bubble">${text}</div></div>`;
+    input.value = '';
+    msgs.scrollTop = msgs.scrollHeight;
+    // Bot auto-reply
+    setTimeout(() => {
+      const replies = [
+        'Thanks for reaching out! Our team typically responds within a few minutes.',
+        'Great question! Check the dashboard for real-time odds data, or upgrade to Pro for full access.',
+        'You can connect your source by clicking the "Connect Your Source" button on the homepage.',
+        'For technical questions, check our developers page at /developers.html.',
+        'Pro subscribers get unlimited games, SMS alerts, and full integrity scores for $9.99/mo.'
+      ];
+      const reply = replies[Math.floor(Math.random() * replies.length)];
+      msgs.innerHTML += `<div class="chat-msg bot"><div class="chat-bubble">${reply}</div></div>`;
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 1000);
+  }
+
+  // ═══ ANALYTICS TRACKING ═══
+  (function trackPageView() {
+    const sessionId = sessionStorage.getItem('ll_sid') || ('s_' + Math.random().toString(36).slice(2));
+    sessionStorage.setItem('ll_sid', sessionId);
+    fetch('/api/widgets/analytics/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ siteId: 'lumeline', sessionId, page: location.pathname, eventType: 'page_view' })
+    }).catch(() => {});
+  })();
+
   // ═══ BOOT ═══
   fetchAll();
   setInterval(fetchAll, 60000);
   </script>
+
+  <!-- ═══ CHAT WIDGET ═══ -->
+  <button class="chat-fab" onclick="toggleChat()" title="Live Chat">
+    💬
+    <span class="chat-badge-count">1</span>
+  </button>
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-header">
+      <h4 class="grad-text">💬 LumeLine Support</h4>
+      <button onclick="toggleChat()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-msg bot"><div class="chat-bubble">Hey! 👋 Welcome to LumeLine. How can I help you today?</div></div>
+    </div>
+    <div class="chat-input-wrap">
+      <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button onclick="sendChat()">Send</button>
+    </div>
+  </div>
 
 </body>
 </html>
