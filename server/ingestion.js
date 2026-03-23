@@ -5,14 +5,12 @@ import db from './db.js';
 const API_KEY = process.env.ODDS_API_KEY;
 const API_BASE = process.env.ODDS_API_BASE || 'https://api.the-odds-api.com/v4';
 
-// ═══ Sport Tiers (manages polling frequency to stay under 500 req/day) ═══
-// ACTIVE SPORTS — Late March 2026
-// Core (daily games): NBA + NHL + NCAAB → 3 × 48 = 144 req/day
-// Secondary (in-season): EPL, La Liga, MLS, MMA, ATP → 5 × 24 = 120 req/day
-// Total: ~264 req/day (well under 500)
-// NOTE: Adjust around Thursday for NCAAB Sweet 16 (bump interval to 10 min)
+// BETA MODE — Late March 2026 (Core sports only)
+// Core: NBA + NHL + NCAAB → 3 × 48 = 144 req/day
+// Secondary: disabled (coming soon)
+// Total: ~144 req/day | 500 free tier
 const CORE_SPORTS = (process.env.CORE_SPORTS || 'basketball_nba,icehockey_nhl,basketball_ncaab').split(',');
-const SECONDARY_SPORTS = (process.env.SECONDARY_SPORTS || 'soccer_epl,soccer_spain_la_liga,soccer_usa_mls,mma_mixed_martial_arts').split(',').filter(s => s);
+const SECONDARY_SPORTS = (process.env.SECONDARY_SPORTS || '').split(',').filter(s => s);
 const ALL_SPORTS = [...CORE_SPORTS, ...SECONDARY_SPORTS];
 
 // ═══ Fetch upcoming games + odds from The Odds API ═══
