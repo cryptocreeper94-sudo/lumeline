@@ -14,6 +14,9 @@ import { initTwilio, getTwilioStatus, sendConsensusAlert, sendAnomalyAlert, send
 import { evaluateOutcomes } from './outcomes.js';
 import authRouter, { requireAuth } from './auth.js';
 import agentRouter from './agent.js';
+import { recordResult, getHouseReportCard, getFadeTargets, getSharpBooks, getHouseBias } from './house-accuracy.js';
+import { recordOUResult, getOUTrends, getOUEdge, getOverMatchups, getUnderMatchups } from './over-under.js';
+import { decodeGame, getSignals, getRecentSignals, scoreSignals, getDecoderAccuracy } from './house-decoder.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -395,6 +398,110 @@ app.post('/api/notifications/daily', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════
+//  HOUSE DECODER
+// ═══════════════════════════════════════════
+
+// House accuracy report card
+app.get('/api/decoder/house-accuracy', async (req, res) => {
+  try {
+    const { market, sport, period } = req.query;
+    const report = await getHouseReportCard(market || 'spread', sport || null, period || '30d');
+    const fades = await getFadeTargets(market || 'spread', period || '30d');
+    const sharps = await getSharpBooks(market || 'spread', period || '30d');
+    res.json({ report, fade_targets: fades, follow_targets: sharps });
+  } catch (err) {
+    console.error('GET /api/decoder/house-accuracy error:', err);
+    res.status(500).json({ error: 'Failed to fetch house accuracy' });
+  }
+});
+
+// House bias for a specific source
+app.get('/api/decoder/bias/:slug', async (req, res) => {
+  try {
+    const { sport } = req.query;
+    const bias = await getHouseBias(req.params.slug, sport || null);
+    if (!bias) return res.status(404).json({ error: 'No accuracy data for this source' });
+    res.json(bias);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch bias data' });
+  }
+});
+
+// Over/Under trends
+app.get('/api/decoder/ou-trends', async (req, res) => {
+  try {
+    const { sport } = req.query;
+    const trends = await getOUTrends(sport || null);
+    const edge = await getOUEdge(sport || null);
+    const overMatchups = await getOverMatchups(sport || null);
+    const underMatchups = await getUnderMatchups(sport || null);
+    res.json({ trends, edge_matchups: edge, always_over: overMatchups, always_under: underMatchups });
+  } catch (err) {
+    console.error('GET /api/decoder/ou-trends error:', err);
+    res.status(500).json({ error: 'Failed to fetch O/U trends' });
+  }
+});
+
+// Decoder signals for a specific game
+app.get('/api/decoder/signals/:gameId', async (req, res) => {
+  try {
+    const signals = await getSignals(req.params.gameId);
+    res.json({ signals, count: signals.length });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch signals' });
+  }
+});
+
+// All recent decoder signals
+app.get('/api/decoder/signals', async (req, res) => {
+  try {
+    const { limit } = req.query;
+    const signals = await getRecentSignals(parseInt(limit) || 20);
+    res.json({ signals, count: signals.length });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch recent signals' });
+  }
+});
+
+// Run decoder on a game
+app.post('/api/decoder/decode/:gameId', async (req, res) => {
+  try {
+    const signals = await decodeGame(req.params.gameId);
+    res.json({ signals, count: signals.length });
+  } catch (err) {
+    console.error('POST /api/decoder/decode error:', err);
+    res.status(500).json({ error: 'Decode failed', message: err.message });
+  }
+});
+
+// Record game result + score all books
+app.post('/api/decoder/result', async (req, res) => {
+  try {
+    const { game_id, home_score, away_score } = req.body;
+    if (!game_id || home_score == null || away_score == null) {
+      return res.status(400).json({ error: 'game_id, home_score, and away_score are required' });
+    }
+    const result = await recordResult(game_id, home_score, away_score);
+    const ouResult = await recordOUResult(game_id);
+    const signalScores = await scoreSignals();
+    res.json({ result, ou_analysis: ouResult, signals_scored: signalScores.scored });
+  } catch (err) {
+    console.error('POST /api/decoder/result error:', err);
+    res.status(500).json({ error: 'Result recording failed', message: err.message });
+  }
+});
+
+// Decoder accuracy (how well is the decoder performing?)
+app.get('/api/decoder/accuracy', async (req, res) => {
+  try {
+    const accuracy = await getDecoderAccuracy();
+    res.json({ signal_accuracy: accuracy });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch decoder accuracy' });
+  }
+});
+
+// ═══════════════════════════════════════════
 //  ADMIN ENDPOINTS
 // ═══════════════════════════════════════════
 app.get('/api/admin/users', async (req, res) => {
@@ -660,7 +767,7 @@ app.listen(PORT, () => {
   console.log('');
   console.log('╔═══════════════════════════════════════════╗');
   console.log('║                                           ║');
-  console.log('║    ◆ LumeLine Server v0.1.0               ║');
+  console.log('║    ◆ LumeLine Server v0.2.0               ║');
   console.log('║    Odds Intelligence · Trust Layer         ║');
   console.log('║                                           ║');
   console.log('╠═══════════════════════════════════════════╣');
