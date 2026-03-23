@@ -143,6 +143,14 @@ function injectShell() {
   }
   pinMod.querySelector('.pin-close').addEventListener('click',()=>{pinMod.style.display='none';shellPin='';updShellDots();});
   pinMod.addEventListener('click',e=>{if(e.target===pinMod){pinMod.style.display='none';shellPin='';updShellDots();}});
+  // Add partner login link below PIN pad
+  const partnerLink = document.createElement('a');
+  partnerLink.href = '/admin.html';
+  partnerLink.textContent = '🤝 Partner Login';
+  partnerLink.style.cssText = 'display:block;text-align:center;font-size:10px;color:rgba(168,85,247,.5);text-decoration:none;margin-top:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;transition:color .2s';
+  partnerLink.addEventListener('mouseenter',()=>{partnerLink.style.color='#c4b5fd';});
+  partnerLink.addEventListener('mouseleave',()=>{partnerLink.style.color='rgba(168,85,247,.5)';});
+  pinMod.querySelector('.pin-error-shell').parentNode.appendChild(partnerLink);
 
   // Triple-click Trust Layer shield → PIN Gate
   let tlClicks = 0;

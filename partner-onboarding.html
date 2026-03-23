@@ -66,7 +66,7 @@
     @media(max-width:640px){.feature-grid{grid-template-columns:1fr}.flow-chain{flex-direction:column;gap:8px}.flow-arrow{transform:rotate(90deg)}}
   </style>
 </head><body>
-  <a href="/" class="exit-btn">✕ Exit</a>
+  <a href="/" class="exit-btn" title="Skip for now — onboarding will re-appear next login">✕ Exit</a>
   <button class="audio-btn" id="audio-btn" onclick="toggleAudio()">🔊 Audio Off</button>
 
   <!-- ═══ SLIDES ═══ -->
@@ -234,6 +234,8 @@ the system, your dashboard, your earning potential, and how to link your bank ac
 
     function nextSlide() {
       if (current === slides.length - 1) {
+        // Mark onboarding as complete
+        localStorage.setItem('lumeline_onboarded', 'true');
         window.location.href = '/admin.html';
         return;
       }
