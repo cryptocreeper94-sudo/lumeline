@@ -269,22 +269,35 @@ app.post('/api/outcomes/evaluate', async (req, res) => {
 
 app.get('/api/accuracy', async (req, res) => {
   try {
-    const { rows } = await db.query(`
-      SELECT * FROM accuracy_stats 
-      WHERE confidence_bucket IS NULL 
-      ORDER BY 
-        CASE window WHEN 'all' THEN 0 WHEN '7d' THEN 1 WHEN '30d' THEN 2 WHEN '90d' THEN 3 END,
-        sport NULLS FIRST
-    `);
+    let rows = [];
+    let recent = [];
+    try {
+      const result = await db.query(`
+        SELECT * FROM accuracy_stats 
+        WHERE confidence_bucket IS NULL 
+        ORDER BY 
+          CASE window WHEN 'all' THEN 0 WHEN '7d' THEN 1 WHEN '30d' THEN 2 WHEN '90d' THEN 3 END,
+          sport NULLS FIRST
+      `);
+      rows = result.rows;
+    } catch (e) {
+      // Table may not exist yet — graceful fallback
+      console.warn('accuracy_stats table not found, returning empty stats');
+    }
     
-    // Recent outcomes
-    const { rows: recent } = await db.query(`
-      SELECT co.*, g.home_team, g.away_team, g.sport, go.home_score, go.away_score
-      FROM consensus_outcomes co
-      JOIN games g ON g.id = co.game_id
-      LEFT JOIN game_outcomes go ON go.game_id = co.game_id
-      ORDER BY co.evaluated_at DESC LIMIT 20
-    `);
+    try {
+      const result = await db.query(`
+        SELECT co.*, g.home_team, g.away_team, g.sport, go.home_score, go.away_score
+        FROM consensus_outcomes co
+        JOIN games g ON g.id = co.game_id
+        LEFT JOIN game_outcomes go ON go.game_id = co.game_id
+        ORDER BY co.evaluated_at DESC LIMIT 20
+      `);
+      recent = result.rows;
+    } catch (e) {
+      // Table may not exist yet
+      console.warn('consensus_outcomes table not found, returning empty recent');
+    }
     
     res.json({ stats: rows, recent, count: rows.length });
   } catch (err) {

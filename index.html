@@ -1123,52 +1123,52 @@
 
   // ─── Demo Games (shown when no ODDS_API_KEY / no live games) ───
   const DEMO_GAMES = [
-    // NFL
-    { id:'d1', sport:'nfl', home_team:'Kansas City Chiefs', away_team:'Denver Broncos', spread:'-3.5', confidence:72, integrity:88, status:'clean', ai:'4 of 5 sharps favor KC. Clean lines, high alignment. Pinnacle and Circa moved early — strong CLV signal.', img:'assets/images/nfl_chiefs.png', weather:{ temp:42, cond:'Partly Cloudy', wind:'12mph NW', icon:'⛅' } },
-    { id:'d2', sport:'nfl', home_team:'Buffalo Bills', away_team:'Miami Dolphins', spread:'-1.5', confidence:61, integrity:74, status:'clean', ai:'BUF slightly favored. Mixed signals between sharp and public money.', img:'assets/images/nfl_bills.png', weather:{ temp:28, cond:'Snow', wind:'18mph N', icon:'🌨️' } },
-    { id:'d3', sport:'nfl', home_team:'Dallas Cowboys', away_team:'Philadelphia Eagles', spread:'+2.5', confidence:43, integrity:42, status:'house', ai:'⚠️ 3 books moved DAL spread in sync within 4 min. Confidence suppressed. Deferring to house line.', img:'assets/images/nfl_cowboys.png', weather:{ temp:55, cond:'Clear', wind:'6mph S', icon:'☀️' } },
-    // NBA
-    { id:'d4', sport:'nba', home_team:'Los Angeles Lakers', away_team:'Golden State Warriors', spread:'-4', confidence:72, integrity:90, status:'clean', ai:'Sharp consensus on LAL. Clean integrity. 8th straight correct sharp pick on this matchup.', img:'assets/images/nba_lakers.png' },
+    // NCAAB — March Madness (PEAK SEASON)
+    { id:'d17', sport:'ncaab', home_team:'Duke Blue Devils', away_team:'North Carolina Tar Heels', spread:'-2.5', confidence:64, integrity:86, status:'clean', ai:'Duke slight favorites at home in Cameron Indoor. Tempo projections favor the under. 4 of 6 sources lean Duke ATS.', img:'assets/images/nba_celtics.png' },
+    // NBA (IN SEASON)
     { id:'d5', sport:'nba', home_team:'Boston Celtics', away_team:'Milwaukee Bucks', spread:'-6.5', confidence:78, integrity:95, status:'clean', ai:'Strongest consensus today. 5 of 6 sources agree. Highest integrity game — clean across the board.', img:'assets/images/nba_celtics.png' },
+    { id:'d4', sport:'nba', home_team:'Los Angeles Lakers', away_team:'Golden State Warriors', spread:'-4', confidence:72, integrity:90, status:'clean', ai:'Sharp consensus on LAL. Clean integrity. 8th straight correct sharp pick on this matchup.', img:'assets/images/nba_lakers.png' },
     { id:'d6', sport:'nba', home_team:'Phoenix Suns', away_team:'Denver Nuggets', spread:'+1', confidence:38, integrity:55, status:'danger', ai:'Reverse steam detected. DEN line moved +1.5 → -2 → +1 in 20min — classic trap. Deferring to house.', img:'assets/images/nba_suns.png' },
-    // MLB
-    { id:'d7', sport:'mlb', home_team:'New York Yankees', away_team:'Boston Red Sox', spread:'-1.5', confidence:69, integrity:91, status:'clean', ai:'NYY ML strong with ace on the mound. Sharp money heavy on the run line. 6 of 8 sources agree on over 8.5.', img:'assets/images/hero_stadium.png', weather:{ temp:62, cond:'Clear', wind:'8mph SW', icon:'☀️' } },
-    { id:'d8', sport:'mlb', home_team:'Los Angeles Dodgers', away_team:'San Francisco Giants', spread:'-2', confidence:74, integrity:87, status:'clean', ai:'LAD dominant at home this season. Pitching matchup heavily favors home side. Sharp consensus at -175 ML.', img:'assets/images/hero_stadium.png', weather:{ temp:68, cond:'Sunny', wind:'5mph W', icon:'☀️' } },
-    { id:'d9', sport:'mlb', home_team:'Houston Astros', away_team:'Texas Rangers', spread:'-1', confidence:55, integrity:78, status:'clean', ai:'Rivalry game, tight lines. Public money split evenly. Sharps lean HOU but with low conviction on the run line.', img:'assets/images/hero_stadium.png', weather:{ temp:85, cond:'Hot', wind:'3mph S', icon:'🌡️' } },
-    // NHL
+    // NHL (IN SEASON)
     { id:'d10', sport:'nhl', home_team:'Boston Bruins', away_team:'New York Rangers', spread:'-1.5', confidence:65, integrity:89, status:'clean', ai:'BOS puck line strong at home. Goaltender splits favor Bruins heavily. 4 of 5 sharps agree on home ML.', img:'assets/images/hero_aerial.png' },
     { id:'d11', sport:'nhl', home_team:'Edmonton Oilers', away_team:'Dallas Stars', spread:'-0.5', confidence:58, integrity:82, status:'clean', ai:'Tight matchup. McDavid factor priced in at -135 ML. Sharp money slightly favoring EDM at home.', img:'assets/images/hero_aerial.png' },
     { id:'d12', sport:'nhl', home_team:'Colorado Avalanche', away_team:'Vegas Golden Knights', spread:'+1.5', confidence:41, integrity:64, status:'house', ai:'⚠️ Late line movement on VGK puck line. 2 books adjusted within 90 seconds. Possible coordination — integrity flagged.', img:'assets/images/hero_aerial.png' },
-    // MLS
-    { id:'d13', sport:'mls', home_team:'LAFC', away_team:'Inter Miami CF', spread:'-0.5', confidence:63, integrity:85, status:'clean', ai:'LAFC strong at home with crowd advantage. Messi impact priced into visitor line. Sharp lean toward draw at +260.', img:'assets/images/hero_stadium.png', weather:{ temp:72, cond:'Sunny', wind:'4mph W', icon:'☀️' } },
-    { id:'d14', sport:'mls', home_team:'Atlanta United', away_team:'NYCFC', spread:'-1', confidence:57, integrity:80, status:'clean', ai:'ATL slight home advantage. Public money favoring Atlanta but sharps see value in NYCFC +1 spread.', img:'assets/images/hero_stadium.png', weather:{ temp:78, cond:'Partly Cloudy', wind:'6mph S', icon:'⛅' } },
-    // NCAAF
-    { id:'d15', sport:'ncaaf', home_team:'Alabama Crimson Tide', away_team:'Georgia Bulldogs', spread:'-3', confidence:67, integrity:92, status:'clean', ai:'Classic SEC rivalry. Alabama opens as slight home favorites. Sharp money split, public heavily on Bama. CLV projections favor the under.', img:'assets/images/hero_football.png', weather:{ temp:70, cond:'Clear', wind:'5mph NE', icon:'☀️' } },
-    { id:'d16', sport:'ncaaf', home_team:'Ohio State Buckeyes', away_team:'Michigan Wolverines', spread:'+1.5', confidence:52, integrity:88, status:'clean', ai:'The Game — true toss-up. Line has moved 3 points since open. Home field advantage is the deciding factor in models.', img:'assets/images/hero_football.png', weather:{ temp:35, cond:'Snow', wind:'15mph NW', icon:'🌨️' } },
-    // NCAAB
-    { id:'d17', sport:'ncaab', home_team:'Duke Blue Devils', away_team:'North Carolina Tar Heels', spread:'-2.5', confidence:64, integrity:86, status:'clean', ai:'Duke slight favorites at home in Cameron Indoor. Tempo projections favor the under. 4 of 6 sources lean Duke ATS.', img:'assets/images/nba_celtics.png' },
-    // UFC
-    { id:'d18', sport:'ufc', home_team:'Islam Makhachev', away_team:'Charles Oliveira', spread:'-180', confidence:71, integrity:93, status:'clean', ai:'Makhachev heavy favorite on the ML. Sharp money confirms opening line. Grappling differential projected at +3.2 takedowns. Clean market.', img:'assets/images/hero_stadium.png' },
-    { id:'d19', sport:'ufc', home_team:'Alex Pereira', away_team:'Jamahal Hill', spread:'-250', confidence:76, integrity:91, status:'clean', ai:'Pereira dominant favorite. All sources aligned. Knockout prop at -110 drawing heavy sharp action.', img:'assets/images/hero_stadium.png' },
-    // Tennis
-    { id:'d20', sport:'tennis', home_team:'Carlos Alcaraz', away_team:'Jannik Sinner', spread:'-1.5 sets', confidence:59, integrity:90, status:'clean', ai:'ATP Finals matchup. Surface favors Alcaraz but Sinner has won 3 of last 5 H2H. Markets lean Alcaraz in 3 sets at +150.', img:'assets/images/stadium_aerial.png' },
-    // Golf
-    { id:'d21', sport:'golf', home_team:'Scottie Scheffler', away_team:'The Field', spread:'+600', confidence:68, integrity:94, status:'clean', ai:'Scheffler top-ranked in strokes-gained approach. Course history strongly favors. 7 of 9 models project top-5 finish.', img:'assets/images/stadium_aerial.png', weather:{ temp:75, cond:'Sunny', wind:'10mph SW', icon:'☀️' } },
-    // Boxing
-    { id:'d22', sport:'boxing', home_team:'Terence Crawford', away_team:'Errol Spence Jr.', spread:'-200', confidence:73, integrity:96, status:'clean', ai:'Crawford dominant favorite. Activity advantage and reach differential significant. All sources agree on decision victory prop at +120.', img:'assets/images/hero_stadium.png' },
-    // NASCAR
-    { id:'d23', sport:'nascar', home_team:'Kyle Larson', away_team:'The Field', spread:'+800', confidence:54, integrity:88, status:'clean', ai:'Larson top qualifier with strong track history at Daytona. 5 of 8 models project top-3 finish. Weather could shuffle the field late.', img:'assets/images/stadium_aerial.png', weather:{ temp:82, cond:'Partly Cloudy', wind:'7mph E', icon:'⛅' } },
-    // WNBA
-    { id:'d24', sport:'wnba', home_team:'Las Vegas Aces', away_team:'New York Liberty', spread:'-3.5', confidence:66, integrity:84, status:'clean', ai:'Aces strong home favorites. Clark effect on Liberty has tightened market since open. Sharp money leans over on total.', img:'assets/images/nba_lakers.png' },
-    // Cricket
-    { id:'d25', sport:'cricket', home_team:'Mumbai Indians', away_team:'Chennai Super Kings', spread:'-1.5', confidence:58, integrity:87, status:'clean', ai:'IPL headliner. MI batting lineup historically dominant at Wankhede. Toss winner advantage projected at 62% this venue — a factor.', img:'assets/images/hero_stadium.png' },
-    // Rugby
-    { id:'d26', sport:'rugby', home_team:'England', away_team:'France', spread:'-3', confidence:53, integrity:85, status:'clean', ai:'Six Nations clash. England slight home favorites at Twickenham. Sharp lean toward France +3 at plus-money. Scrum differential favors ENG.', img:'assets/images/hero_stadium.png', weather:{ temp:48, cond:'Rain', wind:'14mph W', icon:'🌧️' } },
-    // EPL
+    // EPL (IN SEASON)
     { id:'d27', sport:'epl', home_team:'Manchester City', away_team:'Liverpool', spread:'-0.5', confidence:62, integrity:90, status:'clean', ai:'Premier League blockbuster. City slight favorites at home. Asian handicap market heavily traded — 3x normal volume on draw at +280.', img:'assets/images/hero_stadium.png', weather:{ temp:52, cond:'Overcast', wind:'16mph W', icon:'☁️' } },
     { id:'d28', sport:'epl', home_team:'Arsenal', away_team:'Chelsea', spread:'-1', confidence:70, integrity:92, status:'clean', ai:'Arsenal strong at the Emirates. Sharp money confirms home -1 spread. Clean market with high source alignment.', img:'assets/images/hero_stadium.png', weather:{ temp:55, cond:'Drizzle', wind:'8mph SW', icon:'🌧️' } },
     // La Liga
     { id:'d29', sport:'laliga', home_team:'Real Madrid', away_team:'Barcelona', spread:'-0.5', confidence:56, integrity:88, status:'clean', ai:'El Clásico — global betting volume 5x normal. Real Madrid slight favorites at Bernabeu. Mbappe effect has shifted the ML by 15 cents since open.', img:'assets/images/hero_stadium.png', weather:{ temp:65, cond:'Clear', wind:'5mph N', icon:'☀️' } },
+    // MLB (SPRING TRAINING / EARLY SEASON)
+    { id:'d7', sport:'mlb', home_team:'New York Yankees', away_team:'Boston Red Sox', spread:'-1.5', confidence:69, integrity:91, status:'clean', ai:'NYY ML strong with ace on the mound. Sharp money heavy on the run line. 6 of 8 sources agree on over 8.5.', img:'assets/images/hero_stadium.png', weather:{ temp:62, cond:'Clear', wind:'8mph SW', icon:'☀️' } },
+    { id:'d8', sport:'mlb', home_team:'Los Angeles Dodgers', away_team:'San Francisco Giants', spread:'-2', confidence:74, integrity:87, status:'clean', ai:'LAD dominant at home this season. Pitching matchup heavily favors home side. Sharp consensus at -175 ML.', img:'assets/images/hero_stadium.png', weather:{ temp:68, cond:'Sunny', wind:'5mph W', icon:'☀️' } },
+    { id:'d9', sport:'mlb', home_team:'Houston Astros', away_team:'Texas Rangers', spread:'-1', confidence:55, integrity:78, status:'clean', ai:'Rivalry game, tight lines. Public money split evenly. Sharps lean HOU but with low conviction on the run line.', img:'assets/images/hero_stadium.png', weather:{ temp:85, cond:'Hot', wind:'3mph S', icon:'🌡️' } },
+    // MLS (IN SEASON)
+    { id:'d13', sport:'mls', home_team:'LAFC', away_team:'Inter Miami CF', spread:'-0.5', confidence:63, integrity:85, status:'clean', ai:'LAFC strong at home with crowd advantage. Messi impact priced into visitor line. Sharp lean toward draw at +260.', img:'assets/images/hero_stadium.png', weather:{ temp:72, cond:'Sunny', wind:'4mph W', icon:'☀️' } },
+    { id:'d14', sport:'mls', home_team:'Atlanta United', away_team:'NYCFC', spread:'-1', confidence:57, integrity:80, status:'clean', ai:'ATL slight home advantage. Public money favoring Atlanta but sharps see value in NYCFC +1 spread.', img:'assets/images/hero_stadium.png', weather:{ temp:78, cond:'Partly Cloudy', wind:'6mph S', icon:'⛅' } },
+    // UFC (YEAR-ROUND)
+    { id:'d18', sport:'ufc', home_team:'Islam Makhachev', away_team:'Charles Oliveira', spread:'-180', confidence:71, integrity:93, status:'clean', ai:'Makhachev heavy favorite on the ML. Sharp money confirms opening line. Grappling differential projected at +3.2 takedowns. Clean market.', img:'assets/images/hero_stadium.png' },
+    { id:'d19', sport:'ufc', home_team:'Alex Pereira', away_team:'Jamahal Hill', spread:'-250', confidence:76, integrity:91, status:'clean', ai:'Pereira dominant favorite. All sources aligned. Knockout prop at -110 drawing heavy sharp action.', img:'assets/images/hero_stadium.png' },
+    // Tennis (YEAR-ROUND)
+    { id:'d20', sport:'tennis', home_team:'Carlos Alcaraz', away_team:'Jannik Sinner', spread:'-1.5 sets', confidence:59, integrity:90, status:'clean', ai:'ATP Finals matchup. Surface favors Alcaraz but Sinner has won 3 of last 5 H2H. Markets lean Alcaraz in 3 sets at +150.', img:'assets/images/stadium_aerial.png' },
+    // Golf (YEAR-ROUND)
+    { id:'d21', sport:'golf', home_team:'Scottie Scheffler', away_team:'The Field', spread:'+600', confidence:68, integrity:94, status:'clean', ai:'Scheffler top-ranked in strokes-gained approach. Course history strongly favors. 7 of 9 models project top-5 finish.', img:'assets/images/stadium_aerial.png', weather:{ temp:75, cond:'Sunny', wind:'10mph SW', icon:'☀️' } },
+    // Boxing (YEAR-ROUND)
+    { id:'d22', sport:'boxing', home_team:'Terence Crawford', away_team:'Errol Spence Jr.', spread:'-200', confidence:73, integrity:96, status:'clean', ai:'Crawford dominant favorite. Activity advantage and reach differential significant. All sources agree on decision victory prop at +120.', img:'assets/images/hero_stadium.png' },
+    // NASCAR (IN SEASON)
+    { id:'d23', sport:'nascar', home_team:'Kyle Larson', away_team:'The Field', spread:'+800', confidence:54, integrity:88, status:'clean', ai:'Larson top qualifier with strong track history at Daytona. 5 of 8 models project top-3 finish. Weather could shuffle the field late.', img:'assets/images/stadium_aerial.png', weather:{ temp:82, cond:'Partly Cloudy', wind:'7mph E', icon:'⛅' } },
+    // Cricket IPL (STARTING)
+    { id:'d25', sport:'cricket', home_team:'Mumbai Indians', away_team:'Chennai Super Kings', spread:'-1.5', confidence:58, integrity:87, status:'clean', ai:'IPL headliner. MI batting lineup historically dominant at Wankhede. Toss winner advantage projected at 62% this venue — a factor.', img:'assets/images/hero_stadium.png' },
+    // Rugby
+    { id:'d26', sport:'rugby', home_team:'England', away_team:'France', spread:'-3', confidence:53, integrity:85, status:'clean', ai:'Six Nations clash. England slight home favorites at Twickenham. Sharp lean toward France +3 at plus-money. Scrum differential favors ENG.', img:'assets/images/hero_stadium.png', weather:{ temp:48, cond:'Rain', wind:'14mph W', icon:'🌧️' } },
+    // OFF-SEASON — NFL (ends Feb)
+    { id:'d1', sport:'nfl', home_team:'Kansas City Chiefs', away_team:'Denver Broncos', spread:'-3.5', confidence:72, integrity:88, status:'clean', ai:'4 of 5 sharps favor KC. Clean lines, high alignment. Pinnacle and Circa moved early — strong CLV signal.', img:'assets/images/nfl_chiefs.png', weather:{ temp:42, cond:'Partly Cloudy', wind:'12mph NW', icon:'⛅' } },
+    { id:'d2', sport:'nfl', home_team:'Buffalo Bills', away_team:'Miami Dolphins', spread:'-1.5', confidence:61, integrity:74, status:'clean', ai:'BUF slightly favored. Mixed signals between sharp and public money.', img:'assets/images/nfl_bills.png', weather:{ temp:28, cond:'Snow', wind:'18mph N', icon:'🌨️' } },
+    { id:'d3', sport:'nfl', home_team:'Dallas Cowboys', away_team:'Philadelphia Eagles', spread:'+2.5', confidence:43, integrity:42, status:'house', ai:'⚠️ 3 books moved DAL spread in sync within 4 min. Confidence suppressed. Deferring to house line.', img:'assets/images/nfl_cowboys.png', weather:{ temp:55, cond:'Clear', wind:'6mph S', icon:'☀️' } },
+    // OFF-SEASON — NCAAF (ends Jan)
+    { id:'d15', sport:'ncaaf', home_team:'Alabama Crimson Tide', away_team:'Georgia Bulldogs', spread:'-3', confidence:67, integrity:92, status:'clean', ai:'Classic SEC rivalry. Alabama opens as slight home favorites. Sharp money split, public heavily on Bama. CLV projections favor the under.', img:'assets/images/hero_football.png', weather:{ temp:70, cond:'Clear', wind:'5mph NE', icon:'☀️' } },
+    { id:'d16', sport:'ncaaf', home_team:'Ohio State Buckeyes', away_team:'Michigan Wolverines', spread:'+1.5', confidence:52, integrity:88, status:'clean', ai:'The Game — true toss-up. Line has moved 3 points since open. Home field advantage is the deciding factor in models.', img:'assets/images/hero_football.png', weather:{ temp:35, cond:'Snow', wind:'15mph NW', icon:'🌨️' } },
+    // OFF-SEASON — WNBA (starts May)
+    { id:'d24', sport:'wnba', home_team:'Las Vegas Aces', away_team:'New York Liberty', spread:'-3.5', confidence:66, integrity:84, status:'clean', ai:'Aces strong home favorites. Clark effect on Liberty has tightened market since open. Sharp money leans over on total.', img:'assets/images/nba_lakers.png' },
   ];
 
   // ─── Abbreviations ───
