@@ -592,16 +592,16 @@ app.post('/api/partner/payout', async (req, res) => {
 // ═══════════════════════════════════════════
 //  SCHEDULED INGESTION (Tiered)
 // ═══════════════════════════════════════════
-// CURRENT: NCAA Men's Basketball only (March Madness 2026)
-// 1 sport × every 30 min = 48 req/day (well under 500 free tier)
-// Secondary sports: disabled (no sports in season)
+// ACTIVE: NBA, NHL, NCAAB (core) + EPL, La Liga, MLS, MMA, ATP (secondary)
+// Core: 3 sports × 48 = 144 req/day
+// Secondary: 5 sports × 24 = 120 req/day | Total: ~264/day
 const CORE_INTERVAL = 30 * 60 * 1000;      // 30 minutes
-const SECONDARY_INTERVAL = 60 * 60 * 1000; // 60 minutes (inactive)
+const SECONDARY_INTERVAL = 60 * 60 * 1000; // 60 minutes
 
 function startScheduler() {
-  console.log('⏰ Scheduler (NCAA Basketball Only):');
-  console.log('   NCAAB → every 30 min (~48 req/day)');
-  console.log('   Secondary sports → DISABLED');
+  console.log('⏰ Scheduler (Late March Active Sports):');
+  console.log('   Core (NBA, NHL, NCAAB) → every 30 min');
+  console.log('   Secondary (EPL, La Liga, MLS, MMA, ATP) → every 60 min');
   console.log('   Outcome evaluation → every 2 hours');
 
   // Core sports scheduler
