@@ -251,7 +251,7 @@ export async function evaluateOutcomes() {
   console.log('  LumeLine Outcome Evaluation');
   console.log('═══════════════════════════════════════\n');
 
-  const CORE_SPORTS = (process.env.CORE_SPORTS || 'americanfootball_nfl,basketball_nba,baseball_mlb,icehockey_nhl').split(',');
+  const CORE_SPORTS = (process.env.CORE_SPORTS || 'basketball_ncaab').split(',');
   const SECONDARY_SPORTS = (process.env.SECONDARY_SPORTS || '').split(',').filter(s => s);
   const allSports = [...CORE_SPORTS, ...SECONDARY_SPORTS];
   

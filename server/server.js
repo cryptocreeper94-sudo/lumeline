@@ -592,16 +592,16 @@ app.post('/api/partner/payout', async (req, res) => {
 // ═══════════════════════════════════════════
 //  SCHEDULED INGESTION (Tiered)
 // ═══════════════════════════════════════════
-// Core sports (NFL, NBA, MLB, NHL): every 30 min = 192 req/day
-// Secondary sports: every 60 min = ~288 req/day
-// Total: ~480 req/day (under 500 free tier)
+// CURRENT: NCAA Men's Basketball only (March Madness 2026)
+// 1 sport × every 30 min = 48 req/day (well under 500 free tier)
+// Secondary sports: disabled (no sports in season)
 const CORE_INTERVAL = 30 * 60 * 1000;      // 30 minutes
-const SECONDARY_INTERVAL = 60 * 60 * 1000; // 60 minutes
+const SECONDARY_INTERVAL = 60 * 60 * 1000; // 60 minutes (inactive)
 
 function startScheduler() {
-  console.log('⏰ Tiered Scheduler:');
-  console.log('   Core sports → every 30 min');
-  console.log('   Secondary sports → every 60 min');
+  console.log('⏰ Scheduler (NCAA Basketball Only):');
+  console.log('   NCAAB → every 30 min (~48 req/day)');
+  console.log('   Secondary sports → DISABLED');
   console.log('   Outcome evaluation → every 2 hours');
 
   // Core sports scheduler

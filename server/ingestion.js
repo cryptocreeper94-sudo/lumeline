@@ -6,11 +6,11 @@ const API_KEY = process.env.ODDS_API_KEY;
 const API_BASE = process.env.ODDS_API_BASE || 'https://api.the-odds-api.com/v4';
 
 // ═══ Sport Tiers (manages polling frequency to stay under 500 req/day) ═══
-// Core:      poll every 30 min = 48 req/day × 4 = 192
-// Secondary: poll every 60 min = 24 req/day × 12 = 288
-// Total: ~480 req/day (under 500 free tier)
-const CORE_SPORTS = (process.env.CORE_SPORTS || 'americanfootball_nfl,basketball_nba,baseball_mlb,icehockey_nhl').split(',');
-const SECONDARY_SPORTS = (process.env.SECONDARY_SPORTS || 'americanfootball_ncaaf,basketball_ncaab,basketball_wnba,soccer_epl,soccer_spain_la_liga,soccer_usa_mls,mma_mixed_martial_arts,tennis_atp,cricket_ipl,rugbyleague_nrl,golf_masters_tournament_winner').split(',').filter(s => s);
+// CURRENT: NCAA Men's Basketball only (March Madness 2026)
+// Poll every 30 min = 48 req/day × 1 sport = 48 req/day
+// When other sports return, restore: americanfootball_nfl,basketball_nba,baseball_mlb,icehockey_nhl
+const CORE_SPORTS = (process.env.CORE_SPORTS || 'basketball_ncaab').split(',');
+const SECONDARY_SPORTS = (process.env.SECONDARY_SPORTS || '').split(',').filter(s => s);
 const ALL_SPORTS = [...CORE_SPORTS, ...SECONDARY_SPORTS];
 
 // ═══ Fetch upcoming games + odds from The Odds API ═══
