@@ -109,11 +109,14 @@
     .carousel-next { right: -16px; }
 
     /* ═══ GAME CARD (Big) ═══ */
-    .game-card { width: 380px; border-radius: 16px; overflow: hidden; cursor: pointer; position: relative; }
+    .game-card { width: 380px; border-radius: 16px; overflow: hidden; cursor: pointer; position: relative; transition: transform .3s, box-shadow .3s; }
+    .game-card:hover { transform: translateY(-4px); }
     .game-img { width: 100%; height: 200px; object-fit: cover; transition: transform .6s ease; }
     .game-card:hover .game-img { transform: scale(1.08); }
     .game-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(12,18,36,0.95)); pointer-events: none; }
     .game-body { padding: 20px; position: relative; z-index: 2; margin-top: -40px; }
+    .sport-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+    .bar-fill { height: 100%; border-radius: 3px; width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
     .game-teams-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .game-team { font-size: 15px; font-weight: 700; }
     .game-vs { font-size: 11px; color: rgba(255,255,255,.2); font-weight: 600; margin: 0 8px; }
@@ -1572,6 +1575,20 @@
   }
 
   // ═══ GAME CARDS ═══
+  // Sport color accents
+  const SPORT_COLORS = {
+    'nba':'#06b6d4','ncaab':'#f97316','nhl':'#38bdf8','mlb':'#ef4444',
+    'epl':'#10b981','laliga':'#f59e0b','mls':'#22c55e','ufc':'#dc2626',
+    'tennis':'#a3e635','golf':'#4ade80','boxing':'#f43f5e','nascar':'#f97316',
+    'cricket':'#14b8a6','rugby':'#8b5cf6','nfl':'#3b82f6','ncaaf':'#f59e0b'
+  };
+  const SPORT_LABELS = {
+    'nba':'NBA','ncaab':'NCAAB','nhl':'NHL','mlb':'MLB',
+    'epl':'EPL','laliga':'La Liga','mls':'MLS','ufc':'UFC',
+    'tennis':'Tennis','golf':'Golf','boxing':'Boxing','nascar':'NASCAR',
+    'cricket':'Cricket','rugby':'Rugby','nfl':'NFL','ncaaf':'NCAAF'
+  };
+
   function renderGames() {
     const el = document.getElementById('games');
     const games = getFilteredGames();
@@ -1580,19 +1597,28 @@
       const glow = g.confidence >= 60 ? ' glass-glow' : '';
       const color = confColor(g.confidence);
       const locked = !isPro() && gi >= FREE_GAME_LIMIT;
+      const sportColor = SPORT_COLORS[(g.sport||'').toLowerCase()] || '#06b6d4';
+      const sportLabel = SPORT_LABELS[(g.sport||'').toLowerCase()] || (g.sport||'').toUpperCase();
       return `<div class="carousel-item"><div class="glass${glow} game-card${locked ? ' pro-lock' : ''}" onclick="${locked ? '' : "openGameModal('" + g.id + "')"}"
-        style="${locked ? 'pointer-events:auto' : ''}">
+        style="border-top:3px solid ${sportColor};box-shadow:0 -4px 20px ${sportColor}33;${locked ? 'pointer-events:auto' : ''}">
         <img src="${g.img || 'assets/images/hero_stadium.png'}" alt="${g.home_team}" class="game-img">
         <div class="game-body">
+          <div class="sport-badge" style="background:${sportColor}22;color:${sportColor};border:1px solid ${sportColor}44">${sportLabel}</div>
           <div class="game-teams-row"><div><span class="game-team">${abbr(g.away_team)}</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">${abbr(g.home_team)}</span></div><div class="game-likelihood" style="color:${color}">${g.confidence}<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div></div>
           <div class="game-conf-row"><span>Confidence</span><span style="color:${color};font-weight:700">${g.confidence}%</span></div>
-          <div class="bar"><div class="bar-fill ${barClass(g.confidence)}" style="width:${g.confidence}%"></div></div>
+          <div class="bar"><div class="bar-fill ${barClass(g.confidence)}" data-width="${g.confidence}"></div></div>
           <div class="game-footer"><span class="integrity">${g.integrity < 60 ? (g.status === 'danger' ? '🚨' : '⚠️') : ''} Integrity: ${g.integrity}/100</span>${statusBadge(g.status)}</div>
           <div class="game-ai">${g.ai}</div>
           ${g.weather ? `<div class="weather-tag"><i class="weather-icon">${g.weather.icon}</i> <span class="w-temp">${g.weather.temp}°F</span> ${g.weather.cond} · ${g.weather.wind}</div>` : ''}
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)"><button class="rate-btn" onclick="event.stopPropagation();rateGame('${g.id}')">⭐ Rate This Pick</button>${isPro() ? '' : '<span class="pro-badge">◆ PRO</span>'}</div>
         </div>${(!isPro() && gi >= FREE_GAME_LIMIT) ? '<div class="pro-overlay"><h4 class="grad-text">🔒 Pro Only</h4><p>Upgrade to see all games</p><a href="/login.html#pro" class="pro-upgrade">Upgrade · $9.99/mo</a></div>' : ''}</div></div>`;
     }).join('');
+    // Animate confidence bars on render
+    requestAnimationFrame(() => {
+      el.querySelectorAll('.bar-fill[data-width]').forEach(bar => {
+        bar.style.width = bar.dataset.width + '%';
+      });
+    });
     if (!isPro() && games.length > FREE_GAME_LIMIT) {
       document.getElementById('games').insertAdjacentHTML('beforeend', '<div style="flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-width:200px;text-align:center"><div><div class="pro-badge" style="margin-bottom:8px;padding:4px 12px">◆ PRO</div><div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.4)">+' + (games.length - FREE_GAME_LIMIT) + ' more games</div><a href="/login.html#pro" style="font-size:11px;color:#a78bfa;margin-top:4px;display:block">Upgrade to Pro →</a></div></div>');
     }
