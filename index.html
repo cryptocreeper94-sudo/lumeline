@@ -224,26 +224,39 @@
     .weather-tag .w-temp { color:#93c5fd;font-weight:800 }
     .weather-icon { font-style:normal }
 
-    /* ═══ CHAT WIDGET ═══ */
-    .chat-fab { position:fixed;bottom:24px;right:24px;z-index:90;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#3b82f6);border:none;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 24px rgba(6,182,212,.3);transition:all .3s;display:flex;align-items:center;justify-content:center }
-    .chat-fab:hover { transform:scale(1.1);box-shadow:0 6px 32px rgba(6,182,212,.4) }
-    .chat-fab .chat-badge-count { position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:#ef4444;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #030712 }
-    .chat-panel { position:fixed;bottom:92px;right:24px;z-index:91;width:360px;max-height:480px;background:rgba(12,18,36,.95);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;display:none;flex-direction:column;box-shadow:0 16px 64px rgba(0,0,0,.5) }
-    .chat-panel.open { display:flex }
-    .chat-header { padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between }
-    .chat-header h4 { font-size:14px;font-weight:800 }
-    .chat-messages { flex:1;overflow-y:auto;padding:16px 20px;min-height:240px;max-height:320px }
-    .chat-msg { margin-bottom:12px;max-width:85% }
-    .chat-msg.bot { margin-right:auto }
-    .chat-msg.user { margin-left:auto;text-align:right }
-    .chat-bubble { padding:10px 14px;border-radius:14px;font-size:12px;line-height:1.6;color:rgba(255,255,255,.6) }
-    .chat-msg.bot .chat-bubble { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-bottom-left-radius:4px }
-    .chat-msg.user .chat-bubble { background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.15);border-bottom-right-radius:4px;color:#67e8f9 }
-    .chat-input-wrap { padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:8px }
-    .chat-input-wrap input { flex:1;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:12px;font-family:inherit;outline:none }
-    .chat-input-wrap input:focus { border-color:rgba(6,182,212,.3) }
-    .chat-input-wrap button { padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#06b6d4,#3b82f6);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit }
-    @media(max-width:480px) { .chat-panel { right:12px;left:12px;width:auto;bottom:80px } .chat-fab { bottom:16px;right:16px;width:48px;height:48px;font-size:18px } }
+    /* ═══ AGENT SIDE-TAB ═══ */
+    .agent-tab { position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:90;width:52px;height:64px;border-radius:16px 0 0 16px;background:rgba(12,18,36,.92);backdrop-filter:blur(16px);border:1px solid rgba(6,182,212,.15);border-right:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;box-shadow:-4px 0 24px rgba(0,0,0,.3) }
+    .agent-tab:hover { width:60px;background:rgba(6,182,212,.08);box-shadow:-4px 0 32px rgba(6,182,212,.2) }
+    .agent-tab .mascot { font-size:28px;transition:transform .3s;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4)) }
+    .agent-tab:hover .mascot { transform:scale(1.15) }
+    .agent-tab .pulse-ring { position:absolute;inset:-4px;border-radius:18px 0 0 18px;border:2px solid rgba(6,182,212,.3);animation:pulseRing 2s ease-out infinite;pointer-events:none }
+    @keyframes pulseRing { 0%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(1.3)} }
+    .agent-panel { position:fixed;right:-420px;top:50%;transform:translateY(-50%);z-index:91;width:400px;max-height:600px;background:rgba(12,18,36,.96);backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,.08);border-right:none;border-radius:20px 0 0 20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:-8px 0 48px rgba(0,0,0,.5);transition:right .4s cubic-bezier(.4,0,.2,1) }
+    .agent-panel.open { right:0 }
+    .agent-header { padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between }
+    .agent-header h4 { font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px }
+    .agent-controls { display:flex;gap:8px;align-items:center }
+    .agent-voice-btn { width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:rgba(255,255,255,.4);font-size:16px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center }
+    .agent-voice-btn:hover { background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.3);color:#67e8f9 }
+    .agent-voice-btn.active { background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);color:#f87171;animation:micPulse 1s ease-in-out infinite }
+    @keyframes micPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.3)} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
+    .agent-messages { flex:1;overflow-y:auto;padding:16px 20px;min-height:300px;max-height:420px }
+    .agent-msg { margin-bottom:14px;max-width:88% }
+    .agent-msg.bot { margin-right:auto }
+    .agent-msg.user { margin-left:auto;text-align:right }
+    .agent-bubble { padding:12px 16px;border-radius:16px;font-size:13px;line-height:1.7;color:rgba(255,255,255,.65) }
+    .agent-msg.bot .agent-bubble { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-bottom-left-radius:4px }
+    .agent-msg.user .agent-bubble { background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.15);border-bottom-right-radius:4px;color:#67e8f9 }
+    .agent-input-wrap { padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:8px }
+    .agent-input-wrap input { flex:1;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:13px;font-family:inherit;outline:none }
+    .agent-input-wrap input:focus { border-color:rgba(6,182,212,.3) }
+    .agent-input-wrap button { padding:10px 18px;border-radius:12px;background:linear-gradient(135deg,#06b6d4,#3b82f6);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit }
+    .typing-dots { display:inline-flex;gap:4px;align-items:center;padding:8px 0 }
+    .typing-dots span { width:6px;height:6px;border-radius:50%;background:rgba(6,182,212,.4);animation:dotBounce .6s ease-in-out infinite }
+    .typing-dots span:nth-child(2) { animation-delay:.15s }
+    .typing-dots span:nth-child(3) { animation-delay:.3s }
+    @keyframes dotBounce { 0%,80%,100%{transform:scale(1);opacity:.4} 40%{transform:scale(1.3);opacity:1} }
+    @media(max-width:480px) { .agent-panel { width:100%;right:-100%;border-radius:0;max-height:100vh;top:0;transform:none } .agent-panel.open{right:0} .agent-tab{top:auto;bottom:80px;transform:none} }
 
     /* ═══ LEAD CAPTURE ═══ */
     .lead-form { display:flex;gap:8px;justify-content:center;flex-wrap:wrap;max-width:480px;margin:0 auto }
@@ -292,7 +305,7 @@
       .section-title { font-size: 1.5rem; }
       .orb-1 { width: 1100px; height: 1100px; }
       .orb-2 { width: 900px; height: 900px; }
-      .chat-panel { width: 400px; max-height: 560px; }
+      .agent-panel { width: 400px; max-height: 560px; }
     }
 
     /* QHD / Ultrawide: 2000px+ */
@@ -327,8 +340,8 @@
       .orb-2 { width: 1100px; height: 1100px; }
       .orb-3 { width: 800px; height: 800px; }
       .glass { border-radius: 20px; }
-      .chat-fab { width: 64px; height: 64px; font-size: 26px; bottom: 32px; right: 32px; }
-      .chat-panel { width: 440px; max-height: 600px; bottom: 110px; right: 32px; border-radius: 24px; }
+      .agent-tab { width: 60px; height: 72px; }
+      .agent-panel { width: 440px; max-height: 600px; }
       .weather-tag { font-size: 11px; padding: 4px 14px; }
       .rate-btn { font-size: 11px; padding: 6px 14px; }
       .pro-badge { font-size: 10px; padding: 3px 12px; }
@@ -367,8 +380,9 @@
       .footer { padding: 60px 0 80px; }
       .footer p { font-size: 14px; }
       .glass { border-radius: 22px; }
-      .chat-fab { width: 72px; height: 72px; font-size: 30px; bottom: 40px; right: 40px; }
-      .chat-panel { width: 500px; max-height: 680px; bottom: 130px; right: 40px; }
+      .agent-tab { width: 64px; height: 78px; }
+      .agent-tab .mascot { font-size: 32px; }
+      .agent-panel { width: 500px; max-height: 680px; }
       .orb-1 { width: 1800px; height: 1800px; opacity: 0.04; }
       .orb-2 { width: 1400px; height: 1400px; opacity: 0.035; }
       .orb-3 { width: 1000px; height: 1000px; opacity: 0.04; }
@@ -409,10 +423,11 @@
       .footer p { font-size: 16px; }
       .glass { border-radius: 28px; }
       .glass-glow { box-shadow: 0 0 80px rgba(6,182,212,0.12), 0 12px 48px rgba(0,0,0,0.35); }
-      .chat-fab { width: 88px; height: 88px; font-size: 36px; bottom: 48px; right: 48px; box-shadow: 0 6px 36px rgba(6,182,212,.35); }
-      .chat-panel { width: 600px; max-height: 800px; bottom: 160px; right: 48px; border-radius: 28px; }
-      .chat-header h4 { font-size: 18px; }
-      .chat-input input { font-size: 16px; }
+      .agent-tab { width: 72px; height: 88px; }
+      .agent-tab .mascot { font-size: 36px; }
+      .agent-panel { width: 600px; max-height: 800px; border-radius: 28px 0 0 28px; }
+      .agent-header h4 { font-size: 18px; }
+      .agent-input-wrap input { font-size: 15px; }
       .weather-tag { font-size: 13px; padding: 6px 18px; border-radius: 12px; }
       .rate-btn { font-size: 13px; padding: 8px 18px; border-radius: 12px; }
       .pro-badge { font-size: 12px; padding: 4px 16px; border-radius: 8px; }
@@ -1983,33 +1998,159 @@
     document.getElementById('lead-success').style.display = '';
   }
 
-  // ═══ CHAT WIDGET ═══
-  let chatOpen = false;
-  function toggleChat() {
-    chatOpen = !chatOpen;
-    document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+  // ═══ LUME AGENT ═══
+  const MASCOTS = ['🏀','🏒','⚾','⚽','🏈','🎾'];
+  let agentOpen = false;
+  let voiceActive = false;
+  let recognition = null;
+  let agentHistory = [];
+  let mascotIdx = 0;
+
+  // Rotate mascot every 4 seconds
+  setInterval(() => {
+    mascotIdx = (mascotIdx + 1) % MASCOTS.length;
+    const m = MASCOTS[mascotIdx];
+    const tabEl = document.getElementById('agent-mascot');
+    const headerEl = document.getElementById('agent-header-mascot');
+    if (tabEl) { tabEl.style.transform = 'scale(0)'; setTimeout(() => { tabEl.textContent = m; tabEl.style.transform = 'scale(1)'; }, 200); }
+    if (headerEl) headerEl.textContent = m;
+  }, 4000);
+
+  function toggleAgent() {
+    agentOpen = !agentOpen;
+    document.getElementById('agent-panel').classList.toggle('open', agentOpen);
+    if (agentOpen) document.getElementById('agent-input').focus();
   }
-  function sendChat() {
-    const input = document.getElementById('chat-input');
-    const text = input.value.trim();
-    if (!text) return;
-    const msgs = document.getElementById('chat-messages');
-    msgs.innerHTML += `<div class="chat-msg user"><div class="chat-bubble">${text}</div></div>`;
-    input.value = '';
+
+  async function sendAgentMsg(text) {
+    const input = document.getElementById('agent-input');
+    const msg = text || input.value.trim();
+    if (!msg) return;
+    if (!text) input.value = '';
+
+    const msgs = document.getElementById('agent-messages');
+    // Show user message
+    msgs.innerHTML += `<div class="agent-msg user"><div class="agent-bubble">${msg}</div></div>`;
     msgs.scrollTop = msgs.scrollHeight;
-    // Bot auto-reply
-    setTimeout(() => {
-      const replies = [
-        'Thanks for reaching out! Our team typically responds within a few minutes.',
-        'Great question! Check the dashboard for real-time odds data, or upgrade to Pro for full access.',
-        'You can connect your source by clicking the "Connect Your Source" button on the homepage.',
-        'For technical questions, check our developers page at /developers.html.',
-        'Pro subscribers get unlimited games, SMS alerts, and full integrity scores for $9.99/mo.'
-      ];
-      const reply = replies[Math.floor(Math.random() * replies.length)];
-      msgs.innerHTML += `<div class="chat-msg bot"><div class="chat-bubble">${reply}</div></div>`;
+
+    // Show typing indicator
+    const typingId = 'typing-' + Date.now();
+    msgs.innerHTML += `<div class="agent-msg bot" id="${typingId}"><div class="agent-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+
+    // Send to API
+    agentHistory.push({ role: 'user', content: msg });
+    try {
+      const res = await fetch('/api/agent/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg, history: agentHistory, voice: voiceActive })
+      });
+      const data = await res.json();
+      const reply = data.reply || "Hmm, I didn't catch that.";
+
+      // Remove typing, show reply
+      document.getElementById(typingId)?.remove();
+      msgs.innerHTML += `<div class="agent-msg bot"><div class="agent-bubble">${reply}</div></div>`;
       msgs.scrollTop = msgs.scrollHeight;
-    }, 1000);
+      agentHistory.push({ role: 'assistant', content: reply });
+
+      // If voice mode, speak the reply
+      if (voiceActive) speakReply(reply);
+    } catch (err) {
+      document.getElementById(typingId)?.remove();
+      msgs.innerHTML += `<div class="agent-msg bot"><div class="agent-bubble">Oops, something went wrong. Try again!</div></div>`;
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  }
+
+  // ─── Voice Mode ───
+  function toggleVoice() {
+    voiceActive = !voiceActive;
+    const btn = document.getElementById('agent-voice-btn');
+    btn.classList.toggle('active', voiceActive);
+
+    if (voiceActive) {
+      startListening();
+    } else {
+      stopListening();
+    }
+  }
+
+  function startListening() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Voice mode requires Chrome or Edge browser.');
+      voiceActive = false;
+      document.getElementById('agent-voice-btn').classList.remove('active');
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      sendAgentMsg(transcript);
+      // Restart listening after response (with delay for TTS)
+      setTimeout(() => { if (voiceActive) startListening(); }, 3000);
+    };
+
+    recognition.onerror = (event) => {
+      console.log('Speech recognition error:', event.error);
+      if (event.error !== 'no-speech' && voiceActive) {
+        setTimeout(() => startListening(), 1000);
+      }
+    };
+
+    recognition.onend = () => {
+      // Auto-restart if voice is still active and no result was captured
+      if (voiceActive && !recognition._gotResult) {
+        setTimeout(() => startListening(), 500);
+      }
+    };
+
+    recognition._gotResult = false;
+    recognition.onresult = (event) => {
+      recognition._gotResult = true;
+      const transcript = event.results[0][0].transcript;
+      sendAgentMsg(transcript);
+      setTimeout(() => { if (voiceActive) startListening(); }, 4000);
+    };
+
+    try { recognition.start(); } catch(e) {}
+  }
+
+  function stopListening() {
+    if (recognition) { try { recognition.abort(); } catch(e) {} recognition = null; }
+  }
+
+  async function speakReply(text) {
+    try {
+      const res = await fetch('/api/agent/voice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      if (!res.ok) {
+        // Fallback to browser TTS
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.1;
+        speechSynthesis.speak(utterance);
+        return;
+      }
+      const audioBlob = await res.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+    } catch (err) {
+      // Fallback to browser TTS
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.1;
+      speechSynthesis.speak(utterance);
+    }
   }
 
   // ═══ ANALYTICS TRACKING ═══
@@ -2157,22 +2298,25 @@
   setInterval(fetchAll, 60000);
   </script>
 
-  <!-- ═══ CHAT WIDGET ═══ -->
-  <button class="chat-fab" onclick="toggleChat()" title="Live Chat">
-    💬
-    <span class="chat-badge-count">1</span>
-  </button>
-  <div class="chat-panel" id="chat-panel">
-    <div class="chat-header">
-      <h4 class="grad-text">💬 LumeLine Support</h4>
-      <button onclick="toggleChat()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:18px;cursor:pointer">✕</button>
+  <!-- ═══ LUME AGENT SIDE-TAB ═══ -->
+  <div class="agent-tab" onclick="toggleAgent()" title="Lume Agent" id="agent-tab">
+    <span class="mascot" id="agent-mascot">🏀</span>
+    <div class="pulse-ring"></div>
+  </div>
+  <div class="agent-panel" id="agent-panel">
+    <div class="agent-header">
+      <h4 class="grad-text"><span id="agent-header-mascot">🏀</span> Lume Agent</h4>
+      <div class="agent-controls">
+        <button class="agent-voice-btn" id="agent-voice-btn" onclick="toggleVoice()" title="Voice Mode">🎙️</button>
+        <button onclick="toggleAgent()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:18px;cursor:pointer">✕</button>
+      </div>
     </div>
-    <div class="chat-messages" id="chat-messages">
-      <div class="chat-msg bot"><div class="chat-bubble">Hey! 👋 Welcome to LumeLine. How can I help you today?</div></div>
+    <div class="agent-messages" id="agent-messages">
+      <div class="agent-msg bot"><div class="agent-bubble">Hey! 👋 I'm the Lume Agent — your sports odds assistant. Ask me anything about games, odds, anomalies, or how LumeLine works!</div></div>
     </div>
-    <div class="chat-input-wrap">
-      <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChat()">
-      <button onclick="sendChat()">Send</button>
+    <div class="agent-input-wrap">
+      <input type="text" id="agent-input" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')sendAgentMsg()">
+      <button onclick="sendAgentMsg()">Send</button>
     </div>
   </div>
 

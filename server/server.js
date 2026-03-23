@@ -13,6 +13,7 @@ import { generateConsensus, generateAllConsensus } from './consensus.js';
 import { initTwilio, getTwilioStatus, sendConsensusAlert, sendAnomalyAlert, sendDailySummary } from './notifications.js';
 import { evaluateOutcomes } from './outcomes.js';
 import authRouter, { requireAuth } from './auth.js';
+import agentRouter from './agent.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -27,6 +28,9 @@ app.use('/.well-known', express.static(path.join(__dirname, '..', '.well-known')
 
 // Auth routes
 app.use('/api/auth', authRouter);
+
+// Agent routes (OpenAI + ElevenLabs)
+app.use('/api/agent', agentRouter);
 
 // One-time migration: rename Mathew → King Capper
 db.query(`UPDATE sources SET name = 'King Capper', slug = 'king-capper' WHERE slug = 'mathew'`)
