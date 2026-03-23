@@ -350,8 +350,52 @@
         <!-- King Capper's Exclusive Rate -->
         <div style="background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(6,182,212,.06));border:1px solid rgba(168,85,247,.2);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
           <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:4px">⭐ Founding Partner Rate</div>
-          <div style="font-size:48px;font-weight:900;background:linear-gradient(135deg,#c4b5fd,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1">40%</div>
+          <div style="font-size:48px;font-weight:900;background:linear-gradient(135deg,#c4b5fd,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1">50%</div>
           <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:4px">Flat rate on all referral revenue — no tiers, no caps</div>
+        </div>
+
+        <!-- Monthly Residual Equity -->
+        <div style="background:linear-gradient(135deg,rgba(251,191,36,.06),rgba(168,85,247,.04));border:1px solid rgba(251,191,36,.15);border-radius:16px;padding:20px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div>
+              <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;font-weight:700">👑 Founding Partner Residual</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:2px">Monthly share of total platform revenue</div>
+            </div>
+            <div style="font-size:36px;font-weight:900;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1">5%</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:9px;color:rgba(255,255,255,.15);text-transform:uppercase;margin-bottom:2px">This Month</div>
+              <div style="font-size:16px;font-weight:800;color:#fbbf24">$0.00</div>
+            </div>
+            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:9px;color:rgba(255,255,255,.15);text-transform:uppercase;margin-bottom:2px">Last Month</div>
+              <div style="font-size:16px;font-weight:800;color:rgba(255,255,255,.3)">—</div>
+            </div>
+            <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:9px;color:rgba(255,255,255,.15);text-transform:uppercase;margin-bottom:2px">Lifetime</div>
+              <div style="font-size:16px;font-weight:800;color:#6ee7b7">$0.00</div>
+            </div>
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,.12);line-height:1.6">Residual payouts are calculated on the 1st of each month based on total LumeLine subscription revenue. Paid out by the 5th via your selected method below.</div>
+        </div>
+
+        <!-- Payout Method Toggle -->
+        <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px;margin-bottom:16px">
+          <div style="font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:10px">💰 Payout Method</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="payout-method-grid">
+            <div id="payout-usd" onclick="selectPayout('usd')" style="padding:14px;border-radius:12px;border:2px solid rgba(6,182,212,.3);background:rgba(6,182,212,.04);cursor:pointer;text-align:center;transition:all .25s">
+              <div style="font-size:20px;margin-bottom:4px">💵</div>
+              <div style="font-size:12px;font-weight:700;color:#67e8f9">USD</div>
+              <div style="font-size:9px;color:rgba(255,255,255,.2);margin-top:2px">Stripe Connect</div>
+            </div>
+            <div id="payout-sig" onclick="selectPayout('sig')" style="padding:14px;border-radius:12px;border:2px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);cursor:pointer;text-align:center;transition:all .25s">
+              <div style="font-size:20px;margin-bottom:4px">🪙</div>
+              <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4)">SIG Tokens</div>
+              <div style="font-size:9px;color:rgba(255,255,255,.2);margin-top:2px">via TrustHub</div>
+            </div>
+          </div>
+          <div style="font-size:9px;color:rgba(255,255,255,.1);margin-top:8px;text-align:center">Both referral commissions and residual payouts use this method</div>
         </div>
 
         <details style="margin-bottom:16px">
@@ -370,7 +414,7 @@
 
         <!-- Recent Referrals -->
         <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.25);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Recent Referrals</div>
-        <div id="aff-referrals" style="font-size:12px;color:rgba(255,255,255,.2)">No referrals yet — share your link to start earning at 40%!</div>
+        <div id="aff-referrals" style="font-size:12px;color:rgba(255,255,255,.2)">No referrals yet — share your link to start earning at 50%!</div>
       </div>
 
       <!-- ═══ ECOSYSTEM TOOLS (Bento Grid) ═══ -->
@@ -1337,5 +1381,30 @@
     });
 
     loadSpotlight();
+
+    // ═══ PAYOUT METHOD TOGGLE ═══
+    function selectPayout(method) {
+      localStorage.setItem('kc_payout_method', method);
+      const usd = document.getElementById('payout-usd');
+      const sig = document.getElementById('payout-sig');
+      if (method === 'usd') {
+        usd.style.borderColor = 'rgba(6,182,212,.3)';
+        usd.style.background = 'rgba(6,182,212,.04)';
+        usd.querySelector('div:nth-child(2)').style.color = '#67e8f9';
+        sig.style.borderColor = 'rgba(255,255,255,.06)';
+        sig.style.background = 'rgba(255,255,255,.02)';
+        sig.querySelector('div:nth-child(2)').style.color = 'rgba(255,255,255,.4)';
+      } else {
+        sig.style.borderColor = 'rgba(168,85,247,.3)';
+        sig.style.background = 'rgba(168,85,247,.04)';
+        sig.querySelector('div:nth-child(2)').style.color = '#c4b5fd';
+        usd.style.borderColor = 'rgba(255,255,255,.06)';
+        usd.style.background = 'rgba(255,255,255,.02)';
+        usd.querySelector('div:nth-child(2)').style.color = 'rgba(255,255,255,.4)';
+      }
+    }
+    // Load saved payout preference
+    const savedPayout = localStorage.getItem('kc_payout_method');
+    if (savedPayout) selectPayout(savedPayout);
   </script>
 </body></html>
