@@ -577,7 +577,7 @@
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-content mx">
-      <div class="hero-badge" id="hero-badge"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.5);animation:pulse 2s infinite"></span> <span id="hero-badge-text">Live Intelligence</span></div>
+      <div class="hero-badge" id="hero-badge"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.5);animation:pulse 2s infinite"></span> <span id="hero-badge-text">Live Intelligence</span> <span style="margin-left:8px;padding:2px 8px;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:.12em;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.25);color:#fbbf24">BETA</span></div>
       <h1 class="grad-text hero-text visible" id="hero-title">See the line.<br>Read the game.</h1>
       <p class="hero-text visible" id="hero-desc">LumeLine tracks 47 oddsmakers in real-time, scores their accuracy, detects line manipulation, and generates ML-powered consensus predictions.</p>
     </div>
@@ -593,6 +593,10 @@
   <div class="mx reveal">
     <div class="ticker" id="live-ticker">
       <div class="ticker-item" style="opacity:.3"><div class="ticker-live" style="background:#67e8f9"></div><div class="ticker-teams">Loading live intelligence...</div></div>
+    </div>
+    <div style="text-align:center;padding:8px 0 2px;font-size:10px;color:rgba(255,255,255,.18);letter-spacing:.05em">
+      <span id="ticker-disclaimer">⏱️ Lines refresh every 30–60 min · Free tier · <span style="color:rgba(251,191,36,.4)">BETA</span></span>
+      <span id="last-refresh" style="margin-left:12px"></span>
     </div>
   </div>
 
@@ -626,7 +630,7 @@
   <div class="mx section reveal">
     <div class="section-head">
       <div><div class="section-title grad-text">Today's Consensus</div><div class="section-sub" style="margin-top:4px">ML-weighted predictions across 47 sources</div></div>
-      <div class="section-sub" id="game-count">Loading...</div>
+      <div style="text-align:right"><div class="section-sub" id="game-count">Loading...</div><div id="last-updated-label" style="font-size:9px;color:rgba(255,255,255,.15);margin-top:4px"></div></div>
     </div>
     <div class="carousel-wrap">
       <button class="carousel-btn carousel-prev" onclick="document.getElementById('games').scrollBy({left:-400,behavior:'smooth'})">‹</button>
@@ -1186,7 +1190,9 @@
   ];
 
   // ═══ RENDER ALL ═══
+  let lastFetchTime = null;
   function renderAll(health) {
+    lastFetchTime = new Date();
     renderTicker();
     renderGames();
     renderLeaderboard();
@@ -1194,7 +1200,20 @@
     renderConsensusMeter();
     renderPatterns();
     renderSourceReviews();
+    updateLastUpdated();
   }
+
+  function updateLastUpdated() {
+    if (!lastFetchTime) return;
+    const ago = Math.round((Date.now() - lastFetchTime.getTime()) / 60000);
+    const label = ago < 1 ? 'Updated just now' : `Updated ${ago} min ago`;
+    const el1 = document.getElementById('last-updated-label');
+    const el2 = document.getElementById('last-refresh');
+    if (el1) el1.textContent = '⏱️ ' + label;
+    if (el2) el2.textContent = '· ' + label;
+  }
+  // Keep the "last updated" label fresh
+  setInterval(updateLastUpdated, 30000);
 
   // ═══ TICKER ═══
   function renderTicker() {
