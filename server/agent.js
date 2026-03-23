@@ -6,8 +6,14 @@ import OpenAI from 'openai';
 
 const router = express.Router();
 
-// ─── OpenAI client ───
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// ─── OpenAI client (lazy — only created when needed, avoids crash if key missing) ───
+let openai = null;
+function getOpenAI() {
+  if (!openai && process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return openai;
+}
 
 // ─── System prompt — the agent's identity + knowledge + guardrails ───
 const SYSTEM_PROMPT = `You are the LumeLine Assistant — a friendly, knowledgeable sports odds intelligence agent.
@@ -94,7 +100,7 @@ router.post('/chat', async (req, res) => {
       { role: 'user', content: message }
     ];
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       messages,
       max_tokens: voice ? 100 : 300,

@@ -63,7 +63,7 @@
     .hero { position: relative; height: 600px; overflow: hidden; margin-bottom: -60px; }
     .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s cubic-bezier(.4,0,.2,1); }
     .hero-slide.active { opacity: 1; z-index: 1; }
-    .hero-slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.65) saturate(1.2); animation: ken-burns 12s ease-in-out infinite alternate; }
+    .hero-slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.82) saturate(1.2); animation: ken-burns 12s ease-in-out infinite alternate; }
     .hero-slide:nth-child(2) img { animation-delay: -3s; }
     .hero-slide:nth-child(3) img { animation-delay: -6s; }
     .hero-slide:nth-child(4) img { animation-delay: -9s; }
@@ -72,7 +72,7 @@
     .hero-content { position: absolute; bottom: 100px; left: 0; right: 0; z-index: 3; }
     .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2); border-radius: 999px; padding: 6px 16px; font-size: 11px; font-weight: 600; color: #67e8f9; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 16px; }
     .hero h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 12px; }
-    .hero p { font-size: 1.1rem; color: rgba(255,255,255,0.5); max-width: 560px; line-height: 1.6; }
+    .hero p { font-size: 1.1rem; color: rgba(255,255,255,0.7); max-width: 560px; line-height: 1.6; }
     .hero-text { opacity: 0; transform: translateY(16px); transition: opacity .8s ease, transform .8s ease; }
     .hero-text.visible { opacity: 1; transform: translateY(0); }
     .hero-dots { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; gap: 8px; }
@@ -89,13 +89,13 @@
     .section { margin-bottom: 48px; }
     .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
     .section-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
-    .section-sub { font-size: 12px; color: rgba(255,255,255,.25); font-weight: 500; }
+    .section-sub { font-size: 12px; color: rgba(255,255,255,.65); font-weight: 500; }
     .divider { height: 1px; background: linear-gradient(to right, transparent, rgba(255,255,255,.06), transparent); margin: 32px 0; }
 
     /* ═══ TABS ═══ */
     .tabs { display: flex; gap: 6px; margin-bottom: 24px; }
-    .tab { padding: 10px 24px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .25s; border: 1px solid transparent; background: rgba(255,255,255,.03); color: rgba(255,255,255,.3); user-select: none; }
-    .tab:hover { background: rgba(255,255,255,.05); color: rgba(255,255,255,.6); }
+    .tab { padding: 10px 24px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .25s; border: 1px solid transparent; background: rgba(255,255,255,.03); color: rgba(255,255,255,.55); user-select: none; }
+    .tab:hover { background: rgba(255,255,255,.05); color: rgba(255,255,255,.8); }
     .tab-active { background: rgba(6,182,212,.1); border-color: rgba(6,182,212,.25); color: #67e8f9; box-shadow: 0 0 24px rgba(6,182,212,.06); }
 
     /* ═══ CAROUSEL ═══ */
@@ -119,9 +119,9 @@
     .bar-fill { height: 100%; border-radius: 3px; width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
     .game-teams-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .game-team { font-size: 15px; font-weight: 700; }
-    .game-vs { font-size: 11px; color: rgba(255,255,255,.2); font-weight: 600; margin: 0 8px; }
+    .game-vs { font-size: 11px; color: rgba(255,255,255,.45); font-weight: 600; margin: 0 8px; }
     .game-likelihood { font-size: 22px; font-weight: 900; }
-    .game-conf-row { display: flex; align-items: center; justify-content: space-between; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.25); margin-bottom: 6px; }
+    .game-conf-row { display: flex; align-items: center; justify-content: space-between; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.45); margin-bottom: 6px; }
     .bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,.04); overflow: hidden; margin-bottom: 12px; }
     .bar-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(.4,0,.2,1); }
     .bar-cyan { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
@@ -129,7 +129,7 @@
     .bar-amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
     .bar-red { background: linear-gradient(90deg, #ef4444, #f87171); }
     .game-footer { display: flex; align-items: center; justify-content: space-between; }
-    .integrity { font-size: 10px; color: rgba(255,255,255,.3); }
+    .integrity { font-size: 10px; color: rgba(255,255,255,.65); }
     .badge { font-size: 9px; font-weight: 700; padding: 4px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: .06em; }
     .badge-clean { background: rgba(16,185,129,.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,.2); }
     .badge-house { background: rgba(245,158,11,.12); color: #fbbf24; border: 1px solid rgba(245,158,11,.2); }
@@ -138,7 +138,7 @@
     .badge-reliable { background: rgba(16,185,129,.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,.2); }
     .badge-neutral { background: rgba(255,255,255,.04); color: rgba(255,255,255,.3); border: 1px solid rgba(255,255,255,.06); }
     .badge-fade { background: rgba(239,68,68,.08); color: #fca5a5; border: 1px solid rgba(239,68,68,.15); }
-    .game-ai { font-size: 11px; color: rgba(255,255,255,.3); line-height: 1.6; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.04); }
+    .game-ai { font-size: 11px; color: rgba(255,255,255,.65); line-height: 1.6; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.04); }
 
     /* ═══ 3-COL GRID ═══ */
     .grid3 { display: grid; grid-template-columns: 300px 1fr 320px; gap: 20px; }
@@ -152,10 +152,10 @@
     .source-avatar { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; flex-shrink: 0; }
     .source-info { flex: 1; min-width: 0; }
     .source-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
-    .source-meta { font-size: 10px; color: rgba(255,255,255,.2); }
+    .source-meta { font-size: 10px; color: rgba(255,255,255,.6); }
     .source-acc { text-align: right; }
     .source-pct { font-size: 18px; font-weight: 900; display: block; }
-    .source-picks { font-size: 9px; color: rgba(255,255,255,.18); }
+    .source-picks { font-size: 9px; color: rgba(255,255,255,.4); }
 
     /* ═══ PATTERN CARD ═══ */
     .pattern { padding: 16px; border-left: 3px solid rgba(255,255,255,.05); margin-bottom: 2px; transition: all .25s; cursor: pointer; border-radius: 0 14px 14px 0; }
@@ -166,16 +166,16 @@
     .pattern-info { border-left-color: rgba(168,85,247,.5); }
     .pattern-ok { border-left-color: rgba(16,185,129,.5); }
     .pattern-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-    .pattern-title { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.65); }
-    .pattern-time { font-size: 9px; color: rgba(255,255,255,.15); }
-    .pattern-desc { font-size: 11px; color: rgba(255,255,255,.28); line-height: 1.6; }
+    .pattern-title { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.75); }
+    .pattern-time { font-size: 9px; color: rgba(255,255,255,.35); }
+    .pattern-desc { font-size: 11px; color: rgba(255,255,255,.65); line-height: 1.6; }
 
     /* ═══ STAT CARD ═══ */
     .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .stat-box { background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.04); border-radius: 14px; padding: 16px; text-align: center; transition: all .25s; }
     .stat-box:hover { border-color: rgba(6,182,212,.15); background: rgba(6,182,212,.03); }
     .stat-val { font-size: 24px; font-weight: 900; display: block; margin-bottom: 4px; }
-    .stat-label { font-size: 9px; color: rgba(255,255,255,.2); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; }
+    .stat-label { font-size: 9px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; }
 
     /* ═══ FEATURE CARDS ═══ */
     .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -187,19 +187,19 @@
     .feat-body { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px; z-index: 2; height: 160px; display: flex; flex-direction: column; justify-content: flex-start; }
     .feat-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; flex-shrink: 0; }
     .feat h3 { font-size: 16px; font-weight: 800; margin-bottom: 6px; flex-shrink: 0; }
-    .feat p { font-size: 12px; color: rgba(255,255,255,.4); line-height: 1.5; flex-shrink: 0; }
+    .feat p { font-size: 12px; color: rgba(255,255,255,.6); line-height: 1.5; flex-shrink: 0; }
 
     /* ═══ CTA ═══ */
     .cta-section { text-align: center; padding: 60px 0; }
     .cta-section h2 { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 12px; }
-    .cta-section p { color: rgba(255,255,255,.35); margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+    .cta-section p { color: rgba(255,255,255,.55); margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6; }
     .cta-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 36px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: all .3s; }
     .cta-primary { background: linear-gradient(135deg, #06b6d4, #3b82f6); color: #fff; box-shadow: 0 0 30px rgba(6,182,212,.2); }
     .cta-primary:hover { box-shadow: 0 0 50px rgba(6,182,212,.3); transform: translateY(-2px); }
 
     /* ═══ FOOTER ═══ */
     .footer { text-align: center; padding: 40px 0 56px; }
-    .footer p { font-size: 11px; color: rgba(255,255,255,.1); letter-spacing: .04em; }
+    .footer p { font-size: 11px; color: rgba(255,255,255,.55); letter-spacing: .04em; }
 
     /* ═══ STAR RATINGS ═══ */
     .stars { display:inline-flex;gap:1px;font-size:12px;color:#fbbf24;letter-spacing:1px }
@@ -568,7 +568,7 @@
     .ticker-track { display:flex;gap:0;animation:tickerScroll 30s linear infinite;width:max-content }
     .ticker-track:hover { animation-play-state:paused }
     @keyframes tickerScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-    .ticker-item { display:flex;align-items:center;gap:6px;padding:10px 14px;white-space:nowrap;border-right:1px solid rgba(255,255,255,.04);font-size:11px;color:rgba(255,255,255,.5) }
+    .ticker-item { display:flex;align-items:center;gap:6px;padding:10px 14px;white-space:nowrap;border-right:1px solid rgba(255,255,255,.04);font-size:11px;color:rgba(255,255,255,.65) }
     .ticker-sport { font-size:8px;font-weight:800;letter-spacing:.08em;padding:2px 5px;border-radius:4px;text-transform:uppercase }
     .ticker-sport.nba { background:rgba(29,66,138,.3);color:#6699ff }
     .ticker-sport.nhl { background:rgba(0,0,0,.4);color:#9ca3af }
@@ -578,7 +578,7 @@
     .ticker-sport.nfl { background:rgba(1,51,105,.3);color:#3b82f6 }
     .ticker-teams { font-size:11px;font-weight:700;color:rgba(255,255,255,.7) }
     .ticker-score { font-weight:900;color:#67e8f9;font-size:12px }
-    .ticker-time { font-size:9px;color:rgba(255,255,255,.25) }
+    .ticker-time { font-size:9px;color:rgba(255,255,255,.45) }
     .ticker-live { display:inline-flex;align-items:center;gap:4px }
     .ticker-live::before { content:'';width:5px;height:5px;border-radius:50%;background:#ef4444;animation:pulse 1.5s infinite }
     @media(min-width:601px){
@@ -600,8 +600,8 @@
     .news-card-body { padding:14px }
     .news-card-tag { font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#67e8f9;margin-bottom:6px }
     .news-card-title { font-size:14px;font-weight:800;color:rgba(255,255,255,.85);line-height:1.3;margin-bottom:6px }
-    .news-card-desc { font-size:11px;color:rgba(255,255,255,.35);line-height:1.5 }
-    .news-card-time { font-size:10px;color:rgba(255,255,255,.2);margin-top:8px }
+    .news-card-desc { font-size:11px;color:rgba(255,255,255,.55);line-height:1.5 }
+    .news-card-time { font-size:10px;color:rgba(255,255,255,.4);margin-top:8px }
     .news-nav { display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px }
     .news-arrow { width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .3s,border-color .3s;color:rgba(255,255,255,.5);font-size:16px;-webkit-tap-highlight-color:transparent }
     .news-arrow:hover,.news-arrow:active { background:rgba(103,232,249,.08);border-color:rgba(103,232,249,.2);color:#67e8f9 }
@@ -726,13 +726,13 @@
 
       <!-- LEFT: Leaderboard -->
       <div class="glass reveal" style="padding: 20px; align-self: start;">
-        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">📊 Source Leaderboard</div>
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">📊 Source Leaderboard</div>
         <div id="leaderboard"><!-- Rendered by JS --></div>
       </div>
 
       <!-- CENTER: Stats -->
       <div class="reveal" style="align-self:start">
-        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">📈 Intelligence Overview</div>
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">📈 Intelligence Overview</div>
         <div class="stat-grid" style="margin-bottom:20px">
           <div class="stat-box"><span class="stat-val" style="color:#67e8f9" id="stat-sources">—</span><span class="stat-label">Sources Active</span></div>
           <div class="stat-box"><span class="stat-val" style="color:#6ee7b7" id="stat-snapshots">—</span><span class="stat-label">Snapshots Today</span></div>
@@ -755,15 +755,15 @@
         <div class="glass" style="padding:24px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
             <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(6,182,212,.1));border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:14px">🧠</div>
-            <div><div style="font-size:12px;font-weight:700">AI Pattern Analysis</div><div style="font-size:9px;color:rgba(255,255,255,.2)">Updated 2 min ago</div></div>
+            <div><div style="font-size:12px;font-weight:700">AI Pattern Analysis</div><div style="font-size:9px;color:rgba(255,255,255,.4)">Updated 2 min ago</div></div>
           </div>
-          <p style="font-size:12px;color:rgba(255,255,255,.35);line-height:1.7">Today's market shows strong sharp alignment on 4 of 6 games. The DAL/PHI game has the most concerning line activity — 3 synchronized moves within a 4-minute window is the strongest collusion signal we've seen this week. BOS/MIL is the cleanest game with 95/100 integrity. King Capper's picks are tracking with sharp consensus at a 71% clip.</p>
+          <p style="font-size:12px;color:rgba(255,255,255,.55);line-height:1.7">Today's market shows strong sharp alignment on 4 of 6 games. The DAL/PHI game has the most concerning line activity — 3 synchronized moves within a 4-minute window is the strongest collusion signal we've seen this week. BOS/MIL is the cleanest game with 95/100 integrity. King Capper's picks are tracking with sharp consensus at a 71% clip.</p>
         </div>
       </div>
 
       <!-- RIGHT: Pattern Feed -->
       <div class="glass reveal" style="padding:20px;align-self:start">
-        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">⚡ Pattern Feed</div>
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px;display:flex;align-items:center;gap:8px">⚡ Pattern Feed</div>
         <div id="pattern-feed"><!-- Rendered by JS --></div>
       </div>
 
@@ -779,24 +779,24 @@
         <div class="section-title grad-text">🏆 Prediction Accuracy</div>
         <div class="section-sub" style="margin-top:4px">Verified results — updated every 2 hours</div>
       </div>
-      <div class="section-sub" id="accuracy-summary" style="text-align:right;font-size:11px;color:rgba(255,255,255,.25)">Collecting data...</div>
+      <div class="section-sub" id="accuracy-summary" style="text-align:right;font-size:11px;color:rgba(255,255,255,.45)">Collecting data...</div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px" id="accuracy-cards">
       <div class="glass" style="padding:20px;text-align:center">
         <div style="font-size:28px;font-weight:900;color:#67e8f9" id="acc-winrate">—</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:4px">Overall Win Rate</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:4px">Overall Win Rate</div>
       </div>
       <div class="glass" style="padding:20px;text-align:center">
         <div style="font-size:28px;font-weight:900;color:#6ee7b7" id="acc-highconf">—</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:4px">High-Conf Win Rate</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:4px">High-Conf Win Rate</div>
       </div>
       <div class="glass" style="padding:20px;text-align:center">
         <div style="font-size:28px;font-weight:900;color:#fbbf24" id="acc-total">—</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:4px">Games Evaluated</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:4px">Games Evaluated</div>
       </div>
       <div class="glass" style="padding:20px;text-align:center">
         <div style="font-size:28px;font-weight:900" id="acc-streak" style="color:#a78bfa">—</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:4px">Current Streak</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:4px">Current Streak</div>
       </div>
     </div>
     <div class="glass" style="padding:20px">
@@ -1075,29 +1075,15 @@
       <button onclick="closePinModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:rgba(255,255,255,.3);font-size:24px;cursor:pointer">&times;</button>
       <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(59,130,246,.1));border:2px solid rgba(6,182,212,.2);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;box-shadow:0 0 40px rgba(6,182,212,.1)">🛡️</div>
       <h3 style="font-size:18px;font-weight:800;margin-bottom:6px" class="grad-text">Developer Portal</h3>
-      <p style="font-size:12px;color:rgba(255,255,255,.3);margin-bottom:24px;line-height:1.6">Enter your developer PIN to access the admin console.</p>
-      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px" id="pin-dots">
-        <div class="pin-dot" style="width:44px;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#67e8f9;transition:all .2s"></div>
-        <div class="pin-dot" style="width:44px;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#67e8f9;transition:all .2s"></div>
-        <div class="pin-dot" style="width:44px;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#67e8f9;transition:all .2s"></div>
-        <div class="pin-dot" style="width:44px;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#67e8f9;transition:all .2s"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:200px;margin:0 auto" id="pin-pad">
-        <button class="pin-key" onclick="enterPin(1)">1</button>
-        <button class="pin-key" onclick="enterPin(2)">2</button>
-        <button class="pin-key" onclick="enterPin(3)">3</button>
-        <button class="pin-key" onclick="enterPin(4)">4</button>
-        <button class="pin-key" onclick="enterPin(5)">5</button>
-        <button class="pin-key" onclick="enterPin(6)">6</button>
-        <button class="pin-key" onclick="enterPin(7)">7</button>
-        <button class="pin-key" onclick="enterPin(8)">8</button>
-        <button class="pin-key" onclick="enterPin(9)">9</button>
-        <button class="pin-key" onclick="clearPin()" style="font-size:10px">CLR</button>
-        <button class="pin-key" onclick="enterPin(0)">0</button>
-        <button class="pin-key" onclick="submitPin()" style="background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.2);color:#67e8f9">→</button>
-      </div>
-      <p id="pin-error" style="display:none;color:#fca5a5;font-size:11px;margin-top:12px">❌ Incorrect PIN. Try again.</p>
-      <p style="font-size:9px;color:rgba(255,255,255,.1);margin-top:16px">Authorized personnel only · Trust Layer Security</p>
+      <p style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:24px;line-height:1.6">Enter your access code to continue.</p>
+      <input type="password" id="pin-input" placeholder="Enter code" autocomplete="off" spellcheck="false" maxlength="20"
+        style="width:100%;box-sizing:border-box;text-align:center;font-size:18px;font-weight:700;font-family:inherit;letter-spacing:4px;padding:14px 20px;border-radius:12px;border:1px solid rgba(6,182,212,.2);background:rgba(255,255,255,.03);color:#67e8f9;outline:none;margin-bottom:16px;transition:all .2s"
+        onfocus="this.style.borderColor='rgba(6,182,212,.4)';this.style.boxShadow='0 0 16px rgba(6,182,212,.1)'"
+        onblur="this.style.borderColor='rgba(6,182,212,.2)';this.style.boxShadow='none'"
+        onkeydown="if(event.key==='Enter')submitPin()">
+      <button onclick="submitPin()" style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(6,182,212,.25);background:rgba(6,182,212,.1);color:#67e8f9;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-bottom:8px" onmouseover="this.style.background='rgba(6,182,212,.2)'" onmouseout="this.style.background='rgba(6,182,212,.1)'">Access</button>
+      <p id="pin-error" style="display:none;color:#fca5a5;font-size:11px;margin-top:8px">❌ Incorrect code. Try again.</p>
+      <p style="font-size:9px;color:rgba(255,255,255,.25);margin-top:16px">Authorized personnel only · Trust Layer Security</p>
     </div>
   </div>
   <style>
@@ -1119,23 +1105,16 @@
       });
     })();
 
-    let pinCode = '';
     const VALID_PIN = '0424'; // Owner PIN
     function openPinModal() {
-      pinCode = '';
-      updatePinDots();
       document.getElementById('pin-error').style.display = 'none';
       document.getElementById('pin-modal').style.display = 'flex';
+      const inp = document.getElementById('pin-input');
+      if (inp) { inp.value = ''; setTimeout(() => inp.focus(), 100); }
     }
-    function closePinModal() { document.getElementById('pin-modal').style.display = 'none'; pinCode = ''; updatePinDots(); }
-    function enterPin(digit) {
-      if (pinCode.length >= 4) return;
-      pinCode += digit;
-      updatePinDots();
-      if (pinCode.length === 4) setTimeout(submitPin, 200);
-    }
-    function clearPin() { pinCode = ''; updatePinDots(); document.getElementById('pin-error').style.display = 'none'; }
+    function closePinModal() { document.getElementById('pin-modal').style.display = 'none'; const inp = document.getElementById('pin-input'); if (inp) inp.value = ''; }
     function submitPin() {
+      const pinCode = (document.getElementById('pin-input')?.value || '').trim();
       if (pinCode === VALID_PIN) {
         closePinModal();
         window.location.href = '/admin.html#admin';
