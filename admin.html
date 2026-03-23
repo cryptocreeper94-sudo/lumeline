@@ -432,83 +432,125 @@
   </div>
 
   <!-- ═══ FLYER GENERATOR MODAL ═══ -->
-  <div id="flyer-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(16px);overflow-y:auto">
-    <div style="max-width:600px;margin:40px auto;padding:24px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-        <h2 class="grad-text" style="font-size:1.4rem;font-weight:900">📄 Flyer Generator</h2>
-        <button class="btn btn-red" onclick="closeFlyerGen()">✕ Close</button>
+  <div id="flyer-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);backdrop-filter:blur(20px);overflow-y:auto">
+    <input type="file" id="flyer-img-input" accept="image/*" style="display:none" onchange="handleFlyerImgUpload(event)">
+    <div style="max-width:960px;margin:0 auto;padding:20px">
+      <!-- Top Bar -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div>
+          <h2 class="grad-text" style="font-size:1.3rem;font-weight:900">📄 Flyer Creator</h2>
+          <div style="font-size:10px;color:rgba(255,255,255,.2)">LumeLine · Trust Layer Partner Tools</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-green" onclick="downloadFlyer()" title="Download PNG">📥 PNG</button>
+          <button class="btn btn-purple" onclick="downloadFlyerPDF()" title="8.5×11 PDF">📄 PDF</button>
+          <button class="btn btn-cyan" onclick="printFlyer()" title="Print">🖨️ Print</button>
+          <button class="btn btn-cyan" onclick="shareFlyer()" title="Share">📤 Share</button>
+          <button class="btn btn-cyan" onclick="emailFlyer()" title="Email">✉️ Email</button>
+          <button class="btn btn-red" onclick="closeFlyerGen()">✕</button>
+        </div>
       </div>
-      <div class="glass" style="padding:24px">
-        <div style="margin-bottom:16px">
-          <label style="font-size:11px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;display:block;margin-bottom:6px">Headline</label>
-          <input id="flyer-headline" type="text" value="LumeLine Picks" style="width:100%;padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-size:14px;font-weight:700;outline:none">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <!-- Editor Panel -->
+        <div style="width:280px;min-width:260px;flex-shrink:0;max-height:calc(100vh - 100px);overflow-y:auto" class="flyer-editor-col">
+          <div class="glass" style="padding:14px;margin-bottom:10px">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px">Style</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <button class="btn btn-cyan flyer-style active" data-style="bold" onclick="setFlyerStyle('bold')">Bold</button>
+              <button class="btn btn-cyan flyer-style" data-style="elegant" onclick="setFlyerStyle('elegant')">Elegant</button>
+              <button class="btn btn-cyan flyer-style" data-style="playful" onclick="setFlyerStyle('playful')">Playful</button>
+              <button class="btn btn-cyan flyer-style" data-style="clean" onclick="setFlyerStyle('clean')">Clean</button>
+            </div>
+          </div>
+          <div class="glass" style="padding:14px;margin-bottom:10px">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px">Orientation</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-cyan flyer-orient active" data-orient="portrait" onclick="setFlyerOrient('portrait')" style="flex:1">▯ Portrait</button>
+              <button class="btn btn-cyan flyer-orient" data-orient="landscape" onclick="setFlyerOrient('landscape')" style="flex:1">▬ Landscape</button>
+            </div>
+          </div>
+          <div class="glass" style="padding:14px;margin-bottom:10px">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px">Image</div>
+            <button class="btn btn-cyan" onclick="document.getElementById('flyer-img-input').click()" style="width:100%;margin-bottom:6px">📷 Upload Image</button>
+            <button class="btn btn-red" onclick="removeFlyerImg()" id="flyer-rm-img-btn" style="width:100%;display:none">🗑️ Remove Image</button>
+          </div>
+          <div class="glass" style="padding:14px;margin-bottom:10px">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px">✏️ Edit Copy</div>
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:3px">HEADLINE</label>
+            <input id="flyer-headline" type="text" value="LumeLine Picks" oninput="renderFlyer()" style="width:100%;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;font-weight:700;outline:none;margin-bottom:8px">
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:3px">TAGLINE</label>
+            <input id="flyer-tagline" type="text" value="AI-Powered Odds Intelligence" oninput="renderFlyer()" style="width:100%;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <label style="font-size:9px;color:rgba(255,255,255,.2)">KEY POINTS</label>
+              <button onclick="addFlyerPoint()" style="background:none;border:none;color:#67e8f9;font-size:10px;cursor:pointer;font-weight:700">＋ Add</button>
+            </div>
+            <div id="flyer-points-list"></div>
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:3px;margin-top:8px">CALL TO ACTION</label>
+            <input id="flyer-cta" type="text" value="JOIN NOW" oninput="renderFlyer()" style="width:100%;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;font-weight:700;outline:none;margin-bottom:8px">
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:3px">CTA SUBTEXT</label>
+            <input id="flyer-cta-sub" type="text" value="lumeline.bet" oninput="renderFlyer()" style="width:100%;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#67e8f9;font-size:12px;outline:none">
+          </div>
         </div>
-        <div style="margin-bottom:16px">
-          <label style="font-size:11px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;display:block;margin-bottom:6px">Tagline</label>
-          <input id="flyer-tagline" type="text" value="AI-Powered Odds Intelligence" style="width:100%;padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-size:14px;outline:none">
-        </div>
-        <div style="margin-bottom:16px">
-          <label style="font-size:11px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;display:block;margin-bottom:6px">Key Points (one per line)</label>
-          <textarea id="flyer-points" rows="4" style="width:100%;padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#fff;font-size:13px;outline:none;resize:none;line-height:1.8">47+ sportsbook sources
-ML-powered consensus picks
-Anomaly detection alerts
-Real-time line tracking</textarea>
-        </div>
-        <div style="margin-bottom:16px">
-          <label style="font-size:11px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;display:block;margin-bottom:6px">Your Referral URL</label>
-          <input id="flyer-ref" type="text" value="lumeline.bet" style="width:100%;padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:#67e8f9;font-size:14px;outline:none">
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:20px">
-          <label style="font-size:10px;color:rgba(255,255,255,.25)">Style:</label>
-          <button class="btn btn-cyan flyer-style active" data-style="dark" onclick="setFlyerStyle('dark')">Dark</button>
-          <button class="btn btn-cyan flyer-style" data-style="light" onclick="setFlyerStyle('light')">Light</button>
-          <button class="btn btn-purple flyer-style" data-style="neon" onclick="setFlyerStyle('neon')">Neon</button>
-        </div>
-        <canvas id="flyer-canvas" width="1080" height="1920" style="width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.06)"></canvas>
-        <div style="display:flex;gap:8px;margin-top:16px">
-          <button class="btn btn-cyan" onclick="renderFlyer()" style="flex:1">🔄 Preview</button>
-          <button class="btn btn-green" onclick="downloadFlyer()" style="flex:1">📥 PNG</button>
-          <button class="btn btn-purple" onclick="downloadFlyerPDF()" style="flex:1">📄 PDF</button>
+        <!-- Canvas Preview -->
+        <div style="flex:1;min-width:300px;display:flex;justify-content:center">
+          <canvas id="flyer-canvas" width="2550" height="3300" style="max-width:100%;max-height:calc(100vh - 120px);border-radius:12px;border:1px solid rgba(255,255,255,.06);object-fit:contain"></canvas>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ═══ BUSINESS CARD GENERATOR MODAL ═══ -->
-  <div id="card-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(16px);overflow-y:auto">
-    <div style="max-width:560px;margin:40px auto;padding:24px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-        <h2 class="grad-text" style="font-size:1.4rem;font-weight:900">💳 Business Card Generator</h2>
-        <button class="btn btn-red" onclick="closeCardGen()">✕ Close</button>
+  <div id="card-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);backdrop-filter:blur(20px);overflow-y:auto">
+    <input type="file" id="card-logo-input" accept="image/*" style="display:none" onchange="handleCardLogoUpload(event)">
+    <div style="max-width:720px;margin:40px auto;padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div>
+          <h2 class="grad-text" style="font-size:1.3rem;font-weight:900">💳 Business Card Creator</h2>
+          <div style="font-size:10px;color:rgba(255,255,255,.2)">Standard 3.5″ × 2″ · Print-Ready</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-green" onclick="downloadCard()">📥 PNG</button>
+          <button class="btn btn-purple" onclick="downloadCardPDF()">📄 PDF</button>
+          <button class="btn btn-cyan" onclick="printCard()">🖨️ Print</button>
+          <button class="btn btn-cyan" onclick="shareCard()">📤 Share</button>
+          <button class="btn btn-red" onclick="closeCardGen()">✕</button>
+        </div>
       </div>
-      <div class="glass" style="padding:24px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-          <div>
-            <label style="font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px">Name</label>
-            <input id="card-name" type="text" value="Mathew Kemper" style="width:100%;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:13px;outline:none">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div style="width:260px;flex-shrink:0">
+          <div class="glass" style="padding:14px;margin-bottom:10px">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px">Card Style</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-cyan card-style active" data-style="dark" onclick="setCardStyle('dark')" style="flex:1">Dark</button>
+              <button class="btn btn-cyan card-style" data-style="platinum" onclick="setCardStyle('platinum')" style="flex:1">Platinum</button>
+              <button class="btn btn-cyan card-style" data-style="minimal" onclick="setCardStyle('minimal')" style="flex:1">Clean</button>
+            </div>
           </div>
-          <div>
-            <label style="font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px">Title</label>
-            <input id="card-title" type="text" value="Partner · LumeLine" style="width:100%;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:13px;outline:none">
+          <div class="glass" style="padding:14px;margin-bottom:10px">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px">Logo</div>
+            <button class="btn btn-cyan" onclick="document.getElementById('card-logo-input').click()" style="width:100%;margin-bottom:6px">📷 Upload Logo</button>
+            <button class="btn btn-red" onclick="removeCardLogo()" id="card-rm-logo-btn" style="width:100%;display:none">🗑️ Remove</button>
           </div>
-          <div>
-            <label style="font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px">Email</label>
-            <input id="card-email" type="text" value="" placeholder="you@email.com" style="width:100%;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:13px;outline:none">
-          </div>
-          <div>
-            <label style="font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px">Phone</label>
-            <input id="card-phone" type="text" value="" placeholder="(555) 123-4567" style="width:100%;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:13px;outline:none">
+          <div class="glass" style="padding:14px">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px">✏️ Details</div>
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">NAME</label>
+            <input id="card-name" type="text" value="Mathew Kemper" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">TITLE</label>
+            <input id="card-title" type="text" value="Partner · LumeLine" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">TAGLINE</label>
+            <input id="card-tagline" type="text" value="AI-Powered Odds Intelligence" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">EMAIL</label>
+            <input id="card-email" type="text" value="" placeholder="you@email.com" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">PHONE</label>
+            <input id="card-phone" type="text" value="" placeholder="(555) 123-4567" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">WEBSITE</label>
+            <input id="card-website" type="text" value="lumeline.bet" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#67e8f9;font-size:12px;outline:none;margin-bottom:6px">
+            <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">REFERRAL LINK</label>
+            <input id="card-ref" type="text" value="lumeline.bet/ref/mathew" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#67e8f9;font-size:12px;outline:none">
           </div>
         </div>
-        <div style="margin-bottom:16px">
-          <label style="font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px">Referral Link</label>
-          <input id="card-ref" type="text" value="lumeline.bet/ref/mathew" style="width:100%;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#67e8f9;font-size:13px;outline:none">
-        </div>
-        <canvas id="card-canvas" width="1050" height="600" style="width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.06)"></canvas>
-        <div style="display:flex;gap:8px;margin-top:16px">
-          <button class="btn btn-cyan" onclick="renderCard()" style="flex:1">🔄 Preview</button>
-          <button class="btn btn-green" onclick="downloadCard()" style="flex:1">📥 PNG</button>
-          <button class="btn btn-purple" onclick="downloadCardPDF()" style="flex:1">📄 PDF</button>
+        <div style="flex:1;min-width:300px;display:flex;align-items:flex-start;justify-content:center">
+          <canvas id="card-canvas" width="1050" height="600" style="width:100%;max-width:525px;border-radius:12px;border:1px solid rgba(255,255,255,.06)"></canvas>
         </div>
       </div>
     </div>
@@ -828,83 +870,161 @@ Real-time line tracking</textarea>
     // Auto-focus
     document.getElementById('gate-input').focus();
 
-    // ═══ FLYER GENERATOR ═══
-    let flyerStyle = 'dark';
+    // ═══ FLYER GENERATOR (Full-Featured) ═══
+    let flyerStyle = 'bold';
+    let flyerOrient = 'portrait';
+    let flyerImg = null;
+    let flyerPoints = ['47+ sportsbook sources', 'ML-powered consensus picks', 'Anomaly detection alerts', 'Real-time line tracking'];
+
     const FLYER_STYLES = {
-      dark: { bg1: '#030712', bg2: '#0c1224', text: '#fff', accent: '#67e8f9', ctaGrad: ['#06b6d4', '#3b82f6'], sub: 'rgba(255,255,255,.4)' },
-      light: { bg1: '#f8fafc', bg2: '#f1f5f9', text: '#0f172a', accent: '#0891b2', ctaGrad: ['#06b6d4', '#0284c7'], sub: 'rgba(15,23,42,.4)' },
-      neon: { bg1: '#0a0015', bg2: '#1a0030', text: '#fff', accent: '#c4b5fd', ctaGrad: ['#a855f7', '#ec4899'], sub: 'rgba(255,255,255,.35)' },
+      bold:    { bg1:'#030712', bg2:'#0c1224', text:'#fff', accent:'#67e8f9', ctaGrad:['#06b6d4','#3b82f6'], sub:'rgba(255,255,255,.45)' },
+      elegant: { bg1:'#0f0a1e', bg2:'#1a1030', text:'#fff', accent:'#c4b5fd', ctaGrad:['#a855f7','#6366f1'], sub:'rgba(255,255,255,.35)' },
+      playful: { bg1:'#0c1a0e', bg2:'#102218', text:'#fff', accent:'#86efac', ctaGrad:['#22c55e','#06b6d4'], sub:'rgba(255,255,255,.4)' },
+      clean:   { bg1:'#f8fafc', bg2:'#f1f5f9', text:'#0f172a', accent:'#0891b2', ctaGrad:['#06b6d4','#0284c7'], sub:'rgba(15,23,42,.4)' },
     };
 
-    function openFlyerGen() { document.getElementById('flyer-modal').style.display = ''; renderFlyer(); }
+    function openFlyerGen() { document.getElementById('flyer-modal').style.display = ''; initFlyerPoints(); renderFlyer(); }
     function closeFlyerGen() { document.getElementById('flyer-modal').style.display = 'none'; }
     function setFlyerStyle(s) {
       flyerStyle = s;
       document.querySelectorAll('.flyer-style').forEach(b => b.classList.toggle('active', b.dataset.style === s));
       renderFlyer();
     }
+    function setFlyerOrient(o) {
+      flyerOrient = o;
+      document.querySelectorAll('.flyer-orient').forEach(b => b.classList.toggle('active', b.dataset.orient === o));
+      const c = document.getElementById('flyer-canvas');
+      if (o === 'portrait') { c.width = 2550; c.height = 3300; }
+      else { c.width = 3300; c.height = 2550; }
+      renderFlyer();
+    }
+    function handleFlyerImgUpload(e) {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => { flyerImg = img; document.getElementById('flyer-rm-img-btn').style.display = ''; renderFlyer(); };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+    function removeFlyerImg() { flyerImg = null; document.getElementById('flyer-rm-img-btn').style.display = 'none'; renderFlyer(); }
+
+    // Dynamic body lines
+    function initFlyerPoints() {
+      const list = document.getElementById('flyer-points-list');
+      list.innerHTML = '';
+      flyerPoints.forEach((pt, i) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:4px;margin-bottom:4px';
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.value = pt;
+        inp.style.cssText = 'flex:1;padding:6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;color:#fff;font-size:11px;outline:none';
+        inp.dataset.idx = i;
+        inp.addEventListener('input', function() { flyerPoints[+this.dataset.idx] = this.value; renderFlyer(); });
+        const rm = document.createElement('button');
+        rm.textContent = '✕'; rm.title = 'Remove';
+        rm.style.cssText = 'background:none;border:none;color:rgba(239,68,68,.6);font-size:10px;cursor:pointer;padding:0 4px';
+        rm.dataset.idx = i;
+        rm.addEventListener('click', function() { if (flyerPoints.length <= 1) return; flyerPoints.splice(+this.dataset.idx, 1); initFlyerPoints(); renderFlyer(); });
+        row.appendChild(inp); row.appendChild(rm); list.appendChild(row);
+      });
+    }
+    function addFlyerPoint() { flyerPoints.push('New point'); initFlyerPoints(); renderFlyer(); }
 
     function renderFlyer() {
       const c = document.getElementById('flyer-canvas');
       const ctx = c.getContext('2d');
-      const W = 1080, H = 1920;
+      const W = c.width, H = c.height;
       const s = FLYER_STYLES[flyerStyle];
+      const isLand = flyerOrient === 'landscape';
+      const scale = W / 2550;
 
       // Background
-      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      const grad = ctx.createLinearGradient(0, 0, isLand ? W : 0, H);
       grad.addColorStop(0, s.bg1); grad.addColorStop(0.5, s.bg2); grad.addColorStop(1, s.bg1);
       ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
 
+      // Image section (45%)
+      if (flyerImg) {
+        const imgW = isLand ? W * 0.45 : W;
+        const imgH = isLand ? H : H * 0.45;
+        ctx.save(); ctx.beginPath(); ctx.rect(0, 0, imgW, imgH); ctx.clip();
+        const imgRatio = flyerImg.width / flyerImg.height;
+        const boxRatio = imgW / imgH;
+        let dw, dh, dx, dy;
+        if (imgRatio > boxRatio) { dh = imgH; dw = imgH * imgRatio; dx = (imgW - dw) / 2; dy = 0; }
+        else { dw = imgW; dh = imgW / imgRatio; dx = 0; dy = (imgH - dh) / 2; }
+        ctx.drawImage(flyerImg, dx, dy, dw, dh);
+        const ogDir = isLand ? ctx.createLinearGradient(imgW, 0, 0, 0) : ctx.createLinearGradient(0, imgH, 0, 0);
+        const oc = flyerStyle === 'clean' ? 'rgba(248,250,252,' : 'rgba(3,7,18,';
+        ogDir.addColorStop(0, oc + '0.95)'); ogDir.addColorStop(0.4, oc + '0.3)'); ogDir.addColorStop(1, oc + '0)');
+        ctx.fillStyle = ogDir; ctx.fillRect(0, 0, imgW, imgH);
+        ctx.restore();
+      }
+
       // Decorative orb
-      const orbGrad = ctx.createRadialGradient(W/2, 400, 0, W/2, 400, 500);
-      orbGrad.addColorStop(0, flyerStyle === 'neon' ? 'rgba(168,85,247,.12)' : 'rgba(6,182,212,.08)');
+      const orbX = isLand ? W * 0.7 : W / 2;
+      const orbY = flyerImg ? (isLand ? H / 2 : H * 0.55) : H * 0.25;
+      const orbGrad = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, W * 0.3);
+      orbGrad.addColorStop(0, flyerStyle === 'elegant' ? 'rgba(168,85,247,.1)' : flyerStyle === 'playful' ? 'rgba(34,197,94,.08)' : 'rgba(6,182,212,.08)');
       orbGrad.addColorStop(1, 'transparent');
       ctx.fillStyle = orbGrad; ctx.fillRect(0, 0, W, H);
 
-      const pad = 80;
+      // Content area
+      const pad = 180 * scale;
+      const contentX = isLand && flyerImg ? W * 0.47 : pad;
+      const contentW = isLand && flyerImg ? W * 0.53 - pad : W - pad * 2;
+      let yOff = flyerImg && !isLand ? H * 0.47 : pad * 1.2;
+
       // Brand
-      ctx.fillStyle = s.accent; ctx.font = '700 36px system-ui'; ctx.fillText('LUMELINE', pad, 120);
-      ctx.fillStyle = s.sub; ctx.font = '400 22px system-ui'; ctx.fillText('Trust Layer Ecosystem', pad, 160);
+      ctx.fillStyle = s.accent; ctx.font = `800 ${52 * scale}px system-ui`; ctx.fillText('LUMELINE', contentX, yOff);
+      ctx.fillStyle = s.sub; ctx.font = `300 ${30 * scale}px system-ui`; ctx.fillText('Trust Layer Ecosystem', contentX, yOff + 42 * scale);
+      yOff += 120 * scale;
 
       // Headline
-      ctx.fillStyle = s.text; ctx.font = '900 96px system-ui';
+      ctx.fillStyle = s.text; ctx.font = `900 ${120 * scale}px system-ui`;
       const headline = document.getElementById('flyer-headline').value;
-      wrapCanvasText(ctx, headline, pad, 320, W - pad*2, 110);
+      yOff = wrapText(ctx, headline, contentX, yOff, contentW, 140 * scale);
+      yOff += 40 * scale;
 
       // Tagline
-      ctx.fillStyle = s.accent; ctx.font = '600 48px system-ui';
+      ctx.fillStyle = s.accent; ctx.font = `600 ${60 * scale}px system-ui`;
       const tagline = document.getElementById('flyer-tagline').value;
-      const tagY = 320 + Math.ceil(ctx.measureText(headline).width / (W - pad*2)) * 110 + 80;
-      wrapCanvasText(ctx, tagline, pad, tagY, W - pad*2, 58);
+      yOff = wrapText(ctx, tagline, contentX, yOff, contentW, 72 * scale);
+      yOff += 80 * scale;
 
       // Points
-      const points = document.getElementById('flyer-points').value.split('\n').filter(p => p.trim());
-      ctx.font = '400 40px system-ui'; ctx.fillStyle = s.sub;
-      let py = tagY + 140;
-      points.forEach(pt => {
-        const ctaG = ctx.createLinearGradient(pad, py, pad+16, py);
-        ctaG.addColorStop(0, s.ctaGrad[0]); ctaG.addColorStop(1, s.ctaGrad[1]);
-        ctx.fillStyle = ctaG; ctx.beginPath(); ctx.arc(pad+10, py-12, 8, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = s.sub; ctx.fillText(pt, pad+36, py); py += 70;
+      ctx.font = `400 ${48 * scale}px system-ui`;
+      flyerPoints.forEach(pt => {
+        if (!pt.trim()) return;
+        const dotGrad = ctx.createLinearGradient(contentX, yOff, contentX + 20 * scale, yOff);
+        dotGrad.addColorStop(0, s.ctaGrad[0]); dotGrad.addColorStop(1, s.ctaGrad[1]);
+        ctx.fillStyle = dotGrad; ctx.beginPath(); ctx.arc(contentX + 12 * scale, yOff - 14 * scale, 10 * scale, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = s.sub; ctx.fillText(pt, contentX + 40 * scale, yOff);
+        yOff += 76 * scale;
       });
 
       // CTA Button
-      const ctaY = H - 400;
-      const ctaGrad = ctx.createLinearGradient(pad, ctaY, W-pad, ctaY);
+      const ctaY = H - 500 * scale;
+      const ctaGrad = ctx.createLinearGradient(contentX, ctaY, contentX + contentW, ctaY);
       ctaGrad.addColorStop(0, s.ctaGrad[0]); ctaGrad.addColorStop(1, s.ctaGrad[1]);
       ctx.fillStyle = ctaGrad;
-      roundRect(ctx, pad, ctaY, W-pad*2, 120, 30); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.font = '800 48px system-ui'; ctx.textAlign = 'center';
-      ctx.fillText('JOIN NOW', W/2, ctaY + 76); ctx.textAlign = 'start';
+      roundRect(ctx, contentX, ctaY, contentW, 140 * scale, 36 * scale); ctx.fill();
+      const cta = document.getElementById('flyer-cta').value;
+      ctx.fillStyle = '#fff'; ctx.font = `800 ${56 * scale}px system-ui`; ctx.textAlign = 'center';
+      ctx.fillText(cta, contentX + contentW / 2, ctaY + 88 * scale);
 
-      // Referral URL
-      const ref = document.getElementById('flyer-ref').value;
-      ctx.fillStyle = s.accent; ctx.font = '700 40px system-ui'; ctx.textAlign = 'center';
-      ctx.fillText(ref, W/2, ctaY + 200); ctx.textAlign = 'start';
+      // CTA subtext
+      const ctaSub = document.getElementById('flyer-cta-sub').value;
+      ctx.fillStyle = s.accent; ctx.font = `700 ${44 * scale}px system-ui`;
+      ctx.fillText(ctaSub, contentX + contentW / 2, ctaY + 220 * scale);
+      ctx.textAlign = 'start';
 
       // Footer
-      ctx.fillStyle = s.sub; ctx.font = '300 24px system-ui'; ctx.textAlign = 'center';
-      ctx.fillText('AI-Powered Odds Intelligence · Trust Layer Ecosystem', W/2, H - 80); ctx.textAlign = 'start';
+      ctx.fillStyle = s.sub; ctx.font = `300 ${28 * scale}px system-ui`; ctx.textAlign = 'center';
+      ctx.fillText('AI-Powered Odds Intelligence · Trust Layer Ecosystem', W / 2, H - 80 * scale);
+      ctx.textAlign = 'start';
     }
 
     function downloadFlyer() {
@@ -912,81 +1032,140 @@ Real-time line tracking</textarea>
       const c = document.getElementById('flyer-canvas');
       c.toBlob(blob => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'lumeline-flyer.png'; a.click(); }, 'image/png');
     }
-
     function downloadFlyerPDF() {
       renderFlyer();
       const c = document.getElementById('flyer-canvas');
-      const imgData = c.toDataURL('image/jpeg', 0.92);
+      const imgData = c.toDataURL('image/jpeg', 0.95);
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'in', format: [9, 16] });
-      pdf.addImage(imgData, 'JPEG', 0, 0, 9, 16);
+      const orient = flyerOrient === 'portrait' ? 'portrait' : 'landscape';
+      const pdf = new jsPDF({ orientation: orient, unit: 'in', format: 'letter' });
+      pdf.addImage(imgData, 'JPEG', 0, 0, orient === 'portrait' ? 8.5 : 11, orient === 'portrait' ? 11 : 8.5);
       pdf.save('lumeline-flyer.pdf');
     }
+    function printFlyer() {
+      renderFlyer();
+      const c = document.getElementById('flyer-canvas');
+      const w = window.open('', '_blank');
+      w.document.write('<html><head><title>LumeLine Flyer</title><style>@page{size:' + (flyerOrient === 'portrait' ? '8.5in 11in' : '11in 8.5in') + ';margin:0}body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000}img{max-width:100%;max-height:100vh;object-fit:contain}</style></head><body><img src="' + c.toDataURL('image/png') + '"></body></html>');
+      w.document.close(); setTimeout(function() { w.print(); }, 400);
+    }
+    function shareFlyer() {
+      renderFlyer();
+      var c = document.getElementById('flyer-canvas');
+      c.toBlob(function(blob) {
+        if (navigator.share) {
+          var file = new File([blob], 'lumeline-flyer.png', { type: 'image/png' });
+          navigator.share({ title: 'LumeLine Flyer', files: [file] }).catch(function() { downloadFlyer(); });
+        } else { downloadFlyer(); }
+      }, 'image/png');
+    }
+    function emailFlyer() {
+      var subject = encodeURIComponent('Check out LumeLine — AI-Powered Odds Intelligence');
+      var body = encodeURIComponent('Hey,\n\nI wanted to share LumeLine with you.\n\nCheck it out: https://lumeline.bet\n\nDownload the flyer from your partner dashboard for more info!');
+      window.open('mailto:?subject=' + subject + '&body=' + body, '_blank');
+    }
 
-    // ═══ BUSINESS CARD GENERATOR ═══
+    // ═══ BUSINESS CARD GENERATOR (Full-Featured) ═══
+    let cardStyle = 'dark';
+    let cardLogo = null;
+    const CARD_STYLES = {
+      dark:     { bg1:'#030712', bg2:'#0c1224', text:'#fff', accent:'#67e8f9', sub:'rgba(255,255,255,.45)', border:'#67e8f9', glowA:'rgba(6,182,212,.3)', glowB:'rgba(168,85,247,.3)' },
+      platinum: { bg1:'#1e293b', bg2:'#334155', text:'#f1f5f9', accent:'#e2e8f0', sub:'rgba(241,245,249,.4)', border:'#94a3b8', glowA:'rgba(148,163,184,.3)', glowB:'rgba(203,213,225,.2)' },
+      minimal:  { bg1:'#ffffff', bg2:'#f8fafc', text:'#0f172a', accent:'#0891b2', sub:'rgba(15,23,42,.35)', border:'#cbd5e1', glowA:'rgba(6,182,212,.15)', glowB:'rgba(99,102,241,.1)' },
+    };
+
     function openCardGen() { document.getElementById('card-modal').style.display = ''; renderCard(); }
     function closeCardGen() { document.getElementById('card-modal').style.display = 'none'; }
+    function setCardStyle(s) {
+      cardStyle = s;
+      document.querySelectorAll('.card-style').forEach(b => b.classList.toggle('active', b.dataset.style === s));
+      renderCard();
+    }
+    function handleCardLogoUpload(e) {
+      var file = e.target.files[0]; if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function() {
+        var img = new Image();
+        img.onload = function() { cardLogo = img; document.getElementById('card-rm-logo-btn').style.display = ''; renderCard(); };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+    function removeCardLogo() { cardLogo = null; document.getElementById('card-rm-logo-btn').style.display = 'none'; renderCard(); }
 
     function renderCard() {
       const c = document.getElementById('card-canvas');
       const ctx = c.getContext('2d');
       const W = 1050, H = 600;
+      const s = CARD_STYLES[cardStyle];
 
       // Background
       const grad = ctx.createLinearGradient(0, 0, W, H);
-      grad.addColorStop(0, '#030712'); grad.addColorStop(0.5, '#0c1224'); grad.addColorStop(1, '#030712');
+      grad.addColorStop(0, s.bg1); grad.addColorStop(0.5, s.bg2); grad.addColorStop(1, s.bg1);
       ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
 
-      // Gradient border
-      ctx.strokeStyle = '#67e8f9'; ctx.lineWidth = 3;
-      roundRect(ctx, 16, 16, W-32, H-32, 24); ctx.stroke();
-
-      // Inner glow line
+      // Borders
+      ctx.strokeStyle = s.border; ctx.lineWidth = 3;
+      roundRect(ctx, 16, 16, W - 32, H - 32, 24); ctx.stroke();
       const glowGrad = ctx.createLinearGradient(0, 0, W, 0);
-      glowGrad.addColorStop(0, 'rgba(6,182,212,.3)'); glowGrad.addColorStop(0.5, 'rgba(168,85,247,.3)'); glowGrad.addColorStop(1, 'rgba(6,182,212,.3)');
+      glowGrad.addColorStop(0, s.glowA); glowGrad.addColorStop(0.5, s.glowB); glowGrad.addColorStop(1, s.glowA);
       ctx.strokeStyle = glowGrad; ctx.lineWidth = 1;
-      roundRect(ctx, 20, 20, W-40, H-40, 22); ctx.stroke();
+      roundRect(ctx, 20, 20, W - 40, H - 40, 22); ctx.stroke();
 
       const nameVal = document.getElementById('card-name').value;
       const titleVal = document.getElementById('card-title').value;
+      const taglineVal = document.getElementById('card-tagline').value;
       const emailVal = document.getElementById('card-email').value;
       const phoneVal = document.getElementById('card-phone').value;
+      const websiteVal = document.getElementById('card-website').value;
       const refVal = document.getElementById('card-ref').value;
-
-      // Left side
       const lPad = 60;
-      ctx.fillStyle = '#67e8f9'; ctx.font = '800 20px system-ui'; ctx.fillText('LUMELINE', lPad, 70);
-      ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.font = '300 13px system-ui'; ctx.fillText('Trust Layer Ecosystem', lPad, 92);
 
-      // Name
-      ctx.fillStyle = '#fff'; ctx.font = '900 44px system-ui'; ctx.fillText(nameVal, lPad, 200);
-      // Title
-      ctx.fillStyle = '#67e8f9'; ctx.font = '600 22px system-ui'; ctx.fillText(titleVal, lPad, 240);
+      // Logo or brand text
+      if (cardLogo) {
+        const logoH = 44, logoW = (cardLogo.width / cardLogo.height) * logoH;
+        ctx.drawImage(cardLogo, lPad, 45, logoW, logoH);
+      } else {
+        ctx.fillStyle = s.accent; ctx.font = '800 22px system-ui'; ctx.fillText('LUMELINE', lPad, 72);
+      }
+      ctx.fillStyle = s.sub; ctx.font = '300 13px system-ui'; ctx.fillText(taglineVal, lPad, 108);
+
+      // Name + Title
+      ctx.fillStyle = s.text; ctx.font = '900 44px system-ui'; ctx.fillText(nameVal, lPad, 200);
+      ctx.fillStyle = s.accent; ctx.font = '600 20px system-ui'; ctx.fillText(titleVal, lPad, 234);
+
+      // Separator
+      const sepGrad = ctx.createLinearGradient(lPad, 258, lPad + 200, 258);
+      sepGrad.addColorStop(0, s.accent); sepGrad.addColorStop(1, 'transparent');
+      ctx.strokeStyle = sepGrad; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(lPad, 258); ctx.lineTo(lPad + 200, 258); ctx.stroke();
 
       // Contact info
-      let cy = 310;
-      ctx.font = '400 18px system-ui'; ctx.fillStyle = 'rgba(255,255,255,.5)';
-      if (emailVal) { ctx.fillText('✉  ' + emailVal, lPad, cy); cy += 36; }
-      if (phoneVal) { ctx.fillText('📱  ' + phoneVal, lPad, cy); cy += 36; }
+      let cy = 290;
+      ctx.font = '400 16px system-ui'; ctx.fillStyle = s.sub;
+      if (emailVal) { ctx.fillText('✉  ' + emailVal, lPad, cy); cy += 32; }
+      if (phoneVal) { ctx.fillText('📱  ' + phoneVal, lPad, cy); cy += 32; }
+      if (websiteVal) { ctx.fillText('🌐  ' + websiteVal, lPad, cy); cy += 32; }
 
       // Referral link
-      ctx.fillStyle = '#67e8f9'; ctx.font = '600 20px system-ui';
-      ctx.fillText('🔗  ' + refVal, lPad, H - 70);
+      ctx.fillStyle = s.accent; ctx.font = '600 18px system-ui';
+      ctx.fillText('🔗  ' + refVal, lPad, H - 55);
+      ctx.fillStyle = s.sub; ctx.font = '300 10px system-ui';
+      ctx.fillText('Partner Referral Link', lPad, H - 35);
 
-      // Right side decoration
-      const orbX = W - 180, orbY = H/2;
+      // Right decoration
+      const orbX = W - 180, orbY = H / 2;
       const orb = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, 160);
-      orb.addColorStop(0, 'rgba(6,182,212,.12)'); orb.addColorStop(0.5, 'rgba(168,85,247,.06)'); orb.addColorStop(1, 'transparent');
-      ctx.fillStyle = orb; ctx.fillRect(orbX-160, orbY-160, 320, 320);
+      orb.addColorStop(0, s.glowA); orb.addColorStop(0.5, s.glowB); orb.addColorStop(1, 'transparent');
+      ctx.fillStyle = orb; ctx.fillRect(orbX - 160, orbY - 160, 320, 320);
 
-      // Vertical text
-      ctx.save(); ctx.translate(W-50, H/2); ctx.rotate(-Math.PI/2);
-      ctx.fillStyle = 'rgba(255,255,255,.06)'; ctx.font = '900 48px system-ui'; ctx.textAlign = 'center';
+      ctx.save(); ctx.translate(W - 50, H / 2); ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = cardStyle === 'minimal' ? 'rgba(15,23,42,.04)' : 'rgba(255,255,255,.04)';
+      ctx.font = '900 48px system-ui'; ctx.textAlign = 'center';
       ctx.fillText('LUMELINE', 0, 0); ctx.restore(); ctx.textAlign = 'start';
 
-      // Bottom right tagline
-      ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.font = '300 12px system-ui'; ctx.textAlign = 'right';
-      ctx.fillText('AI-Powered Odds Intelligence', W-60, H-40); ctx.textAlign = 'start';
+      ctx.fillStyle = s.sub; ctx.font = '300 11px system-ui'; ctx.textAlign = 'right';
+      ctx.fillText('Trust Layer Ecosystem', W - 60, H - 40); ctx.textAlign = 'start';
     }
 
     function downloadCard() {
@@ -994,25 +1173,40 @@ Real-time line tracking</textarea>
       const c = document.getElementById('card-canvas');
       c.toBlob(blob => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'lumeline-business-card.png'; a.click(); }, 'image/png');
     }
-
     function downloadCardPDF() {
       renderCard();
       const c = document.getElementById('card-canvas');
-      const imgData = c.toDataURL('image/jpeg', 0.92);
+      const imgData = c.toDataURL('image/jpeg', 0.95);
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'in', format: [3.5, 2] });
       pdf.addImage(imgData, 'JPEG', 0, 0, 3.5, 2);
       pdf.save('lumeline-business-card.pdf');
     }
+    function printCard() {
+      renderCard();
+      const c = document.getElementById('card-canvas');
+      const w = window.open('', '_blank');
+      w.document.write('<html><head><title>Business Card</title><style>@page{size:3.5in 2in;margin:0}body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff}img{width:3.5in;height:2in}</style></head><body><img src="' + c.toDataURL('image/png') + '"></body></html>');
+      w.document.close(); setTimeout(function() { w.print(); }, 400);
+    }
+    function shareCard() {
+      renderCard();
+      var c = document.getElementById('card-canvas');
+      c.toBlob(function(blob) {
+        if (navigator.share) {
+          var file = new File([blob], 'lumeline-card.png', { type: 'image/png' });
+          navigator.share({ title: 'LumeLine Business Card', files: [file] }).catch(function() { downloadCard(); });
+        } else { downloadCard(); }
+      }, 'image/png');
+    }
 
     // ═══ CANVAS HELPERS ═══
     function roundRect(ctx, x, y, w, h, r) {
-      ctx.beginPath(); ctx.moveTo(x+r, y);
-      ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r);
-      ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath();
+      ctx.beginPath(); ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
     }
-
-    function wrapCanvasText(ctx, text, x, y, maxW, lineH) {
+    function wrapText(ctx, text, x, y, maxW, lineH) {
       const words = text.split(' '); let line = '';
       words.forEach(word => {
         const test = line ? line + ' ' + word : word;
@@ -1020,6 +1214,7 @@ Real-time line tracking</textarea>
         else { line = test; }
       });
       if (line) ctx.fillText(line, x, y);
+      return y + lineH;
     }
   </script>
 </body></html>
