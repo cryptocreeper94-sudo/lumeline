@@ -28,6 +28,11 @@ app.use('/.well-known', express.static(path.join(__dirname, '..', '.well-known')
 // Auth routes
 app.use('/api/auth', authRouter);
 
+// One-time migration: rename Mathew → King Capper
+db.query(`UPDATE sources SET name = 'King Capper', slug = 'king-capper' WHERE slug = 'mathew'`)
+  .then(r => { if (r.rowCount) console.log('✅ Renamed Mathew → King Capper'); })
+  .catch(() => {});
+
 // ═══════════════════════════════════════════
 //  HEALTH
 // ═══════════════════════════════════════════
