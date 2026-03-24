@@ -12,7 +12,7 @@ import { scanGame } from './anomaly.js';
 import { generateConsensus, generateAllConsensus } from './consensus.js';
 import { initTwilio, getTwilioStatus, sendConsensusAlert, sendAnomalyAlert, sendDailySummary } from './notifications.js';
 import { evaluateOutcomes } from './outcomes.js';
-import authRouter, { requireAuth } from './auth.js';
+import authRouter, { requireAuth, requirePlan, PLAN_PRICES, EARLY_BIRD_LIMIT } from './auth.js';
 import agentRouter from './agent.js';
 import { recordResult, getHouseReportCard, getFadeTargets, getSharpBooks, getHouseBias } from './house-accuracy.js';
 import { recordOUResult, getOUTrends, getOUEdge, getOverMatchups, getUnderMatchups } from './over-under.js';
@@ -402,7 +402,7 @@ app.post('/api/notifications/daily', async (req, res) => {
 // ═══════════════════════════════════════════
 
 // House accuracy report card
-app.get('/api/decoder/house-accuracy', async (req, res) => {
+app.get('/api/decoder/house-accuracy', requireAuth, requirePlan('house_decoder'), async (req, res) => {
   try {
     const { market, sport, period } = req.query;
     const report = await getHouseReportCard(market || 'spread', sport || null, period || '30d');
@@ -416,7 +416,7 @@ app.get('/api/decoder/house-accuracy', async (req, res) => {
 });
 
 // House bias for a specific source
-app.get('/api/decoder/bias/:slug', async (req, res) => {
+app.get('/api/decoder/bias/:slug', requireAuth, requirePlan('house_decoder'), async (req, res) => {
   try {
     const { sport } = req.query;
     const bias = await getHouseBias(req.params.slug, sport || null);
@@ -428,7 +428,7 @@ app.get('/api/decoder/bias/:slug', async (req, res) => {
 });
 
 // Over/Under trends
-app.get('/api/decoder/ou-trends', async (req, res) => {
+app.get('/api/decoder/ou-trends', requireAuth, requirePlan('house_decoder'), async (req, res) => {
   try {
     const { sport } = req.query;
     const trends = await getOUTrends(sport || null);
@@ -443,7 +443,7 @@ app.get('/api/decoder/ou-trends', async (req, res) => {
 });
 
 // Decoder signals for a specific game
-app.get('/api/decoder/signals/:gameId', async (req, res) => {
+app.get('/api/decoder/signals/:gameId', requireAuth, requirePlan('house_decoder'), async (req, res) => {
   try {
     const signals = await getSignals(req.params.gameId);
     res.json({ signals, count: signals.length });
@@ -453,7 +453,7 @@ app.get('/api/decoder/signals/:gameId', async (req, res) => {
 });
 
 // All recent decoder signals
-app.get('/api/decoder/signals', async (req, res) => {
+app.get('/api/decoder/signals', requireAuth, requirePlan('house_decoder'), async (req, res) => {
   try {
     const { limit } = req.query;
     const signals = await getRecentSignals(parseInt(limit) || 20);
@@ -464,7 +464,7 @@ app.get('/api/decoder/signals', async (req, res) => {
 });
 
 // Run decoder on a game
-app.post('/api/decoder/decode/:gameId', async (req, res) => {
+app.post('/api/decoder/decode/:gameId', requireAuth, requirePlan('house_decoder'), async (req, res) => {
   try {
     const signals = await decodeGame(req.params.gameId);
     res.json({ signals, count: signals.length });
@@ -475,7 +475,7 @@ app.post('/api/decoder/decode/:gameId', async (req, res) => {
 });
 
 // Record game result + score all books
-app.post('/api/decoder/result', async (req, res) => {
+app.post('/api/decoder/result', requireAuth, requirePlan('house_decoder'), async (req, res) => {
   try {
     const { game_id, home_score, away_score } = req.body;
     if (!game_id || home_score == null || away_score == null) {
@@ -492,13 +492,60 @@ app.post('/api/decoder/result', async (req, res) => {
 });
 
 // Decoder accuracy (how well is the decoder performing?)
-app.get('/api/decoder/accuracy', async (req, res) => {
+app.get('/api/decoder/accuracy', requireAuth, requirePlan('house_decoder'), async (req, res) => {
   try {
     const accuracy = await getDecoderAccuracy();
     res.json({ signal_accuracy: accuracy });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch decoder accuracy' });
   }
+});
+
+// Free preview teaser (no auth required — drives conversion)
+app.get('/api/decoder/preview', async (req, res) => {
+  try {
+    const signals = await getRecentSignals(5);
+    // Return counts and types only — no predictions or details
+    const teaser = {
+      active_signals: signals.length,
+      signal_types: [...new Set(signals.map(s => s.signal_type))],
+      games_decoded: [...new Set(signals.map(s => s.game_id))].length,
+      sample: signals.slice(0, 2).map(s => ({
+        signal_type: s.signal_type,
+        sport: s.sport,
+        matchup: `${s.away_team} @ ${s.home_team}`,
+        confidence: '🔒',
+        prediction: '🔒 Upgrade to unlock',
+        description: s.description?.slice(0, 40) + '... 🔒'
+      })),
+      unlock: {
+        plan: 'house_decoder',
+        name: 'House Decoder',
+        early_bird: '$14.99/mo',
+        standard: '$29.99/mo',
+        features: ['House accuracy scoring', 'O/U edge detection', '5 signal detectors', 'Self-learning predictions', 'Full signal details']
+      }
+    };
+    res.json(teaser);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to generate preview' });
+  }
+});
+
+// Subscription plans info (public)
+app.get('/api/plans', (req, res) => {
+  res.json({
+    plans: Object.entries(PLAN_PRICES).map(([key, val]) => ({
+      id: key,
+      name: val.name,
+      early_bird: `$${(val.early / 100).toFixed(2)}/mo`,
+      standard: `$${(val.standard / 100).toFixed(2)}/mo`,
+      early_bird_cents: val.early,
+      standard_cents: val.standard
+    })),
+    early_bird_limit: EARLY_BIRD_LIMIT,
+    note: `First ${EARLY_BIRD_LIMIT} subscribers on each plan get early bird pricing locked in for life.`
+  });
 });
 
 // ═══════════════════════════════════════════
@@ -538,11 +585,27 @@ app.post('/api/stripe/checkout', async (req, res) => {
     const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY);
     const { plan, user_id } = req.body;
 
-    const prices = {
-      pro: { amount: 999, name: 'LumeLine Pro', interval: 'month' }
+    // Three independent products
+    const plans = {
+      game_predictions: { name: 'LumeLine Game Predictions', description: 'Full consensus predictions, all 47 sources, anomaly alerts, push notifications', early: 999, standard: 1999 },
+      house_decoder:    { name: 'LumeLine House Decoder', description: 'House accuracy scoring, O/U edge detection, 5 signal detectors, self-learning predictions', early: 1499, standard: 2999 },
+      all_access:       { name: 'LumeLine All-Access', description: 'Game Predictions + House Decoder — everything LumeLine offers', early: 1999, standard: 3999 }
     };
-    const p = prices[plan];
-    if (!p) return res.status(400).json({ error: 'Invalid plan' });
+
+    const p = plans[plan];
+    if (!p) return res.status(400).json({ error: 'Invalid plan. Choose: game_predictions, house_decoder, or all_access' });
+
+    // Check subscriber count for early bird pricing
+    let subscriberCount = 0;
+    try {
+      const { rows } = await db.query(
+        "SELECT COUNT(*) FROM users WHERE preferences->>'plan' IS NOT NULL OR preferences->'plans' IS NOT NULL"
+      );
+      subscriberCount = parseInt(rows[0]?.count || 0);
+    } catch (e) { /* table may not exist yet */ }
+
+    const amount = subscriberCount < EARLY_BIRD_LIMIT ? p.early : p.standard;
+    const priceLabel = subscriberCount < EARLY_BIRD_LIMIT ? '(Early Bird)' : '';
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -550,18 +613,21 @@ app.post('/api/stripe/checkout', async (req, res) => {
       line_items: [{
         price_data: {
           currency: 'usd',
-          product_data: { name: p.name, description: 'Real-time alerts, advanced anomaly reports, historical data, API access' },
-          recurring: { interval: p.interval },
-          unit_amount: p.amount
+          product_data: { 
+            name: `${p.name} ${priceLabel}`.trim(), 
+            description: p.description 
+          },
+          recurring: { interval: 'month' },
+          unit_amount: amount
         },
         quantity: 1
       }],
-      success_url: `${req.protocol}://${req.get('host')}/dashboard.html?upgrade=success`,
+      success_url: `${req.protocol}://${req.get('host')}/dashboard.html?upgrade=success&plan=${plan}`,
       cancel_url: `${req.protocol}://${req.get('host')}/dashboard.html?upgrade=cancel`,
-      metadata: { user_id: user_id || '', plan }
+      metadata: { user_id: user_id || '', plan, early_bird: subscriberCount < EARLY_BIRD_LIMIT ? 'true' : 'false' }
     });
 
-    res.json({ url: session.url, session_id: session.id });
+    res.json({ url: session.url, session_id: session.id, plan, amount_cents: amount, early_bird: subscriberCount < EARLY_BIRD_LIMIT });
   } catch (err) {
     console.error('Stripe checkout error:', err);
     res.status(500).json({ error: 'Checkout failed', message: err.message });
@@ -581,12 +647,33 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
       case 'checkout.session.completed': {
         const session = event.data.object;
         const userId = session.metadata?.user_id;
-        if (userId) {
+        const plan = session.metadata?.plan;
+        const isEarlyBird = session.metadata?.early_bird === 'true';
+        if (userId && plan) {
+          // Store the plan — support multiple independent plans
+          const { rows: userRows } = await db.query('SELECT preferences FROM users WHERE id = $1', [userId]);
+          const prefs = userRows[0]?.preferences || {};
+          const existingPlans = Array.isArray(prefs.plans) ? prefs.plans : (prefs.plan ? [prefs.plan] : []);
+          
+          // If all_access, replace everything. Otherwise add the plan.
+          const newPlans = plan === 'all_access' 
+            ? ['all_access'] 
+            : [...new Set([...existingPlans, plan])];
+          
+          const updatedPrefs = {
+            ...prefs,
+            plan: newPlans.includes('all_access') ? 'all_access' : newPlans[0],
+            plans: newPlans,
+            early_bird: isEarlyBird,
+            stripe_customer_id: session.customer,
+            [`stripe_sub_${plan}`]: session.subscription
+          };
+          
           await db.query(
-            "UPDATE users SET preferences = preferences || $1 WHERE id = $2",
-            [JSON.stringify({ plan: 'pro', stripe_customer_id: session.customer, stripe_subscription_id: session.subscription }), userId]
+            "UPDATE users SET preferences = $1 WHERE id = $2",
+            [JSON.stringify(updatedPrefs), userId]
           );
-          console.log(`💳 User ${userId} upgraded to Pro`);
+          console.log(`💳 User ${userId} subscribed to ${plan}${isEarlyBird ? ' (Early Bird 🐦)' : ''}`);
         }
         break;
       }
