@@ -17,6 +17,7 @@ import agentRouter from './agent.js';
 import { recordResult, getHouseReportCard, getFadeTargets, getSharpBooks, getHouseBias } from './house-accuracy.js';
 import { recordOUResult, getOUTrends, getOUEdge, getOverMatchups, getUnderMatchups } from './over-under.js';
 import { decodeGame, getSignals, getRecentSignals, scoreSignals, getDecoderAccuracy } from './house-decoder.js';
+import betsRouter from './bets.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -34,6 +35,9 @@ app.use('/api/auth', authRouter);
 
 // Agent routes (OpenAI + ElevenLabs)
 app.use('/api/agent', agentRouter);
+
+// Bets / Betting Wallet routes (auth required)
+app.use('/api/bets', requireAuth, betsRouter);
 
 // One-time migration: rename Mathew → King Capper
 db.query(`UPDATE sources SET name = 'King Capper', slug = 'king-capper' WHERE slug = 'mathew'`)
