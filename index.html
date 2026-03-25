@@ -461,17 +461,29 @@
       nav .mx-nav-links { display: none; }
 
       /* ── HERO ── */
-      .hero { height: 420px; }
+      .hero { height: 480px; }
       .hero h1 { font-size: 1.85rem; line-height: 1.1; }
-      .hero p { font-size: 0.88rem; max-width: 100%; }
-      .hero-content { bottom: 60px; }
+      .hero p { font-size: 0.88rem; max-width: 90%; padding-right: 48px; }
+      .hero-content { bottom: 80px; }
       .hero-badge { font-size: 9px; padding: 5px 12px; }
-      .hero-dots { bottom: 20px; }
+      .hero-dots { bottom: 16px; }
       .hero-dot { width: 24px; }
 
       /* ── TICKER ── */
       .ticker { gap: 8px; padding: 6px 0 12px; }
-      /* ticker mobile handled by new CSS below */
+      .ticker-wrap { margin-top: 0; }
+
+      /* ── BETA NOTICE ── */
+      .beta-notice { padding: 8px 12px !important; gap: 6px !important; font-size: 10px; }
+      .beta-divider-2 { display: none !important; }
+      .beta-more { display: none !important; }
+
+      /* ── ACCOUNT HUB (prevent hero text overlap) ── */
+      .eco-account-trigger,
+      [style*="position: fixed"][style*="top:"],
+      [style*="position:fixed"][style*="top:"] {
+        z-index: 9999;
+      }
 
       /* ── TABS ── */
       .tabs { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; flex-wrap: nowrap; gap: 4px; margin-bottom: 16px; padding-bottom: 4px; }
@@ -539,19 +551,14 @@
         padding: 20px !important;
         border-radius: 16px !important;
       }
-
-      /* ── BETA NOTICE (mobile) ── */
-      .beta-notice { padding: 8px 12px !important; gap: 6px !important; font-size: 10px; }
-      .beta-divider-2 { display: none !important; }
-      .beta-more { display: none !important; }
     }
 
     /* Small mobile: ≤480px */
     @media (max-width: 480px) {
-      .hero { height: 360px; }
+      .hero { height: 460px; }
       .hero h1 { font-size: 1.55rem; }
-      .hero p { font-size: 0.82rem; }
-      .hero-content { bottom: 50px; }
+      .hero p { font-size: 0.82rem; padding-right: 40px; }
+      .hero-content { bottom: 70px; }
 
       .game-card { width: 260px; }
       .game-img { height: 130px; }
