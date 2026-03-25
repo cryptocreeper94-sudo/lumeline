@@ -1283,6 +1283,37 @@
     if (s === 'house') return '<span class="badge badge-house">🏠 House Lean</span>';
     return '<span class="badge badge-danger">🚨 Suspect</span>';
   }
+  // P12: Anomaly badge rendering
+  const ANOMALY_BADGE_MAP = {
+    'reverse_steam': { icon: '⚡', label: 'Sharp Action', color: '#f59e0b', bg: 'rgba(245,158,11,.1)', border: 'rgba(245,158,11,.2)' },
+    'late_flip': { icon: '🔄', label: 'Line Flip', color: '#ef4444', bg: 'rgba(239,68,68,.1)', border: 'rgba(239,68,68,.2)' },
+    'sync_move': { icon: '📡', label: 'Market Sync', color: '#06b6d4', bg: 'rgba(6,182,212,.1)', border: 'rgba(6,182,212,.2)' },
+    'house_divergence': { icon: '🏠', label: 'Book Outlier', color: '#a78bfa', bg: 'rgba(167,139,250,.1)', border: 'rgba(167,139,250,.2)' },
+    'outlier_consensus': { icon: '⚠️', label: 'Outlier Source', color: 'rgba(255,255,255,.4)', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.08)' }
+  };
+  function renderAnomalyBadges(flags) {
+    if (!flags || !flags.length) return '';
+    return flags.map(f => {
+      const b = ANOMALY_BADGE_MAP[f.type] || { icon: '🔍', label: f.type, color: '#fff', bg: 'rgba(255,255,255,.04)', border: 'rgba(255,255,255,.08)' };
+      const impact = f.confidence_impact ? ` (${f.confidence_impact > 0 ? '+' : ''}${f.confidence_impact})` : '';
+      return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:2px 8px;border-radius:6px;background:${b.bg};border:1px solid ${b.border};color:${b.color};font-weight:600">${b.icon} ${b.label}${impact}</span>`;
+    }).join(' ');
+  }
+  // P3: Confidence band bar
+  function renderConfBand(g) {
+    if (!g.confidence_low && !g.confidence_high) return '';
+    const low = g.confidence_low || 0;
+    const high = g.confidence_high || 0;
+    const color = confColor(g.confidence);
+    return `<div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:9px;color:rgba(255,255,255,.25)">
+      <span>${low}%</span>
+      <div style="flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px;position:relative;overflow:hidden">
+        <div style="position:absolute;left:${low}%;width:${high-low}%;height:100%;background:${color};opacity:.4;border-radius:2px"></div>
+        <div style="position:absolute;left:${g.confidence}%;width:2px;height:100%;background:${color}"></div>
+      </div>
+      <span>${high}%</span>
+    </div>`;
+  }
 
   // ═══ FETCH DATA ═══
   async function fetchAll() {
@@ -1441,10 +1472,18 @@
       ...g,
       sport: (g.sport || '').toLowerCase(),
       confidence: g.confidence || 0,
+      confidence_low: g.confidence_low || 0,
+      confidence_high: g.confidence_high || 0,
+      confidence_label: g.confidence_label || 'low',
       integrity: g.integrity || g.integrity_score || 100,
       spread: g.spread || (g.line ? String(g.line) : 'PK'),
       status: g.house_lean ? 'house' : ((g.integrity || 100) < 60 ? 'danger' : 'clean'),
       ai: g.reasoning || `Live data from ${g.sources_agree || 0} agreeing sources. Confidence: ${g.confidence || 0}%.`,
+      technical_reasoning: g.technical_reasoning || '',
+      anomaly_flags: g.anomaly_flags || [],
+      model_version: g.model_version || 'v0.1.0',
+      house_lean_strength: g.house_lean_strength || 0,
+      market_divergence: g.market_divergence || 0,
       img: teamImg || SPORT_IMAGES[sportKey] || 'assets/images/hero_stadium.png',
     };
   }
@@ -1605,8 +1644,10 @@
         <div class="game-body">
           <div class="sport-badge" style="background:${sportColor}22;color:${sportColor};border:1px solid ${sportColor}44">${sportLabel}</div>
           <div class="game-teams-row"><div><span class="game-team">${abbr(g.away_team)}</span><span class="game-vs">@</span><span class="game-team" style="color:#fff">${abbr(g.home_team)}</span></div><div class="game-likelihood" style="color:${color}">${g.confidence}<span style="font-size:12px;color:rgba(255,255,255,.25)">%</span></div></div>
-          <div class="game-conf-row"><span>Confidence</span><span style="color:${color};font-weight:700">${g.confidence}%</span></div>
+          <div class="game-conf-row"><span>Confidence</span><span style="color:${color};font-weight:700">${g.confidence}%${g.confidence_label ? ' <span style="font-size:9px;opacity:.5;text-transform:uppercase">' + g.confidence_label + '</span>' : ''}</span></div>
           <div class="bar"><div class="bar-fill ${barClass(g.confidence)}" data-width="${g.confidence}"></div></div>
+          ${renderConfBand(g)}
+          ${g.anomaly_flags && g.anomaly_flags.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">' + renderAnomalyBadges(g.anomaly_flags) + '</div>' : ''}
           <div class="game-footer"><span class="integrity">${g.integrity < 60 ? (g.status === 'danger' ? '🚨' : '⚠️') : ''} Integrity: ${g.integrity}/100</span>${statusBadge(g.status)}</div>
           <div class="game-ai">${g.ai}</div>
           ${g.weather ? `<div class="weather-tag"><i class="weather-icon">${g.weather.icon}</i> <span class="w-temp">${g.weather.temp}°F</span> ${g.weather.cond} · ${g.weather.wind}</div>` : ''}
@@ -1855,16 +1896,19 @@
         <div style="font-size:14px;color:rgba(255,255,255,.3);margin-top:4px">${g.away_team} at ${g.home_team}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px">
-        <div class="stat-box"><span class="stat-val" style="color:${color}">${g.confidence}%</span><span class="stat-label">Consensus</span></div>
+        <div class="stat-box"><span class="stat-val" style="color:${color}">${g.confidence}%</span><span class="stat-label">Consensus${g.confidence_label ? ' · ' + g.confidence_label.toUpperCase() : ''}</span></div>
         <div class="stat-box"><span class="stat-val" style="color:${g.integrity >= 70 ? '#6ee7b7' : '#fbbf24'}">${g.integrity}</span><span class="stat-label">Integrity</span></div>
         <div class="stat-box"><span class="stat-val" style="color:#a78bfa">${g.spread}</span><span class="stat-label">Spread</span></div>
       </div>
-      <div style="margin-bottom:20px"><div class="game-conf-row"><span>Confidence</span><span style="color:${color};font-weight:700">${g.confidence}%</span></div><div class="bar" style="height:8px"><div class="bar-fill ${barClass(g.confidence)}" style="width:${g.confidence}%;height:100%"></div></div></div>
+      <div style="margin-bottom:20px"><div class="game-conf-row"><span>Confidence</span><span style="color:${color};font-weight:700">${g.confidence}%</span></div><div class="bar" style="height:8px"><div class="bar-fill ${barClass(g.confidence)}" style="width:${g.confidence}%;height:100%"></div></div>${renderConfBand(g)}</div>
+      ${g.anomaly_flags && g.anomaly_flags.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;justify-content:center">' + renderAnomalyBadges(g.anomaly_flags) + '</div>' : ''}
+      ${g.market_divergence ? '<div style="text-align:center;font-size:10px;color:#fbbf24;margin-bottom:12px">⚠️ Market divergence: ' + g.market_divergence + '% spread-moneyline conflict</div>' : ''}
       <div style="padding:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;margin-bottom:16px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(6,182,212,.1));border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:12px">🧠</div><span style="font-size:12px;font-weight:700">AI Analysis</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(6,182,212,.1));border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:12px">🧠</div><span style="font-size:12px;font-weight:700">AI Analysis</span>${g.model_version && g.model_version !== 'v0.1.0' ? '<span style="font-size:8px;color:rgba(6,182,212,.4);padding:1px 6px;border:1px solid rgba(6,182,212,.15);border-radius:4px;margin-left:auto">' + g.model_version + '</span>' : ''}</div>
         <p style="font-size:12px;color:rgba(255,255,255,.4);line-height:1.7">${g.ai}</p>
+        ${g.technical_reasoning ? '<details style="margin-top:10px"><summary style="font-size:10px;color:rgba(255,255,255,.2);cursor:pointer">Show Technical Details</summary><p style="font-size:10px;color:rgba(255,255,255,.25);line-height:1.6;margin-top:6px;padding:8px;background:rgba(0,0,0,.2);border-radius:8px;font-family:monospace">' + g.technical_reasoning + '</p></details>' : ''}
       </div>
-      <div style="display:flex;gap:8px;justify-content:center">${statusBadge(g.status)} <span class="badge badge-${g.sport === 'nfl' ? 'sharp' : 'reliable'}">${g.sport?.toUpperCase()}</span></div>`;
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">${statusBadge(g.status)} <span class="badge badge-${g.sport === 'nfl' ? 'sharp' : 'reliable'}">${g.sport?.toUpperCase()}</span>${g.house_lean_strength ? ' <span style="font-size:9px;padding:2px 8px;border-radius:6px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.15);color:#fbbf24">House Lean: ' + g.house_lean_strength + '%</span>' : ''}</div>`;
     document.getElementById('game-modal').style.display = 'flex';
   }
   function closeModal() { document.getElementById('game-modal').style.display = 'none'; }
