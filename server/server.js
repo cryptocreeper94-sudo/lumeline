@@ -269,6 +269,144 @@ app.get('/api/consensus', async (req, res) => {
   }
 });
 
+// P9: Consensus History & Trend Tracking
+app.get('/api/consensus/:gameId/history', async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT confidence, confidence_low, confidence_high, confidence_label,
+              home_likelihood, away_likelihood, house_lean, reasoning, generated_at
+       FROM consensus
+       WHERE game_id = $1
+       ORDER BY generated_at ASC`,
+      [req.params.gameId]
+    );
+
+    const momentum = rows.length >= 2
+      ? rows[rows.length - 1].confidence - rows[0].confidence
+      : 0;
+
+    const directionFlips = rows.slice(1).filter((r, i) => {
+      const prev = rows[i];
+      return (r.home_likelihood > 50) !== (prev.home_likelihood > 50);
+    }).length;
+
+    res.json({
+      history: rows,
+      momentum,
+      direction_flips: directionFlips,
+      is_stable: directionFlips === 0 && Math.abs(momentum) < 15,
+      data_points: rows.length
+    });
+  } catch (err) {
+    console.error('GET /api/consensus/:gameId/history error:', err);
+    res.status(500).json({ error: 'Failed to fetch consensus history' });
+  }
+});
+
+// P10: User ML Profile — Recalculate from bet history
+app.post('/api/bets/recalculate-profile', async (req, res) => {
+  try {
+    const userId = req.body.user_id;
+    if (!userId) return res.status(400).json({ error: 'user_id required' });
+
+    const { rows: bets } = await db.query(
+      `SELECT ub.*, g.sport,
+              (SELECT c.confidence FROM consensus c WHERE c.game_id = ub.game_id ORDER BY c.generated_at DESC LIMIT 1) AS consensus_confidence
+       FROM user_bets ub
+       LEFT JOIN games g ON ub.game_id = g.id
+       WHERE ub.user_id = $1 AND ub.status IN ('won', 'lost', 'push')`,
+      [userId]
+    );
+
+    if (!bets.length) return res.json({ profile: null, message: 'No settled bets found' });
+
+    const winRate = (filterFn) => {
+      const filtered = bets.filter(filterFn);
+      if (!filtered.length) return 0;
+      const wins = filtered.filter(b => b.status === 'won').length;
+      return Math.round((wins / filtered.length) * 100 * 10) / 10;
+    };
+
+    const calcROI = (subset) => {
+      const totalStake = subset.reduce((s, b) => s + parseFloat(b.stake || 0), 0);
+      if (!totalStake) return 0;
+      const totalReturn = subset
+        .filter(b => b.status === 'won')
+        .reduce((s, b) => s + parseFloat(b.result_amount || b.potential_win || 0), 0);
+      return Math.round(((totalReturn - totalStake) / totalStake) * 100 * 10) / 10;
+    };
+
+    const profile = {
+      wr_spread: winRate(b => b.bet_type === 'spread'),
+      wr_moneyline: winRate(b => b.bet_type === 'moneyline'),
+      wr_total: winRate(b => b.bet_type === 'total'),
+      wr_parlay: winRate(b => b.parlay_type != null),
+      wr_prop: winRate(b => b.bet_type === 'prop'),
+      wr_nfl: winRate(b => b.sport?.toLowerCase() === 'nfl'),
+      wr_nba: winRate(b => b.sport?.toLowerCase() === 'nba'),
+      wr_mlb: winRate(b => b.sport?.toLowerCase() === 'mlb'),
+      wr_nhl: winRate(b => b.sport?.toLowerCase() === 'nhl'),
+      roi_high_confidence: calcROI(bets.filter(b => (b.consensus_confidence || 0) > 70)),
+      roi_medium_confidence: calcROI(bets.filter(b => (b.consensus_confidence || 0) >= 50 && (b.consensus_confidence || 0) <= 70)),
+      roi_low_confidence: calcROI(bets.filter(b => (b.consensus_confidence || 0) < 50)),
+      total_settled_bets: bets.length,
+      last_calculated: new Date(),
+    };
+
+    // Find best book
+    const bookMap = {};
+    bets.forEach(b => {
+      if (!b.sportsbook) return;
+      if (!bookMap[b.sportsbook]) bookMap[b.sportsbook] = { won: 0, total: 0 };
+      bookMap[b.sportsbook].total++;
+      if (b.status === 'won') bookMap[b.sportsbook].won++;
+    });
+    const bestBook = Object.entries(bookMap).sort((a, b) => (b[1].won / b[1].total) - (a[1].won / a[1].total))[0];
+    if (bestBook) profile.best_book_slug = bestBook[0];
+
+    await db.query(
+      `INSERT INTO user_ml_profile (user_id, ${Object.keys(profile).join(', ')})
+       VALUES ($1, ${Object.keys(profile).map((_, i) => '$' + (i + 2)).join(', ')})
+       ON CONFLICT (user_id) DO UPDATE SET ${Object.keys(profile).map(k => `${k} = EXCLUDED.${k}`).join(', ')}`,
+      [userId, ...Object.values(profile)]
+    );
+
+    res.json({ profile });
+  } catch (err) {
+    console.error('POST /api/bets/recalculate-profile error:', err);
+    res.status(500).json({ error: 'Profile recalculation failed', message: err.message });
+  }
+});
+
+// P10: Get user ML profile
+app.get('/api/users/:userId/ml-profile', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM user_ml_profile WHERE user_id = $1', [req.params.userId]);
+    if (!rows.length) return res.json({ profile: null, message: 'No profile yet — needs 10+ settled bets' });
+
+    const profile = rows[0];
+    const notes = [];
+
+    if (profile.total_settled_bets >= 10) {
+      if (profile.wr_parlay < 40 && profile.wr_parlay > 0)
+        notes.push(`Your parlay win rate is ${profile.wr_parlay}% — consider straight bets`);
+      if (profile.roi_high_confidence > 5)
+        notes.push(`Strong track record on high-confidence picks (+${profile.roi_high_confidence}% ROI)`);
+      if (profile.wr_nba > 58)
+        notes.push(`You're sharp on NBA (${profile.wr_nba}% win rate)`);
+      if (profile.wr_nfl < 45 && profile.wr_nfl > 0)
+        notes.push(`NFL has been tough for you (${profile.wr_nfl}%) — consider smaller stakes`);
+      if (profile.best_book_slug)
+        notes.push(`Your best book: ${profile.best_book_slug}`);
+    }
+
+    res.json({ profile, personalized_notes: notes });
+  } catch (err) {
+    console.error('GET /api/users/:userId/ml-profile error:', err);
+    res.status(500).json({ error: 'Failed to fetch ML profile' });
+  }
+});
+
 // ═══════════════════════════════════════════
 //  OUTCOME EVALUATION & ACCURACY
 // ═══════════════════════════════════════════
