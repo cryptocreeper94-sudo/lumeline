@@ -6,12 +6,18 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import db from './db.js';
-import { runIngestion } from './ingestion.js';
+import { runIngestion, runSecondaryIngestion, runFullIngestion } from './ingestion.js';
 import { scoreAllSources, assignTier } from './scoring.js';
 import { scanGame } from './anomaly.js';
 import { generateConsensus, generateAllConsensus } from './consensus.js';
 import { initTwilio, getTwilioStatus, sendConsensusAlert, sendAnomalyAlert, sendDailySummary } from './notifications.js';
-import authRouter, { requireAuth } from './auth.js';
+import { evaluateOutcomes } from './outcomes.js';
+import authRouter, { requireAuth, requirePlan, PLAN_PRICES, EARLY_BIRD_LIMIT } from './auth.js';
+import agentRouter from './agent.js';
+import { recordResult, getHouseReportCard, getFadeTargets, getSharpBooks, getHouseBias } from './house-accuracy.js';
+import { recordOUResult, getOUTrends, getOUEdge, getOverMatchups, getUnderMatchups } from './over-under.js';
+import { decodeGame, getSignals, getRecentSignals, scoreSignals, getDecoderAccuracy } from './house-decoder.js';
+import betsRouter from './bets.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -21,8 +27,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..')));
 
+// Serve .well-known for TWA Digital Asset Links
+app.use('/.well-known', express.static(path.join(__dirname, '..', '.well-known')));
+
 // Auth routes
 app.use('/api/auth', authRouter);
+
+// Agent routes (OpenAI + ElevenLabs)
+app.use('/api/agent', agentRouter);
+
+// Bets / Betting Wallet routes (auth required)
+app.use('/api/bets', requireAuth, betsRouter);
+
+// One-time migration: rename Mathew → King Capper
+db.query(`UPDATE sources SET name = 'King Capper', slug = 'king-capper' WHERE slug = 'mathew'`)
+  .then(r => { if (r.rowCount) console.log('✅ Renamed Mathew → King Capper'); })
+  .catch(() => {});
 
 // ═══════════════════════════════════════════
 //  HEALTH
@@ -156,9 +176,17 @@ app.get('/api/widget', async (req, res) => {
 // ═══════════════════════════════════════════
 app.post('/api/ingest', async (req, res) => {
   try {
-    console.log('🔄 Manual ingestion triggered...');
-    const result = await runIngestion();
-    res.json({ status: 'complete', ...result });
+    const mode = req.body?.mode || 'core';
+    console.log(`🔄 Manual ingestion triggered (${mode})...`);
+    let result;
+    if (mode === 'full') {
+      result = await runFullIngestion();
+    } else if (mode === 'secondary') {
+      result = await runSecondaryIngestion();
+    } else {
+      result = await runIngestion();
+    }
+    res.json({ status: 'complete', mode, ...result });
   } catch (err) {
     console.error('POST /api/ingest error:', err);
     res.status(500).json({ error: 'Ingestion failed', message: err.message });
@@ -194,7 +222,7 @@ app.post('/api/pipeline', async (req, res) => {
 
       // Generate consensus
       const gameWithIntegrity = { ...game, integrity_score: scan.integrity };
-      const consensus = generateConsensus(gameWithIntegrity, snapshots, sources, scan.anomalies);
+      const consensus = await generateConsensus(gameWithIntegrity, snapshots, sources, scan.anomalies);
       try {
         await db.insertConsensus(consensus);
       } catch (e) { /* ok */ }
@@ -238,6 +266,217 @@ app.get('/api/consensus', async (req, res) => {
     res.json({ predictions: rows, count: rows.length });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch consensus' });
+  }
+});
+
+// P9: Consensus History & Trend Tracking
+app.get('/api/consensus/:gameId/history', async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT confidence, confidence_low, confidence_high, confidence_label,
+              home_likelihood, away_likelihood, house_lean, reasoning, generated_at
+       FROM consensus
+       WHERE game_id = $1
+       ORDER BY generated_at ASC`,
+      [req.params.gameId]
+    );
+
+    const momentum = rows.length >= 2
+      ? rows[rows.length - 1].confidence - rows[0].confidence
+      : 0;
+
+    const directionFlips = rows.slice(1).filter((r, i) => {
+      const prev = rows[i];
+      return (r.home_likelihood > 50) !== (prev.home_likelihood > 50);
+    }).length;
+
+    res.json({
+      history: rows,
+      momentum,
+      direction_flips: directionFlips,
+      is_stable: directionFlips === 0 && Math.abs(momentum) < 15,
+      data_points: rows.length
+    });
+  } catch (err) {
+    console.error('GET /api/consensus/:gameId/history error:', err);
+    res.status(500).json({ error: 'Failed to fetch consensus history' });
+  }
+});
+
+// P10: User ML Profile — Recalculate from bet history
+app.post('/api/bets/recalculate-profile', async (req, res) => {
+  try {
+    const userId = req.body.user_id;
+    if (!userId) return res.status(400).json({ error: 'user_id required' });
+
+    const { rows: bets } = await db.query(
+      `SELECT ub.*, g.sport,
+              (SELECT c.confidence FROM consensus c WHERE c.game_id = ub.game_id ORDER BY c.generated_at DESC LIMIT 1) AS consensus_confidence
+       FROM user_bets ub
+       LEFT JOIN games g ON ub.game_id = g.id
+       WHERE ub.user_id = $1 AND ub.status IN ('won', 'lost', 'push')`,
+      [userId]
+    );
+
+    if (!bets.length) return res.json({ profile: null, message: 'No settled bets found' });
+
+    const winRate = (filterFn) => {
+      const filtered = bets.filter(filterFn);
+      if (!filtered.length) return 0;
+      const wins = filtered.filter(b => b.status === 'won').length;
+      return Math.round((wins / filtered.length) * 100 * 10) / 10;
+    };
+
+    const calcROI = (subset) => {
+      const totalStake = subset.reduce((s, b) => s + parseFloat(b.stake || 0), 0);
+      if (!totalStake) return 0;
+      const totalReturn = subset
+        .filter(b => b.status === 'won')
+        .reduce((s, b) => s + parseFloat(b.result_amount || b.potential_win || 0), 0);
+      return Math.round(((totalReturn - totalStake) / totalStake) * 100 * 10) / 10;
+    };
+
+    const profile = {
+      wr_spread: winRate(b => b.bet_type === 'spread'),
+      wr_moneyline: winRate(b => b.bet_type === 'moneyline'),
+      wr_total: winRate(b => b.bet_type === 'total'),
+      wr_parlay: winRate(b => b.parlay_type != null),
+      wr_prop: winRate(b => b.bet_type === 'prop'),
+      wr_nfl: winRate(b => b.sport?.toLowerCase() === 'nfl'),
+      wr_nba: winRate(b => b.sport?.toLowerCase() === 'nba'),
+      wr_mlb: winRate(b => b.sport?.toLowerCase() === 'mlb'),
+      wr_nhl: winRate(b => b.sport?.toLowerCase() === 'nhl'),
+      roi_high_confidence: calcROI(bets.filter(b => (b.consensus_confidence || 0) > 70)),
+      roi_medium_confidence: calcROI(bets.filter(b => (b.consensus_confidence || 0) >= 50 && (b.consensus_confidence || 0) <= 70)),
+      roi_low_confidence: calcROI(bets.filter(b => (b.consensus_confidence || 0) < 50)),
+      total_settled_bets: bets.length,
+      last_calculated: new Date(),
+    };
+
+    // Find best book
+    const bookMap = {};
+    bets.forEach(b => {
+      if (!b.sportsbook) return;
+      if (!bookMap[b.sportsbook]) bookMap[b.sportsbook] = { won: 0, total: 0 };
+      bookMap[b.sportsbook].total++;
+      if (b.status === 'won') bookMap[b.sportsbook].won++;
+    });
+    const bestBook = Object.entries(bookMap).sort((a, b) => (b[1].won / b[1].total) - (a[1].won / a[1].total))[0];
+    if (bestBook) profile.best_book_slug = bestBook[0];
+
+    await db.query(
+      `INSERT INTO user_ml_profile (user_id, ${Object.keys(profile).join(', ')})
+       VALUES ($1, ${Object.keys(profile).map((_, i) => '$' + (i + 2)).join(', ')})
+       ON CONFLICT (user_id) DO UPDATE SET ${Object.keys(profile).map(k => `${k} = EXCLUDED.${k}`).join(', ')}`,
+      [userId, ...Object.values(profile)]
+    );
+
+    res.json({ profile });
+  } catch (err) {
+    console.error('POST /api/bets/recalculate-profile error:', err);
+    res.status(500).json({ error: 'Profile recalculation failed', message: err.message });
+  }
+});
+
+// P10: Get user ML profile
+app.get('/api/users/:userId/ml-profile', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM user_ml_profile WHERE user_id = $1', [req.params.userId]);
+    if (!rows.length) return res.json({ profile: null, message: 'No profile yet — needs 10+ settled bets' });
+
+    const profile = rows[0];
+    const notes = [];
+
+    if (profile.total_settled_bets >= 10) {
+      if (profile.wr_parlay < 40 && profile.wr_parlay > 0)
+        notes.push(`Your parlay win rate is ${profile.wr_parlay}% — consider straight bets`);
+      if (profile.roi_high_confidence > 5)
+        notes.push(`Strong track record on high-confidence picks (+${profile.roi_high_confidence}% ROI)`);
+      if (profile.wr_nba > 58)
+        notes.push(`You're sharp on NBA (${profile.wr_nba}% win rate)`);
+      if (profile.wr_nfl < 45 && profile.wr_nfl > 0)
+        notes.push(`NFL has been tough for you (${profile.wr_nfl}%) — consider smaller stakes`);
+      if (profile.best_book_slug)
+        notes.push(`Your best book: ${profile.best_book_slug}`);
+    }
+
+    res.json({ profile, personalized_notes: notes });
+  } catch (err) {
+    console.error('GET /api/users/:userId/ml-profile error:', err);
+    res.status(500).json({ error: 'Failed to fetch ML profile' });
+  }
+});
+
+// ═══════════════════════════════════════════
+//  OUTCOME EVALUATION & ACCURACY
+// ═══════════════════════════════════════════
+app.post('/api/outcomes/evaluate', async (req, res) => {
+  try {
+    console.log('🏆 Manual outcome evaluation triggered...');
+    const result = await evaluateOutcomes();
+    res.json({ status: 'complete', ...result });
+  } catch (err) {
+    console.error('POST /api/outcomes/evaluate error:', err);
+    res.status(500).json({ error: 'Evaluation failed', message: err.message });
+  }
+});
+
+app.get('/api/accuracy', async (req, res) => {
+  try {
+    let rows = [];
+    let recent = [];
+    try {
+      const result = await db.query(`
+        SELECT * FROM accuracy_stats 
+        WHERE confidence_bucket IS NULL 
+        ORDER BY 
+          CASE window WHEN 'all' THEN 0 WHEN '7d' THEN 1 WHEN '30d' THEN 2 WHEN '90d' THEN 3 END,
+          sport NULLS FIRST
+      `);
+      rows = result.rows;
+    } catch (e) {
+      // Table may not exist yet — graceful fallback
+      console.warn('accuracy_stats table not found, returning empty stats');
+    }
+    
+    try {
+      const result = await db.query(`
+        SELECT co.*, g.home_team, g.away_team, g.sport, go.home_score, go.away_score
+        FROM consensus_outcomes co
+        JOIN games g ON g.id = co.game_id
+        LEFT JOIN game_outcomes go ON go.game_id = co.game_id
+        ORDER BY co.evaluated_at DESC LIMIT 20
+      `);
+      recent = result.rows;
+    } catch (e) {
+      // Table may not exist yet
+      console.warn('consensus_outcomes table not found, returning empty recent');
+    }
+    
+    res.json({ stats: rows, recent, count: rows.length });
+  } catch (err) {
+    console.error('GET /api/accuracy error:', err);
+    res.status(500).json({ error: 'Failed to fetch accuracy' });
+  }
+});
+
+app.get('/api/accuracy/:sport', async (req, res) => {
+  try {
+    const sport = req.params.sport.toUpperCase();
+    const { rows } = await db.query(
+      'SELECT * FROM accuracy_stats WHERE sport = $1 ORDER BY window', [sport]
+    );
+    const { rows: outcomes } = await db.query(`
+      SELECT co.*, g.home_team, g.away_team, go.home_score, go.away_score
+      FROM consensus_outcomes co
+      JOIN games g ON g.id = co.game_id
+      LEFT JOIN game_outcomes go ON go.game_id = co.game_id
+      WHERE co.sport = $1
+      ORDER BY co.evaluated_at DESC LIMIT 20
+    `, [sport]);
+    res.json({ stats: rows, outcomes, sport });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch sport accuracy' });
   }
 });
 
@@ -301,6 +540,157 @@ app.post('/api/notifications/daily', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════
+//  HOUSE DECODER
+// ═══════════════════════════════════════════
+
+// House accuracy report card
+app.get('/api/decoder/house-accuracy', requireAuth, requirePlan('house_decoder'), async (req, res) => {
+  try {
+    const { market, sport, period } = req.query;
+    const report = await getHouseReportCard(market || 'spread', sport || null, period || '30d');
+    const fades = await getFadeTargets(market || 'spread', period || '30d');
+    const sharps = await getSharpBooks(market || 'spread', period || '30d');
+    res.json({ report, fade_targets: fades, follow_targets: sharps });
+  } catch (err) {
+    console.error('GET /api/decoder/house-accuracy error:', err);
+    res.status(500).json({ error: 'Failed to fetch house accuracy' });
+  }
+});
+
+// House bias for a specific source
+app.get('/api/decoder/bias/:slug', requireAuth, requirePlan('house_decoder'), async (req, res) => {
+  try {
+    const { sport } = req.query;
+    const bias = await getHouseBias(req.params.slug, sport || null);
+    if (!bias) return res.status(404).json({ error: 'No accuracy data for this source' });
+    res.json(bias);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch bias data' });
+  }
+});
+
+// Over/Under trends
+app.get('/api/decoder/ou-trends', requireAuth, requirePlan('house_decoder'), async (req, res) => {
+  try {
+    const { sport } = req.query;
+    const trends = await getOUTrends(sport || null);
+    const edge = await getOUEdge(sport || null);
+    const overMatchups = await getOverMatchups(sport || null);
+    const underMatchups = await getUnderMatchups(sport || null);
+    res.json({ trends, edge_matchups: edge, always_over: overMatchups, always_under: underMatchups });
+  } catch (err) {
+    console.error('GET /api/decoder/ou-trends error:', err);
+    res.status(500).json({ error: 'Failed to fetch O/U trends' });
+  }
+});
+
+// Decoder signals for a specific game
+app.get('/api/decoder/signals/:gameId', requireAuth, requirePlan('house_decoder'), async (req, res) => {
+  try {
+    const signals = await getSignals(req.params.gameId);
+    res.json({ signals, count: signals.length });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch signals' });
+  }
+});
+
+// All recent decoder signals
+app.get('/api/decoder/signals', requireAuth, requirePlan('house_decoder'), async (req, res) => {
+  try {
+    const { limit } = req.query;
+    const signals = await getRecentSignals(parseInt(limit) || 20);
+    res.json({ signals, count: signals.length });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch recent signals' });
+  }
+});
+
+// Run decoder on a game
+app.post('/api/decoder/decode/:gameId', requireAuth, requirePlan('house_decoder'), async (req, res) => {
+  try {
+    const signals = await decodeGame(req.params.gameId);
+    res.json({ signals, count: signals.length });
+  } catch (err) {
+    console.error('POST /api/decoder/decode error:', err);
+    res.status(500).json({ error: 'Decode failed', message: err.message });
+  }
+});
+
+// Record game result + score all books
+app.post('/api/decoder/result', requireAuth, requirePlan('house_decoder'), async (req, res) => {
+  try {
+    const { game_id, home_score, away_score } = req.body;
+    if (!game_id || home_score == null || away_score == null) {
+      return res.status(400).json({ error: 'game_id, home_score, and away_score are required' });
+    }
+    const result = await recordResult(game_id, home_score, away_score);
+    const ouResult = await recordOUResult(game_id);
+    const signalScores = await scoreSignals();
+    res.json({ result, ou_analysis: ouResult, signals_scored: signalScores.scored });
+  } catch (err) {
+    console.error('POST /api/decoder/result error:', err);
+    res.status(500).json({ error: 'Result recording failed', message: err.message });
+  }
+});
+
+// Decoder accuracy (how well is the decoder performing?)
+app.get('/api/decoder/accuracy', requireAuth, requirePlan('house_decoder'), async (req, res) => {
+  try {
+    const accuracy = await getDecoderAccuracy();
+    res.json({ signal_accuracy: accuracy });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch decoder accuracy' });
+  }
+});
+
+// Free preview teaser (no auth required — drives conversion)
+app.get('/api/decoder/preview', async (req, res) => {
+  try {
+    const signals = await getRecentSignals(5);
+    // Return counts and types only — no predictions or details
+    const teaser = {
+      active_signals: signals.length,
+      signal_types: [...new Set(signals.map(s => s.signal_type))],
+      games_decoded: [...new Set(signals.map(s => s.game_id))].length,
+      sample: signals.slice(0, 2).map(s => ({
+        signal_type: s.signal_type,
+        sport: s.sport,
+        matchup: `${s.away_team} @ ${s.home_team}`,
+        confidence: '🔒',
+        prediction: '🔒 Upgrade to unlock',
+        description: s.description?.slice(0, 40) + '... 🔒'
+      })),
+      unlock: {
+        plan: 'house_decoder',
+        name: 'House Decoder',
+        early_bird: '$14.99/mo',
+        standard: '$29.99/mo',
+        features: ['House accuracy scoring', 'O/U edge detection', '5 signal detectors', 'Self-learning predictions', 'Full signal details']
+      }
+    };
+    res.json(teaser);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to generate preview' });
+  }
+});
+
+// Subscription plans info (public)
+app.get('/api/plans', (req, res) => {
+  res.json({
+    plans: Object.entries(PLAN_PRICES).map(([key, val]) => ({
+      id: key,
+      name: val.name,
+      early_bird: `$${(val.early / 100).toFixed(2)}/mo`,
+      standard: `$${(val.standard / 100).toFixed(2)}/mo`,
+      early_bird_cents: val.early,
+      standard_cents: val.standard
+    })),
+    early_bird_limit: EARLY_BIRD_LIMIT,
+    note: `First ${EARLY_BIRD_LIMIT} subscribers on each plan get early bird pricing locked in for life.`
+  });
+});
+
+// ═══════════════════════════════════════════
 //  ADMIN ENDPOINTS
 // ═══════════════════════════════════════════
 app.get('/api/admin/users', async (req, res) => {
@@ -337,11 +727,27 @@ app.post('/api/stripe/checkout', async (req, res) => {
     const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY);
     const { plan, user_id } = req.body;
 
-    const prices = {
-      pro: { amount: 999, name: 'LumeLine Pro', interval: 'month' }
+    // Three independent products
+    const plans = {
+      game_predictions: { name: 'LumeLine Game Predictions', description: 'Full consensus predictions, all 47 sources, anomaly alerts, push notifications', early: 999, standard: 1999 },
+      house_decoder:    { name: 'LumeLine House Decoder', description: 'House accuracy scoring, O/U edge detection, 5 signal detectors, self-learning predictions', early: 1499, standard: 2999 },
+      all_access:       { name: 'LumeLine All-Access', description: 'Game Predictions + House Decoder — everything LumeLine offers', early: 1999, standard: 3999 }
     };
-    const p = prices[plan];
-    if (!p) return res.status(400).json({ error: 'Invalid plan' });
+
+    const p = plans[plan];
+    if (!p) return res.status(400).json({ error: 'Invalid plan. Choose: game_predictions, house_decoder, or all_access' });
+
+    // Check subscriber count for early bird pricing
+    let subscriberCount = 0;
+    try {
+      const { rows } = await db.query(
+        "SELECT COUNT(*) FROM users WHERE preferences->>'plan' IS NOT NULL OR preferences->'plans' IS NOT NULL"
+      );
+      subscriberCount = parseInt(rows[0]?.count || 0);
+    } catch (e) { /* table may not exist yet */ }
+
+    const amount = subscriberCount < EARLY_BIRD_LIMIT ? p.early : p.standard;
+    const priceLabel = subscriberCount < EARLY_BIRD_LIMIT ? '(Early Bird)' : '';
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -349,18 +755,21 @@ app.post('/api/stripe/checkout', async (req, res) => {
       line_items: [{
         price_data: {
           currency: 'usd',
-          product_data: { name: p.name, description: 'Real-time alerts, advanced anomaly reports, historical data, API access' },
-          recurring: { interval: p.interval },
-          unit_amount: p.amount
+          product_data: { 
+            name: `${p.name} ${priceLabel}`.trim(), 
+            description: p.description 
+          },
+          recurring: { interval: 'month' },
+          unit_amount: amount
         },
         quantity: 1
       }],
-      success_url: `${req.protocol}://${req.get('host')}/dashboard.html?upgrade=success`,
+      success_url: `${req.protocol}://${req.get('host')}/dashboard.html?upgrade=success&plan=${plan}`,
       cancel_url: `${req.protocol}://${req.get('host')}/dashboard.html?upgrade=cancel`,
-      metadata: { user_id: user_id || '', plan }
+      metadata: { user_id: user_id || '', plan, early_bird: subscriberCount < EARLY_BIRD_LIMIT ? 'true' : 'false' }
     });
 
-    res.json({ url: session.url, session_id: session.id });
+    res.json({ url: session.url, session_id: session.id, plan, amount_cents: amount, early_bird: subscriberCount < EARLY_BIRD_LIMIT });
   } catch (err) {
     console.error('Stripe checkout error:', err);
     res.status(500).json({ error: 'Checkout failed', message: err.message });
@@ -380,12 +789,33 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
       case 'checkout.session.completed': {
         const session = event.data.object;
         const userId = session.metadata?.user_id;
-        if (userId) {
+        const plan = session.metadata?.plan;
+        const isEarlyBird = session.metadata?.early_bird === 'true';
+        if (userId && plan) {
+          // Store the plan — support multiple independent plans
+          const { rows: userRows } = await db.query('SELECT preferences FROM users WHERE id = $1', [userId]);
+          const prefs = userRows[0]?.preferences || {};
+          const existingPlans = Array.isArray(prefs.plans) ? prefs.plans : (prefs.plan ? [prefs.plan] : []);
+          
+          // If all_access, replace everything. Otherwise add the plan.
+          const newPlans = plan === 'all_access' 
+            ? ['all_access'] 
+            : [...new Set([...existingPlans, plan])];
+          
+          const updatedPrefs = {
+            ...prefs,
+            plan: newPlans.includes('all_access') ? 'all_access' : newPlans[0],
+            plans: newPlans,
+            early_bird: isEarlyBird,
+            stripe_customer_id: session.customer,
+            [`stripe_sub_${plan}`]: session.subscription
+          };
+          
           await db.query(
-            "UPDATE users SET preferences = preferences || $1 WHERE id = $2",
-            [JSON.stringify({ plan: 'pro', stripe_customer_id: session.customer, stripe_subscription_id: session.subscription }), userId]
+            "UPDATE users SET preferences = $1 WHERE id = $2",
+            [JSON.stringify(updatedPrefs), userId]
           );
-          console.log(`💳 User ${userId} upgraded to Pro`);
+          console.log(`💳 User ${userId} subscribed to ${plan}${isEarlyBird ? ' (Early Bird 🐦)' : ''}`);
         }
         break;
       }
@@ -447,9 +877,9 @@ app.post('/api/partner/connect', async (req, res) => {
       country: 'US',
       email: partner_email || undefined,
       business_type: 'individual',
-      individual: { first_name: 'Mathew', last_name: 'Kemper' },
+      individual: { first_name: 'King', last_name: 'Capper' },
       capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
-      metadata: { partner: 'mathew_kemper', ecosystem: 'trust_layer', platform: 'orbit_staffing' }
+      metadata: { partner: 'king_capper', ecosystem: 'trust_layer', platform: 'orbit_staffing' }
     });
 
     partnerConnectId = account.id;
@@ -506,7 +936,7 @@ app.post('/api/partner/payout', async (req, res) => {
       currency: 'usd',
       destination: partnerConnectId,
       description: description || 'LumeLine Partner Payout — Orbit Staffing',
-      metadata: { partner: 'mathew_kemper', via: 'orbit_staffing' }
+      metadata: { partner: 'king_capper', via: 'orbit_staffing' }
     });
 
     console.log(`💰 Partner payout: $${(amount_cents / 100).toFixed(2)} → ${partnerConnectId}`);
@@ -518,19 +948,45 @@ app.post('/api/partner/payout', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════
-//  SCHEDULED INGESTION
+//  SCHEDULED INGESTION (Tiered)
 // ═══════════════════════════════════════════
-const INTERVAL = (parseInt(process.env.INGESTION_INTERVAL_MINUTES) || 15) * 60 * 1000;
+// BETA: Core sports only (NBA, NHL, NCAAB)
+// Core: 3 sports × 144 = 432 req/day + outcomes 36 = 468/day (under 500 free tier)
+const CORE_INTERVAL = 10 * 60 * 1000;      // 10 minutes — max frequency for free tier
+const SECONDARY_INTERVAL = 60 * 60 * 1000; // 60 minutes (inactive)
 
 function startScheduler() {
-  console.log(`⏰ Scheduler: ingestion every ${INTERVAL / 60000} minutes`);
+  console.log('⏰ Scheduler [BETA — Max Frequency]:');
+  console.log('   NBA, NHL, NCAAB → every 10 min (~468 req/day)');
+  console.log('   Secondary → disabled (coming soon)');
+  console.log('   Outcome evaluation → every 2 hours');
+
+  // Core sports scheduler
   setInterval(async () => {
     try {
       await runIngestion();
     } catch (err) {
-      console.error('Scheduled ingestion error:', err.message);
+      console.error('Scheduled core ingestion error:', err.message);
     }
-  }, INTERVAL);
+  }, CORE_INTERVAL);
+
+  // Secondary sports scheduler  
+  setInterval(async () => {
+    try {
+      await runSecondaryIngestion();
+    } catch (err) {
+      console.error('Scheduled secondary ingestion error:', err.message);
+    }
+  }, SECONDARY_INTERVAL);
+
+  // Outcome evaluation — every 2 hours
+  setInterval(async () => {
+    try {
+      await evaluateOutcomes();
+    } catch (err) {
+      console.error('Scheduled outcome evaluation error:', err.message);
+    }
+  }, 2 * 60 * 60 * 1000);
 }
 
 // ═══════════════════════════════════════════
@@ -540,7 +996,7 @@ app.listen(PORT, () => {
   console.log('');
   console.log('╔═══════════════════════════════════════════╗');
   console.log('║                                           ║');
-  console.log('║    ◆ LumeLine Server v0.1.0               ║');
+  console.log('║    ◆ LumeLine Server v0.2.0               ║');
   console.log('║    Odds Intelligence · Trust Layer         ║');
   console.log('║                                           ║');
   console.log('╠═══════════════════════════════════════════╣');
@@ -555,7 +1011,11 @@ app.listen(PORT, () => {
   
   if (process.env.ODDS_API_KEY && process.env.ODDS_API_KEY !== 'your_key_here') {
     startScheduler();
-    runIngestion().catch(err => console.error('Initial ingestion error:', err.message));
+    // Initial boot: ingest core immediately, secondary after 5 sec
+    runIngestion().catch(err => console.error('Initial core ingestion error:', err.message));
+    setTimeout(() => {
+      runSecondaryIngestion().catch(err => console.error('Initial secondary ingestion error:', err.message));
+    }, 5000);
   } else {
     console.log('⚠️  No ODDS_API_KEY set — running in demo mode');
     console.log('   Set ODDS_API_KEY in .env to enable live data');

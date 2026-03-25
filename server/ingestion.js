@@ -4,7 +4,14 @@ import db from './db.js';
 
 const API_KEY = process.env.ODDS_API_KEY;
 const API_BASE = process.env.ODDS_API_BASE || 'https://api.the-odds-api.com/v4';
-const SPORTS = (process.env.SUPPORTED_SPORTS || 'americanfootball_nfl,basketball_nba').split(',');
+
+// BETA MODE — Core sports only, max frequency
+// Core: NBA + NHL + NCAAB → 3 × 144 = 432 req/day (every 10 min)
+// + Outcome eval: 36 req/day = 468 total (under 500 free tier)
+// Secondary: disabled (coming soon)
+const CORE_SPORTS = (process.env.CORE_SPORTS || 'basketball_nba,icehockey_nhl,basketball_ncaab').split(',');
+const SECONDARY_SPORTS = (process.env.SECONDARY_SPORTS || '').split(',').filter(s => s);
+const ALL_SPORTS = [...CORE_SPORTS, ...SECONDARY_SPORTS];
 
 // ═══ Fetch upcoming games + odds from The Odds API ═══
 async function fetchOdds(sport) {
@@ -12,11 +19,23 @@ async function fetchOdds(sport) {
   console.log(`📡 Fetching odds for ${sport}...`);
   
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Odds API ${res.status}: ${res.statusText}`);
+  if (!res.ok) {
+    // 404 typically means sport not in season — not an error
+    if (res.status === 404) {
+      console.log(`   ⏸️  ${sport} — not in season or no games available`);
+      return [];
+    }
+    throw new Error(`Odds API ${res.status}: ${res.statusText}`);
+  }
   
   const remaining = res.headers.get('x-requests-remaining');
   const used = res.headers.get('x-requests-used');
   console.log(`   API quota: ${remaining} remaining / ${used} used`);
+  
+  // If running low on quota, skip secondary sports
+  if (parseInt(remaining) < 50) {
+    console.log('   ⚠️  API quota low — will skip secondary sports');
+  }
   
   return res.json();
 }
@@ -25,9 +44,26 @@ async function fetchOdds(sport) {
 function mapSport(apiSport) {
   const map = {
     'americanfootball_nfl': { sport: 'NFL', league: 'NFL' },
+    'americanfootball_ncaaf': { sport: 'NCAAF', league: 'NCAAF' },
     'basketball_nba': { sport: 'NBA', league: 'NBA' },
+    'basketball_ncaab': { sport: 'NCAAB', league: 'NCAAB' },
+    'basketball_wnba': { sport: 'WNBA', league: 'WNBA' },
+    'baseball_mlb': { sport: 'MLB', league: 'MLB' },
+    'icehockey_nhl': { sport: 'NHL', league: 'NHL' },
+    'soccer_epl': { sport: 'EPL', league: 'EPL' },
+    'soccer_spain_la_liga': { sport: 'La Liga', league: 'La Liga' },
+    'soccer_usa_mls': { sport: 'MLS', league: 'MLS' },
+    'mma_mixed_martial_arts': { sport: 'UFC', league: 'UFC' },
+    'tennis_atp': { sport: 'Tennis', league: 'ATP' },
+    'tennis_wta': { sport: 'Tennis', league: 'WTA' },
+    'golf_masters_tournament_winner': { sport: 'Golf', league: 'PGA' },
+    'golf_pga_championship': { sport: 'Golf', league: 'PGA' },
+    'cricket_ipl': { sport: 'Cricket', league: 'IPL' },
+    'cricket_test_match': { sport: 'Cricket', league: 'Test' },
+    'rugbyleague_nrl': { sport: 'Rugby', league: 'NRL' },
+    'americanfootball_nfl_preseason': { sport: 'NFL', league: 'NFL Preseason' },
   };
-  return map[apiSport] || { sport: apiSport, league: apiSport };
+  return map[apiSport] || { sport: apiSport.split('_').pop().toUpperCase(), league: apiSport };
 }
 
 // ═══ Process a single game from the API response ═══
@@ -54,8 +90,6 @@ async function processGame(apiGame, sources) {
     if (!source) continue;
     
     for (const market of (bookmaker.markets || [])) {
-      const marketType = market.key === 'spreads' ? 'spread' : market.key === 'h2h' ? 'moneyline' : 'total';
-      
       if (market.key === 'spreads' && market.outcomes?.length >= 2) {
         const homeOutcome = market.outcomes.find(o => o.name === apiGame.home_team);
         const awayOutcome = market.outcomes.find(o => o.name === apiGame.away_team);
@@ -112,21 +146,19 @@ async function processGame(apiGame, sources) {
   return { game, snapshotCount };
 }
 
-// ═══ Run Full Ingestion Cycle ═══
-export async function runIngestion() {
-  console.log('\n═══════════════════════════════════════');
-  console.log('  LumeLine Ingestion Cycle Starting...');
-  console.log('═══════════════════════════════════════\n');
-  
-  const sources = await db.getSources();
+// ═══ Run Ingestion for a set of sports ═══
+async function ingestSports(sportKeys, sources) {
   let totalSnapshots = 0;
   let totalGames = 0;
-  
-  for (const sport of SPORTS) {
+
+  for (const sport of sportKeys) {
     const start = Date.now();
-    
     try {
       const apiGames = await fetchOdds(sport);
+      if (!apiGames || apiGames.length === 0) {
+        console.log(`   ⏸️  ${sport} — no games returned`);
+        continue;
+      }
       console.log(`   Found ${apiGames.length} games for ${sport}`);
       
       for (const apiGame of apiGames) {
@@ -144,7 +176,6 @@ export async function runIngestion() {
         duration_ms: Date.now() - start,
         status: 'success'
       });
-      
     } catch (err) {
       console.error(`   ❌ Error fetching ${sport}:`, err.message);
       await db.logIngestion({
@@ -158,9 +189,44 @@ export async function runIngestion() {
       });
     }
   }
-  
-  console.log(`\n✦ Ingestion complete: ${totalGames} games, ${totalSnapshots} snapshots\n`);
+
   return { totalGames, totalSnapshots };
 }
 
-export default { runIngestion };
+// ═══ Run Full Ingestion Cycle (Core sports) ═══
+export async function runIngestion() {
+  console.log('\n═══════════════════════════════════════');
+  console.log('  LumeLine Core Ingestion Cycle');
+  console.log('═══════════════════════════════════════\n');
+  
+  const sources = await db.getSources();
+  const result = await ingestSports(CORE_SPORTS, sources);
+  console.log(`\n✦ Core ingestion complete: ${result.totalGames} games, ${result.totalSnapshots} snapshots\n`);
+  return result;
+}
+
+// ═══ Secondary Ingestion (runs at lower frequency) ═══
+export async function runSecondaryIngestion() {
+  console.log('\n═══════════════════════════════════════');
+  console.log('  LumeLine Secondary Ingestion Cycle');
+  console.log('═══════════════════════════════════════\n');
+  
+  const sources = await db.getSources();
+  const result = await ingestSports(SECONDARY_SPORTS, sources);
+  console.log(`\n✦ Secondary ingestion complete: ${result.totalGames} games, ${result.totalSnapshots} snapshots\n`);
+  return result;
+}
+
+// ═══ Run ALL sports (manual trigger only) ═══
+export async function runFullIngestion() {
+  console.log('\n═══════════════════════════════════════');
+  console.log('  LumeLine FULL Ingestion (All Sports)');
+  console.log('═══════════════════════════════════════\n');
+  
+  const sources = await db.getSources();
+  const result = await ingestSports(ALL_SPORTS, sources);
+  console.log(`\n✦ Full ingestion complete: ${result.totalGames} games, ${result.totalSnapshots} snapshots\n`);
+  return result;
+}
+
+export default { runIngestion, runSecondaryIngestion, runFullIngestion };

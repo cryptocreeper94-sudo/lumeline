@@ -42,7 +42,7 @@ const BLOCKED_TOPICS = [
   'bank account number', 'routing number', 'social security',
   'environment variable values', 'jwt secret', 'webhook secret',
   'internal ip address', 'server ssh', 'deployment credentials',
-  'mathew kemper bank', 'kathy grater bank', 'partner compensation amount',
+  'king capper bank', 'kathy grater bank', 'partner compensation amount',
   'commission payout amount', 'salary', 'pay rate',
   'connected account id', 'stripe account id',
 ];

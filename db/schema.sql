@@ -98,7 +98,7 @@ CREATE TABLE consensus (
     generated_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ═══ EXTERNAL PICKS (Mathew, etc.) ═══
+-- ═══ EXTERNAL PICKS (King Capper, etc.) ═══
 CREATE TABLE picks (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     source_id       UUID NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
@@ -184,7 +184,7 @@ INSERT INTO sources (name, slug, type, tier, accuracy_30d) VALUES
     ('PointsBet', 'pointsbet', 'bookmaker', 'neutral', 51.0),
     ('BetUS', 'betus', 'bookmaker', 'fade', 42.0),
     ('Bovada', 'bovada', 'bookmaker', 'neutral', 50.0),
-    ('Mathew', 'mathew', 'external', 'sharp', 71.0),
+    ('King Capper', 'king-capper', 'external', 'sharp', 71.0),
     ('Bet365', 'bet365', 'bookmaker', 'reliable', 59.0)
 ON CONFLICT (slug) DO NOTHING;
 

@@ -115,6 +115,56 @@ export async function requireAuth(req, res, next) {
   next();
 }
 
+// ═══ PLAN GATING MIDDLEWARE ═══
+// Plans: 'game_predictions', 'house_decoder', 'all_access'
+// all_access grants access to everything
+
+const PLAN_PRICES = {
+  game_predictions: { early: 999, standard: 1999, name: 'Game Predictions' },
+  house_decoder:    { early: 1499, standard: 2999, name: 'House Decoder' },
+  all_access:       { early: 1999, standard: 3999, name: 'All-Access' }
+};
+
+const EARLY_BIRD_LIMIT = 1000; // first 1K subscribers get early bird pricing
+
+export function requirePlan(requiredPlan) {
+  return (req, res, next) => {
+    const prefs = req.user?.preferences || {};
+    const userPlan = prefs.plan;
+
+    // all_access unlocks everything
+    if (userPlan === 'all_access') return next();
+
+    // Check if user has the specific plan
+    // If they have multiple plans stored as an array, check that too
+    const userPlans = Array.isArray(prefs.plans) ? prefs.plans : [userPlan].filter(Boolean);
+
+    if (userPlans.includes(requiredPlan) || userPlans.includes('all_access')) {
+      return next();
+    }
+
+    const planInfo = PLAN_PRICES[requiredPlan] || PLAN_PRICES.all_access;
+    return res.status(403).json({
+      error: 'Subscription required',
+      required_plan: requiredPlan,
+      plan_name: planInfo.name,
+      pricing: {
+        early_bird: `$${(planInfo.early / 100).toFixed(2)}/mo (first ${EARLY_BIRD_LIMIT} subscribers)`,
+        standard: `$${(planInfo.standard / 100).toFixed(2)}/mo`
+      },
+      upgrade_url: '/api/stripe/checkout',
+      plans_available: Object.entries(PLAN_PRICES).map(([key, val]) => ({
+        plan: key,
+        name: val.name,
+        early_bird: `$${(val.early / 100).toFixed(2)}/mo`,
+        standard: `$${(val.standard / 100).toFixed(2)}/mo`
+      }))
+    });
+  };
+}
+
+export { PLAN_PRICES, EARLY_BIRD_LIMIT };
+
 // ═══ SIGNUP ═══
 router.post('/signup', async (req, res) => {
   try {
