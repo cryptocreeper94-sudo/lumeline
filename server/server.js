@@ -218,7 +218,7 @@ app.post('/api/pipeline', async (req, res) => {
 
       // Generate consensus
       const gameWithIntegrity = { ...game, integrity_score: scan.integrity };
-      const consensus = generateConsensus(gameWithIntegrity, snapshots, sources, scan.anomalies);
+      const consensus = await generateConsensus(gameWithIntegrity, snapshots, sources, scan.anomalies);
       try {
         await db.insertConsensus(consensus);
       } catch (e) { /* ok */ }
