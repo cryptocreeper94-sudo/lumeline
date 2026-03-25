@@ -12,6 +12,7 @@ function injectShell() {
     </a>
     <div class="nav-links" style="display:flex;align-items:center;gap:20px">
       <a href="/" style="font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;font-weight:500;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Dashboard</a>
+      <a href="/bets.html" style="font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;font-weight:500;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">My Bets</a>
       <a href="/blog.html" style="font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;font-weight:500;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Blog</a>
       <a href="/roadmap.html" style="font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;font-weight:500;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Roadmap</a>
       <a href="/developers.html" style="font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;font-weight:500;transition:color .2s" onmouseover="this.style.color='#67e8f9'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Developers</a>
@@ -21,6 +22,7 @@ function injectShell() {
   </div>
   <div class="nav-mobile" style="display:none;padding:12px 24px;border-top:1px solid rgba(255,255,255,.04)">
     <a href="/" style="display:block;font-size:14px;color:rgba(255,255,255,.4);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">Dashboard</a>
+    <a href="/bets.html" style="display:block;font-size:14px;color:rgba(255,255,255,.4);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">💰 My Bets</a>
     <a href="/blog.html" style="display:block;font-size:14px;color:rgba(255,255,255,.4);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">Blog</a>
     <a href="/roadmap.html" style="display:block;font-size:14px;color:rgba(255,255,255,.4);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">Roadmap</a>
     <a href="/developers.html" style="display:block;font-size:14px;color:rgba(255,255,255,.4);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)">Developers</a>
