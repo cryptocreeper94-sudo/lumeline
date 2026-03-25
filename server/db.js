@@ -80,9 +80,11 @@ export async function getAnomaliesForGame(gameId) {
 // ─── Consensus ───
 export async function insertConsensus(c) {
   const { rows } = await query(`
-    INSERT INTO consensus (game_id, home_likelihood, away_likelihood, confidence, alignment, integrity, house_lean, reasoning, sources_agree, sources_disagree)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *
-  `, [c.game_id, c.home_likelihood, c.away_likelihood, c.confidence, c.alignment, c.integrity, c.house_lean, c.reasoning, c.sources_agree, c.sources_disagree]);
+    INSERT INTO consensus (game_id, home_likelihood, away_likelihood, confidence, alignment, integrity, house_lean, reasoning, sources_agree, sources_disagree,
+      confidence_low, confidence_high, confidence_label, house_lean_strength, market_divergence, technical_reasoning, anomaly_flags, model_version)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) RETURNING *
+  `, [c.game_id, c.home_likelihood, c.away_likelihood, c.confidence, c.alignment, c.integrity, c.house_lean, c.reasoning, c.sources_agree, c.sources_disagree,
+      c.confidence_low || 0, c.confidence_high || 0, c.confidence_label || 'low', c.house_lean_strength || 0, c.market_divergence || 0, c.technical_reasoning || '', JSON.stringify(c.anomaly_flags || []), c.model_version || 'v0.2.0']);
   return rows[0];
 }
 
