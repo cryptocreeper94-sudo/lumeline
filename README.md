@@ -4,13 +4,11 @@
 
 > *Bringing transparency to lines — because the house always knows. Now you will too.*
 
-Built entirely in [Lume](https://lume-lang.vercel.app), the AI-native programming language.
-
 ## What It Does
 
 LumeLine tracks oddsmakers as signal sources, scores their accuracy over time, detects suspicious line manipulation, and uses ML to generate consensus predictions with confidence scores.
 
-- 📊 **Track Sources** — 70+ bookmakers scored on accuracy, timing, consistency, and CLV
+- 📊 **Track Sources** — 47+ bookmakers scored on accuracy, timing, consistency, and CLV
 - 🔍 **Detect Manipulation** — Synchronized moves, reverse steam traps, house divergence, late flips
 - 🎯 **Consensus Engine** — Weighted ensemble with AI-powered analysis and house-lean bias
 - 🏠 **House Lean** — When confidence is low, the system defers to the house line
@@ -18,51 +16,47 @@ LumeLine tracks oddsmakers as signal sources, scores their accuracy over time, d
 
 ## Tech Stack
 
-- **Language**: Lume (AI-native, compiles to JavaScript)
+- **Backend**: Node.js 20 LTS + Express
 - **Database**: PostgreSQL (Neon Serverless)
+- **Authentication**: Trust Layer SSO (JWT)
 - **Odds Data**: The Odds API
-- **AI**: OpenAI (advisory analysis)
+- **AI**: OpenAI (Advisory Analysis) & ElevenLabs (Voice)
 - **Hosting**: Render
-- **Design**: DarkWave Canonical (dark glass-card UI)
+- **Design**: DarkWave Canonical (Vanilla JS/CSS)
 
 ## Project Structure
 
 ```
 lumeline/
-├── src/
-│   ├── app.lume              — Entry point
-│   ├── types.lume            — Core type definitions
-│   ├── ingestion.lume        — Odds API polling + results
-│   ├── scoring.lume          — Source accuracy engine
-│   ├── anomaly.lume          — Collusion/manipulation detection
-│   ├── consensus.lume        — ML consensus engine
-│   ├── integration.lume      — External picks API
-│   └── ui/
-│       └── dashboard.lume    — Premium dashboard UI
 ├── server/
-│   └── index.lume            — API server
-├── lume.config.json
-├── render.yaml
-└── package.json
+│   ├── server.js        — Main Express server and scheduler
+│   ├── agent.js         — Lume Agent voice/chat interface
+│   ├── auth.js          — Trust Layer SSO middleware
+│   ├── bets.js          — Bet slip importing and OCR 
+│   ├── consensus.js     — ML consensus mathematics
+│   ├── ingestion.js     — Odds API polling logic
+│   ├── scoring.js       — Source accuracy logic
+│   ├── anomalies.js     — Integrity anomaly detection
+│   └── ai-guardrails.js — Ecosystem security middleware
+├── db/
+│   └── migration*.sql   — Database schema definitions
+└── *.html               — Static HTML interfaces (index, admin, bets, pricing)
 ```
 
 ## Quick Start
 
 ```bash
-# Install
+# Install dependencies
 npm install
 
-# Run dashboard
-lume build src/app.lume --target=browser
-
-# Run server
-lume run server/index.lume
+# Start server (runs on port 3000 by default)
+node server/server.js
 ```
 
 ## Part of the Trust Layer Ecosystem
 
-LumeLine is connected to the [Trust Layer](https://dwtl.io) ecosystem — shared identity, shared design, shared philosophy.
+LumeLine generates revenue alongside King Capper in a 50/50 partnership, distributed via Orbit Staffing.
 
 ---
 
-**Built with Lume** · DarkWave Studios · MIT License
+**Trust Layer** · DarkWave Studios · MIT License

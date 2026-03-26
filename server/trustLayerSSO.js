@@ -1,5 +1,6 @@
 import crypto from 'crypto';
-
+import db from './db.js';
+import { createJWT, hashToken, SESSION_DAYS } from './auth.js';
 const DWTL_BASE = process.env.TRUST_LAYER_URL || 'https://dwtl.io';
 const APP_SLUG = 'lumeline';
 const REQUEST_TIMEOUT_MS = 5000;
@@ -61,15 +62,44 @@ export function registerTrustLayerSSO(app) {
         return res.status(401).json({ success: false, error: "Invalid or expired SSO token" });
       }
 
+      // Ensure user exists locally
+      let localUser = null;
+      const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [ecosystemUser.email]);
+      
+      if (rows.length) {
+        localUser = rows[0];
+        // Ensure verified is true for SSO
+        if (!localUser.verified) {
+          await db.query('UPDATE users SET verified = true WHERE id = $1', [localUser.id]);
+        }
+      } else {
+        const { rows: newRows } = await db.query(
+          'INSERT INTO users (display_name, email, verified) VALUES ($1, $2, true) RETURNING *',
+          [ecosystemUser.displayName || ecosystemUser.firstName || ecosystemUser.username || ecosystemUser.email.split('@')[0], ecosystemUser.email]
+        );
+        localUser = newRows[0];
+      }
+
+      // Generate actual JWT & Persist Session
+      const jwtToken = createJWT({ uid: localUser.id, name: localUser.display_name });
+      const hash = hashToken(jwtToken);
+      const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400000);
+      
+      await db.query(
+        'INSERT INTO sessions (user_id, token_hash, expires_at) VALUES ($1, $2, $3)',
+        [localUser.id, hash, expiresAt]
+      );
+
       res.json({
         success: true,
         user: {
-          email: ecosystemUser.email,
-          username: ecosystemUser.username || ecosystemUser.email.split("@")[0],
-          displayName: ecosystemUser.displayName || ecosystemUser.firstName || ecosystemUser.username,
+          id: localUser.id,
+          email: localUser.email,
+          username: ecosystemUser.username || localUser.email.split("@")[0],
+          displayName: localUser.display_name,
           uniqueHash: ecosystemUser.uniqueHash || null,
         },
-        sessionToken: crypto.randomBytes(48).toString("hex"),
+        sessionToken: jwtToken,
         trustLayerId: ecosystemUser.uniqueHash || ecosystemUser.userId || null,
         ssoLinked: true,
       });

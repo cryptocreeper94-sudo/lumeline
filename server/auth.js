@@ -11,7 +11,7 @@ import db from './db.js';
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
 const OTP_EXPIRY_MINUTES = 10;
-const SESSION_DAYS = 30;
+export const SESSION_DAYS = 30;
 
 // ═══ HELPERS ═══
 
@@ -19,7 +19,7 @@ function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-function createJWT(payload) {
+export function createJWT(payload) {
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
   const body = Buffer.from(JSON.stringify({
     ...payload,
@@ -41,7 +41,7 @@ function verifyJWT(token) {
   } catch { return null; }
 }
 
-function hashToken(token) {
+export function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 

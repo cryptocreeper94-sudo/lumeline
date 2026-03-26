@@ -39,10 +39,6 @@ app.use('/api/agent', agentRouter);
 // Bets / Betting Wallet routes (auth required)
 app.use('/api/bets', requireAuth, betsRouter);
 
-// One-time migration: rename Mathew → King Capper
-db.query(`UPDATE sources SET name = 'King Capper', slug = 'king-capper' WHERE slug = 'mathew'`)
-  .then(r => { if (r.rowCount) console.log('✅ Renamed Mathew → King Capper'); })
-  .catch(() => {});
 
 // ═══════════════════════════════════════════
 //  HEALTH
@@ -304,7 +300,7 @@ app.get('/api/consensus/:gameId/history', async (req, res) => {
 });
 
 // P10: User ML Profile — Recalculate from bet history
-app.post('/api/bets/recalculate-profile', async (req, res) => {
+app.post('/api/bets/recalculate-profile', requireAuth, async (req, res) => {
   try {
     const userId = req.body.user_id;
     if (!userId) return res.status(400).json({ error: 'user_id required' });
@@ -379,7 +375,7 @@ app.post('/api/bets/recalculate-profile', async (req, res) => {
 });
 
 // P10: Get user ML profile
-app.get('/api/users/:userId/ml-profile', async (req, res) => {
+app.get('/api/users/:userId/ml-profile', requireAuth, async (req, res) => {
   try {
     const { rows } = await db.query('SELECT * FROM user_ml_profile WHERE user_id = $1', [req.params.userId]);
     if (!rows.length) return res.json({ profile: null, message: 'No profile yet — needs 10+ settled bets' });
@@ -980,13 +976,19 @@ function startScheduler() {
   }, SECONDARY_INTERVAL);
 
   // Outcome evaluation — every 2 hours
-  setInterval(async () => {
+  const OUTCOME_INTERVAL = 2 * 60 * 60 * 1000;
+  const runOutcomes = async () => {
     try {
+      console.log('🔄 Running scheduled outcome evaluation...');
       await evaluateOutcomes();
     } catch (err) {
-      console.error('Scheduled outcome evaluation error:', err.message);
+      console.error('❌ Scheduled outcome evaluation error:', err.message);
     }
-  }, 2 * 60 * 60 * 1000);
+  };
+
+  // Enforce strict interval and trigger initial run after boot
+  setTimeout(runOutcomes, 5000);
+  setInterval(runOutcomes, OUTCOME_INTERVAL);
 }
 
 // ═══════════════════════════════════════════

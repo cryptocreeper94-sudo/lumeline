@@ -340,7 +340,12 @@ router.get('/summary', async (req, res) => {
 // ═══════════════════════════════════════════
 //  SCREENSHOT OCR (OpenAI Vision)
 // ═══════════════════════════════════════════
-
+/**
+ * IMPORT PATH 1: Screenshot OCR
+ * - Model: GPT-4o (Vision).
+ * - Fallback: None. If parsing fails, it returns `parse_error: true`.
+ * - Usage: Client submits base64 or URL images from their device.
+ */
 router.post('/parse-screenshot', async (req, res) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -405,7 +410,13 @@ For parlays, include individual legs in the "legs" array. If you can't determine
 // ═══════════════════════════════════════════
 //  EMAIL PARSING
 // ═══════════════════════════════════════════
-
+/**
+ * IMPORT PATH 2: Email Forwarding Parsing
+ * - Source: REST API payload. Expects external services (like SendGrid Inbound Parse or client-side paste) to supply the raw body. Not utilizing direct IMAP polling.
+ * - Pipeline:
+ *    1. Regex pattern matching for DraftKings, FanDuel, BetMGM.
+ *    2. Fallback: gpt-4o-mini is invoked to scrape the text if regex patterns miss.
+ */
 router.post('/parse-email', async (req, res) => {
   try {
     const { email_body, subject } = req.body;

@@ -667,6 +667,25 @@
     let partnerPassword = localStorage.getItem('lumeline_partner_pw') || null;
     let role = null;
 
+    // ═══ STRIPE PARTNER AUTO-LOGIN ═══
+    (async function checkPartnerStripe() {
+      const token = localStorage.getItem('lumeline_token');
+      if (!token) return;
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const prefs = data.user?.preferences || {};
+        const plans = Array.isArray(prefs.plans) ? prefs.plans : [prefs.plan].filter(Boolean);
+        if (plans.includes('price_kc_partner_001')) {
+          role = 'partner';
+          showPanel();
+        }
+      } catch (err) { console.error('Partner auto-login failed', err); }
+    })();
+
     function checkGate() {
       const input = document.getElementById('gate-input').value;
       if (input === OWNER_PIN) {

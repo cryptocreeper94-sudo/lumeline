@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════
 import express from 'express';
 import OpenAI from 'openai';
+import { guardMiddleware } from './ai-guardrails.js';
 
 const router = express.Router();
 
@@ -82,7 +83,7 @@ Do NOT continue the conversation on that topic. Do NOT offer advice on those sub
 
 
 // ─── POST /api/agent/chat ───
-router.post('/chat', async (req, res) => {
+router.post('/chat', guardMiddleware, async (req, res) => {
   try {
     const { message, history = [], voice = false } = req.body;
     if (!message || typeof message !== 'string') {
@@ -169,5 +170,28 @@ router.post('/voice', async (req, res) => {
     res.status(500).json({ error: 'Voice synthesis error' });
   }
 });
+
+// ─── GET /api/agent/health ───
+router.get('/health', (req, res) => {
+  res.json({
+    openai_enabled: !!process.env.OPENAI_API_KEY,
+    elevenlabs_enabled: !!process.env.ELEVENLABS_API_KEY,
+    voice_id: process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB'
+  });
+});
+
+console.log('-----------------------------------');
+if (process.env.OPENAI_API_KEY) {
+  console.log('✅ Lume Agent: OpenAI ready');
+} else {
+  console.log('⚠️  Lume Agent: OPENAI_API_KEY missing — agent intelligence disabled');
+}
+
+if (process.env.ELEVENLABS_API_KEY) {
+  console.log('✅ Lume Agent: ElevenLabs voice ready');
+} else {
+  console.log('⚠️  Lume Agent: ELEVENLABS_API_KEY missing — TTS voice disabled');
+}
+console.log('-----------------------------------');
 
 export default router;

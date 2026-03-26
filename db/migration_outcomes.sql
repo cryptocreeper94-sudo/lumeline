@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS accuracy_stats (
     longest_loss_streak INTEGER DEFAULT 0,
     
     -- Time Window
-    window          VARCHAR(10) NOT NULL DEFAULT 'all', -- 'all' | '7d' | '30d' | '90d'
+    "window"        VARCHAR(10) NOT NULL DEFAULT 'all', -- 'all' | '7d' | '30d' | '90d'
     
     last_prediction_at TIMESTAMPTZ,
     updated_at      TIMESTAMPTZ DEFAULT NOW()
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS accuracy_stats (
 
 -- NULL-safe unique index (COALESCE handles NULLs for sport and confidence_bucket)
 CREATE UNIQUE INDEX IF NOT EXISTS idx_accuracy_stats_unique 
-    ON accuracy_stats (COALESCE(sport, '__ALL__'), COALESCE(confidence_bucket, '__ALL__'), window);
+    ON accuracy_stats (COALESCE(sport, '__ALL__'), COALESCE(confidence_bucket, '__ALL__'), "window");
 
 -- ═══ SOURCE ACCURACY LOG (Per-source outcome tracking) ═══
 CREATE TABLE IF NOT EXISTS source_outcomes (
@@ -119,14 +119,14 @@ CREATE INDEX IF NOT EXISTS idx_consensus_outcomes_sport ON consensus_outcomes(sp
 CREATE INDEX IF NOT EXISTS idx_consensus_outcomes_correct ON consensus_outcomes(is_correct);
 CREATE INDEX IF NOT EXISTS idx_consensus_outcomes_bucket ON consensus_outcomes(confidence_bucket);
 CREATE INDEX IF NOT EXISTS idx_accuracy_stats_sport ON accuracy_stats(sport);
-CREATE INDEX IF NOT EXISTS idx_accuracy_stats_window ON accuracy_stats(window);
+CREATE INDEX IF NOT EXISTS idx_accuracy_stats_window ON accuracy_stats("window");
 CREATE INDEX IF NOT EXISTS idx_source_outcomes_source ON source_outcomes(source_id);
 
 -- ═══ VIEW: Accuracy Dashboard ═══
 CREATE OR REPLACE VIEW v_accuracy_dashboard AS
 SELECT 
     COALESCE(sport, 'ALL') AS sport,
-    window,
+    "window",
     total_predictions,
     correct_predictions,
     win_rate,
@@ -136,4 +136,4 @@ SELECT
     updated_at
 FROM accuracy_stats
 WHERE confidence_bucket IS NULL
-ORDER BY window, sport;
+ORDER BY "window", sport;

@@ -8,6 +8,7 @@ dotenv.config();
 
 let twilioClient = null;
 let twilioPhone = null;
+export let twilioEnabled = false;
 
 export function initTwilio() {
   const sid = process.env.TWILIO_SID || process.env.TWILIO_ACCOUNT_SID;
@@ -16,6 +17,7 @@ export function initTwilio() {
 
   if (!sid || !auth || !phone) {
     console.log('⚠️  Twilio not configured — SMS alerts disabled');
+    twilioEnabled = false;
     return false;
   }
 
@@ -24,19 +26,22 @@ export function initTwilio() {
     import('twilio').then(({ default: twilio }) => {
       twilioClient = twilio(sid, auth);
       twilioPhone = phone;
+      twilioEnabled = true;
       console.log(`📲 Twilio SMS initialized: ${phone}`);
     }).catch(() => {
+      twilioEnabled = false;
       console.log('⚠️  twilio package not installed — SMS alerts disabled');
     });
     return true;
   } catch (err) {
+    twilioEnabled = false;
     console.log('⚠️  Twilio init failed:', err.message);
     return false;
   }
 }
 
 async function sendSMS(to, body) {
-  if (!twilioClient) return { success: false, error: 'Twilio not configured' };
+  if (!twilioEnabled) return { success: false, error: 'Twilio not configured' };
   try {
     const msg = await twilioClient.messages.create({ body, from: twilioPhone, to });
     console.log(`📤 SMS sent to ${to}: ${msg.sid}`);
