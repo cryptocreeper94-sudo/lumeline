@@ -708,6 +708,19 @@
       }
     }
 
+    // Auto-login from shield modal interceptor
+    (function autoLoginInterceptor() {
+      const tempGate = sessionStorage.getItem('lumeline_gate_pass');
+      if (tempGate) {
+        sessionStorage.removeItem('lumeline_gate_pass');
+        const gateInput = document.getElementById('gate-input');
+        if (gateInput) {
+          gateInput.value = tempGate;
+          checkGate();
+        }
+      }
+    })();
+
     function validatePw() {
       const pw = document.getElementById('pw-new').value;
       const confirm = document.getElementById('pw-confirm').value;
