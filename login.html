@@ -176,7 +176,7 @@
 
         // Show OTP step
         document.getElementById('step-contact').style.display = 'none';
-        document.getElementById('step-verify').style.display = '';
+        document.getElementById('step-verify').style.display = 'block';
         document.getElementById('verify-contact').textContent = pendingContact;
         document.getElementById('otp-inputs').querySelectorAll('input')[0].focus();
 
@@ -226,7 +226,7 @@
 
         // Show success
         document.getElementById('step-verify').style.display = 'none';
-        document.getElementById('step-success').style.display = '';
+        document.getElementById('step-success').style.display = 'block';
 
         // Time-based greeting
         const hour = new Date().getHours();
@@ -244,7 +244,7 @@
     }
 
     function backToContact() {
-      document.getElementById('step-contact').style.display = '';
+      document.getElementById('step-contact').style.display = 'block';
       document.getElementById('step-verify').style.display = 'none';
     }
 

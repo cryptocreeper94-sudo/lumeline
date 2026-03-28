@@ -696,7 +696,7 @@
         if (!partnerPassword) {
           // First login — show password setup
           document.getElementById('gate').style.display = 'none';
-          document.getElementById('pw-setup').style.display = '';
+          document.getElementById('pw-setup').style.display = 'block';
         } else {
           // Returning partner — grant access directly
           role = 'partner';
@@ -759,7 +759,7 @@
     function showPanel() {
       document.getElementById('gate').style.display = 'none';
       if (role === 'owner') {
-        document.getElementById('admin-panel').style.display = '';
+        document.getElementById('admin-panel').style.display = 'block';
         loadOwnerData();
       } else {
         // Check if onboarding complete
@@ -767,7 +767,7 @@
           window.location.href = '/partner-onboarding.html';
           return;
         }
-        document.getElementById('partner-panel').style.display = '';
+        document.getElementById('partner-panel').style.display = 'block';
         updateGreeting();
         loadPartnerData();
       }
