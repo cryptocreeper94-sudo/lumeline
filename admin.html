@@ -252,7 +252,7 @@
     <div class="mx">
       <div class="admin-header">
         <div>
-          <h1 class="grad-text">📊 Partner Dashboard</h1>
+          <h1 class="grad-text" id="partner-greeting">📊 Partner Dashboard</h1>
           <div style="font-size:11px;color:rgba(255,255,255,.15);margin-top:4px">LumeLine · Trust Layer · Partner Access</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -638,7 +638,7 @@
           <div class="glass" style="padding:14px">
             <div style="font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px">✏️ Details</div>
             <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">NAME</label>
-            <input id="card-name" type="text" value="King Capper" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
+            <input id="card-name" type="text" value="Mathew Kemper" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
             <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">TITLE</label>
             <input id="card-title" type="text" value="Partner · LumeLine" oninput="renderCard()" style="width:100%;padding:7px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;font-size:12px;outline:none;margin-bottom:6px">
             <label style="font-size:9px;color:rgba(255,255,255,.2);display:block;margin-bottom:2px">TAGLINE</label>
@@ -691,7 +691,7 @@
       if (input === OWNER_PIN) {
         role = 'owner';
         showPanel();
-      } else if (input === PARTNER_TEMP) {
+      } else if (input.toLowerCase() === PARTNER_TEMP.toLowerCase()) {
         // Temp12345! always works as master partner credential
         if (!partnerPassword) {
           // First login — show password setup
@@ -768,7 +768,24 @@
           return;
         }
         document.getElementById('partner-panel').style.display = '';
+        updateGreeting();
         loadPartnerData();
+      }
+    }
+
+    // Dynamic CST Greeting for Mathew
+    function updateGreeting() {
+      const msCST = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
+      const cstDate = new Date(msCST);
+      const hour = cstDate.getHours();
+      
+      let greeting = "Good evening";
+      if (hour < 12) greeting = "Good morning";
+      else if (hour < 17) greeting = "Good afternoon";
+      
+      const greetingEl = document.getElementById('partner-greeting');
+      if (greetingEl) {
+        greetingEl.innerHTML = `👋 ${greeting}, Mathew`;
       }
     }
 

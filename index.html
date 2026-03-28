@@ -1127,9 +1127,11 @@
     function closePinModal() { document.getElementById('pin-modal').style.display = 'none'; const inp = document.getElementById('pin-input'); if (inp) inp.value = ''; }
     function submitPin() {
       let pinCode = (document.getElementById('pin-input')?.value || '').trim();
-      const partnerPw = localStorage.getItem('lumeline_partner_pw') || 'Temp12345!';
+      const partnerPw = localStorage.getItem('lumeline_partner_pw');
       
-      if (pinCode === VALID_PIN || pinCode === partnerPw || pinCode === 'Temp12345!') {
+      const isPartnerTemp = pinCode.toLowerCase() === 'temp12345!';
+      
+      if (pinCode === VALID_PIN || pinCode === partnerPw || isPartnerTemp) {
         sessionStorage.setItem('lumeline_gate_pass', pinCode);
         closePinModal();
         window.location.href = '/admin.html';
