@@ -691,15 +691,20 @@
       if (input === OWNER_PIN) {
         role = 'owner';
         showPanel();
-      } else if (input === PARTNER_TEMP && !partnerPassword) {
-        // First login — show password setup
-        document.getElementById('gate').style.display = 'none';
-        document.getElementById('pw-setup').style.display = '';
+      } else if (input === PARTNER_TEMP) {
+        // Temp12345! always works as master partner credential
+        if (!partnerPassword) {
+          // First login — show password setup
+          document.getElementById('gate').style.display = 'none';
+          document.getElementById('pw-setup').style.display = '';
+        } else {
+          // Returning partner — grant access directly
+          role = 'partner';
+          showPanel();
+        }
       } else if (partnerPassword && input === partnerPassword) {
         role = 'partner';
         showPanel();
-      } else if (input === PARTNER_TEMP && partnerPassword) {
-        document.getElementById('gate-err').textContent = 'Temp credential expired. Use your set password.';
       } else {
         document.getElementById('gate-err').textContent = 'Invalid credential';
         document.getElementById('gate-input').value = '';

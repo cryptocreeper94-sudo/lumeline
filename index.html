@@ -1126,7 +1126,7 @@
     }
     function closePinModal() { document.getElementById('pin-modal').style.display = 'none'; const inp = document.getElementById('pin-input'); if (inp) inp.value = ''; }
     function submitPin() {
-      const pinCode = (document.getElementById('pin-input')?.value || '').trim();
+      let pinCode = (document.getElementById('pin-input')?.value || '').trim();
       const partnerPw = localStorage.getItem('lumeline_partner_pw') || 'Temp12345!';
       
       if (pinCode === VALID_PIN || pinCode === partnerPw || pinCode === 'Temp12345!') {
@@ -1137,7 +1137,8 @@
         document.getElementById('pin-error').style.display = '';
         document.querySelectorAll('.pin-dot').forEach(d => { d.classList.add('error'); });
         setTimeout(() => {
-          pinCode = ''; updatePinDots();
+          const inp = document.getElementById('pin-input');
+          if (inp) inp.value = '';
           document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
         }, 600);
       }
