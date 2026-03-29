@@ -60,7 +60,7 @@
     .mx { max-width: 1360px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
 
     /* ═══ HERO SLIDESHOW ═══ */
-    .hero { position: relative; height: 600px; overflow: hidden; margin-bottom: -60px; }
+    .hero { position: relative; height: 600px; overflow: hidden; margin-bottom: -36px; }
     .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s cubic-bezier(.4,0,.2,1); }
     .hero-slide.active { opacity: 1; z-index: 1; }
     .hero-slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.82) saturate(1.2); animation: ken-burns 12s ease-in-out infinite alternate; }
@@ -75,7 +75,7 @@
     .hero p { font-size: 1.1rem; color: rgba(255,255,255,0.7); max-width: 560px; line-height: 1.6; }
     .hero-text { opacity: 0; transform: translateY(16px); transition: opacity .8s ease, transform .8s ease; }
     .hero-text.visible { opacity: 1; transform: translateY(0); }
-    .hero-dots { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; gap: 8px; }
+    .hero-dots { position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; gap: 8px; }
     .hero-dot { width: 32px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.15); cursor: pointer; transition: all .4s; position: relative; overflow: hidden; }
     .hero-dot.active { background: rgba(255,255,255,.25); }
     .hero-dot.active::after { content: ''; position: absolute; inset: 0; background: #67e8f9; border-radius: 2px; animation: dot-fill 6s linear forwards; }
@@ -466,7 +466,7 @@
       .hero p { font-size: 0.88rem; max-width: 90%; padding-right: 48px; }
       .hero-content { bottom: 80px; }
       .hero-badge { font-size: 9px; padding: 5px 12px; }
-      .hero-dots { bottom: 16px; }
+      .hero-dots { bottom: 44px; }
       .hero-dot { width: 24px; }
 
       /* ── TICKER ── */
