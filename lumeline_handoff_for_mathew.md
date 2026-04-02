@@ -38,7 +38,7 @@ Jason is the sole developer behind the **Trust Layer** ecosystem — a suite of 
 
 **By the numbers:**
 - 15 applications in the ecosystem
-- Built with Lume (AI-native language that compiles to JavaScript)
+- Built with Lume (deterministic natural-language programming language that compiles to JavaScript)
 - DarkWave canonical design system across all applications
 - Neon Serverless PostgreSQL backend infrastructure
 - Deployed on Render with zero-downtime continuous delivery
