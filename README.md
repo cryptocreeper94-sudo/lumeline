@@ -1,62 +1,44 @@
-# LumeLine
+﻿# LumeLine
 
-**Odds Intelligence Platform** — Part of the Trust Layer Ecosystem
+> $([char]0x1F512) **Patent Pending:** The core deterministic governance capabilities (Lume-V) within this repository are protected under U.S. Provisional Patent Application **No. 64/032,339** (Filed April 7, 2026).
 
-> *Bringing transparency to lines — because the house always knows. Now you will too.*
+Sports betting line intelligence — real-time odds, line movement, model projections, and betting strategy tools.
 
-## What It Does
+**Live:** [lumeline.app](https://lumeline.app)
 
-LumeLine tracks oddsmakers as signal sources, scores their accuracy over time, detects suspicious line manipulation, and uses ML to generate consensus predictions with confidence scores.
+## Lume-OS Integration
 
-- 📊 **Track Sources** — 47+ bookmakers scored on accuracy, timing, consistency, and CLV
-- 🔍 **Detect Manipulation** — Synchronized moves, reverse steam traps, house divergence, late flips
-- 🎯 **Consensus Engine** — Weighted ensemble with AI-powered analysis and house-lean bias
-- 🏠 **House Lean** — When confidence is low, the system defers to the house line
-- 🔌 **Integration API** — External picks submission, embeddable widget for partner sites
+This application is registered with **Lume Cortex** — the deterministic meta-operating system governing the Trust Layer ecosystem.
 
-## Tech Stack
+| Property | Value |
+|---|---|
+| **Cortex Bridge** | `cortex-bridge.js` |
+| **Lume-V Wrapper** | `lume-v.wrapper.lume` |
+| **Ecosystem** | trust-layer-42 (42 apps · 42 papers) |
+| **Cortex Endpoint** | lume-cortex.onrender.com |
 
-- **Backend**: Node.js 20 LTS + Express
-- **Database**: PostgreSQL (Neon Serverless)
-- **Authentication**: Trust Layer SSO (JWT)
-- **Odds Data**: The Odds API
-- **AI**: OpenAI (Advisory Analysis) & ElevenLabs (Voice)
-- **Hosting**: Render
-- **Design**: DarkWave Canonical (Vanilla JS/CSS)
+## Stack
 
-## Project Structure
+| Layer | Tech |
+|---|---|
+| React 19 + Vite 7 | | Express + TypeScript | | PostgreSQL (Drizzle ORM) | | Trust Layer SSO | | Render |
 
-```
-lumeline/
-├── server/
-│   ├── server.js        — Main Express server and scheduler
-│   ├── agent.js         — Lume Agent voice/chat interface
-│   ├── auth.js          — Trust Layer SSO middleware
-│   ├── bets.js          — Bet slip importing and OCR 
-│   ├── consensus.js     — ML consensus mathematics
-│   ├── ingestion.js     — Odds API polling logic
-│   ├── scoring.js       — Source accuracy logic
-│   ├── anomalies.js     — Integrity anomaly detection
-│   └── ai-guardrails.js — Ecosystem security middleware
-├── db/
-│   └── migration*.sql   — Database schema definitions
-└── *.html               — Static HTML interfaces (index, admin, bets, pricing)
-```
+## Development
 
-## Quick Start
-
-```bash
-# Install dependencies
+``bash
 npm install
-
-# Start server (runs on port 3000 by default)
-node server/server.js
-```
-
-## Part of the Trust Layer Ecosystem
-
-LumeLine generates revenue alongside King Capper in a 50/50 partnership, distributed via Orbit Staffing.
+npm run dev
+``
 
 ---
 
-**Trust Layer** · DarkWave Studios · MIT License
+## Intellectual Property
+
+**Patent Pending:**
+- U.S. Pat. App. No. 64/032,339 — Lume-V
+- U.S. Pat. App. No. 64/047,512 — Lume Core
+- U.S. Pat. App. No. 64/047,467 — Axiom
+- U.S. Pat. App. No. 64/047,496 — Lume-X
+- U.S. Pat. App. No. 64/047,536 — Synthetic Organisms
+
+© 2026 DarkWave Studios LLC. All rights reserved.
