@@ -308,6 +308,61 @@ router.post('/verify', async (req, res) => {
   }
 });
 
+// ═══ FIREBASE AUTH (Google/GitHub OAuth) ═══
+router.post('/firebase', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ error: 'Firebase ID token required' });
+
+    const { verifyFirebaseToken } = await import('./firebase-admin.ts');
+    const decoded = await verifyFirebaseToken(idToken);
+    if (!decoded) return res.status(401).json({ error: 'Invalid Firebase token' });
+
+    const email = decoded.email || '';
+    const name = decoded.name || decoded.email?.split('@')[0] || 'Bettor';
+    if (!email) return res.status(400).json({ error: 'No email associated with this account' });
+
+    // Find or create user
+    let { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase()]);
+    let user = rows[0];
+    let isNew = false;
+
+    if (!user) {
+      const result = await db.query(
+        'INSERT INTO users (display_name, email, verified) VALUES ($1, $2, true) RETURNING *',
+        [name, email.toLowerCase()]
+      );
+      user = result.rows[0];
+      isNew = true;
+    } else {
+      await db.query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
+    }
+
+    // Create JWT + session
+    const token = createJWT({ uid: user.id, name: user.display_name });
+    const hash = hashToken(token);
+    const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400000);
+    await db.query(
+      'INSERT INTO sessions (user_id, token_hash, expires_at) VALUES ($1, $2, $3)',
+      [user.id, hash, expiresAt]
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        display_name: user.display_name,
+        email: user.email,
+        verified: true
+      },
+      isNew
+    });
+  } catch (err) {
+    console.error('[Firebase Auth] Error:', err.message);
+    res.status(500).json({ error: 'Firebase authentication failed' });
+  }
+});
+
 // ═══ ME (Get current user) ═══
 router.get('/me', requireAuth, async (req, res) => {
   try {
