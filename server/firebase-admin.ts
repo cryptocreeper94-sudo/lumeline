@@ -1,9 +1,14 @@
-/**
- * Axiom Studio — Firebase Admin SDK
+﻿/**
+ * Firebase Admin SDK — Ecosystem Shared Pattern
  * Verifies Firebase ID tokens on the server.
  * 
- * Uses FIREBASE_SERVICE_ACCOUNT env var (JSON string) or
- * FIREBASE_PROJECT_ID for Application Default Credentials.
+ * REQUIRED: Set FIREBASE_SERVICE_ACCOUNT env var (JSON string) on your
+ * hosting provider. Without it, verifyIdToken() WILL FAIL on non-GCP
+ * hosts (Render, Heroku, Railway, etc.) because there are no Application
+ * Default Credentials available.
+ * 
+ * Generate a service account key from:
+ * Firebase Console → darkwave-auth → Project Settings → Service Accounts
  * 
  * DarkWave Studios LLC — Copyright 2026
  */
@@ -11,11 +16,13 @@
 import admin from "firebase-admin";
 
 let initialized = false;
+let initMode = "none";
 
 function initFirebaseAdmin(): admin.app.App {
   if (initialized) return admin.app();
 
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
+  const projectId = process.env.FIREBASE_PROJECT_ID || "darkwave-auth";
 
   if (serviceAccountJson) {
     try {
@@ -23,21 +30,21 @@ function initFirebaseAdmin(): admin.app.App {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
-      console.log("[Firebase Admin] Initialized with service account");
+      initMode = "service-account";
+      console.log("[Firebase Admin] ✅ Initialized with service account credential");
     } catch (err: any) {
-      console.error("[Firebase Admin] Failed to parse service account:", err.message);
-      // Fallback to project ID only
-      admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID || "darkwave-auth",
-      });
-      console.log("[Firebase Admin] Initialized with project ID fallback");
+      console.error("[Firebase Admin] ❌ Failed to parse FIREBASE_SERVICE_ACCOUNT:", err.message);
+      console.error("[Firebase Admin] Falling back to projectId-only — token verification WILL FAIL on non-GCP hosts");
+      admin.initializeApp({ projectId });
+      initMode = "project-id-fallback";
     }
   } else {
-    // No service account — use project ID (works for token verification)
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || "darkwave-auth",
-    });
-    console.log("[Firebase Admin] Initialized with project ID (no service account)");
+    // WARNING: This mode does NOT support verifyIdToken() on non-GCP hosts!
+    admin.initializeApp({ projectId });
+    initMode = "project-id-only";
+    console.warn("[Firebase Admin] ⚠️  No FIREBASE_SERVICE_ACCOUNT env var found.");
+    console.warn("[Firebase Admin] ⚠️  Initialized with projectId only — verifyIdToken() WILL FAIL on Render/Heroku.");
+    console.warn("[Firebase Admin] ⚠️  Set FIREBASE_SERVICE_ACCOUNT to fix OAuth login.");
   }
 
   initialized = true;
@@ -58,9 +65,13 @@ export async function verifyFirebaseToken(
     const decoded = await admin.auth().verifyIdToken(idToken);
     return decoded;
   } catch (err: any) {
-    console.error("[Firebase Admin] Token verification failed:", err.message);
+    console.error(`[Firebase Admin] Token verification failed (init mode: ${initMode}):`, err.code || err.message);
+    if (initMode !== "service-account") {
+      console.error("[Firebase Admin] ⚠️  This is likely because FIREBASE_SERVICE_ACCOUNT is not set. See firebase-admin.ts header for instructions.");
+    }
     return null;
   }
 }
 
+export { initMode };
 export default admin;
